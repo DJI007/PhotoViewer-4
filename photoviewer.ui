@@ -18,7 +18,7 @@
     <item>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QGraphicsView" name="graphicsView"/>
+       <widget class="QGraphicsView" name="gvPicture"/>
       </item>
      </layout>
     </item>
@@ -53,8 +53,8 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionChange_folder">
    <property name="icon">
-    <iconset>
-     <normaloff>images/folder-open.png</normaloff>images/folder-open.png</iconset>
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/folder-open.png</normaloff>:/images/images/folder-open.png</iconset>
    </property>
    <property name="text">
     <string>Change folder</string>
@@ -65,8 +65,8 @@
   </action>
   <action name="actionPlay">
    <property name="icon">
-    <iconset>
-     <normaloff>images/media-playback-start.png</normaloff>images/media-playback-start.png</iconset>
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-playback-start.png</normaloff>:/images/images/media-playback-start.png</iconset>
    </property>
    <property name="text">
     <string>Play</string>
@@ -74,6 +74,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="PhotoViewer.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -2,6 +2,9 @@
 #define PHOTOVIEWER_H
 
 #include <QMainWindow>
+#include <QDir>
+#include <QImage>
+#include <QGraphicsScene>
 
 namespace Ui {
 class PhotoViewer;
@@ -15,8 +18,19 @@ public:
     explicit PhotoViewer(QWidget *parent = 0);
     ~PhotoViewer();
 
+private slots:
+    void on_actionChange_folder_triggered();
+
 private:
     Ui::PhotoViewer *ui;
+
+    QDir *_currentDir;
+    int _currentFile;
+
+    QGraphicsScene *_pictureScene;
+
+    void showCurrentPicture ();
+
 };
 
 #endif // PHOTOVIEWER_H
