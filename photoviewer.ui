@@ -30,7 +30,7 @@
      <x>0</x>
      <y>0</y>
      <width>693</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -38,9 +38,17 @@
      <string>File</string>
     </property>
     <addaction name="actionChange_folder"/>
+   </widget>
+   <widget class="QMenu" name="menuPresentation">
+    <property name="title">
+     <string>Presentation</string>
+    </property>
     <addaction name="actionPlay"/>
+    <addaction name="actionNext_picture"/>
+    <addaction name="actionPrevious_picture"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuPresentation"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -49,6 +57,10 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionChange_folder"/>
+   <addaction name="actionPrevious_picture"/>
+   <addaction name="actionPlay"/>
+   <addaction name="actionNext_picture"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionChange_folder">
@@ -70,6 +82,24 @@
    </property>
    <property name="text">
     <string>Play</string>
+   </property>
+  </action>
+  <action name="actionNext_picture">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-seek-forward.png</normaloff>:/images/images/media-seek-forward.png</iconset>
+   </property>
+   <property name="text">
+    <string>Next picture</string>
+   </property>
+  </action>
+  <action name="actionPrevious_picture">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-seek-backward.png</normaloff>:/images/images/media-seek-backward.png</iconset>
+   </property>
+   <property name="text">
+    <string>Previous picture</string>
    </property>
   </action>
  </widget>

@@ -8,6 +8,9 @@
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QGraphicsPixmapItem>
+#include <QDebug>
+#include <QCoreApplication>
+#include <QSettings>
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -20,6 +23,10 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui(new Ui::PhotoViewer)
 {
     ui->setupUi(this);
+
+    QCoreApplication::setOrganizationName("Cachirulop");
+    QCoreApplication::setOrganizationDomain("cachirulop.com");
+    QCoreApplication::setApplicationName("Photo viewer");
 
     _currentDir = new QDir ();
     _currentDir->setFilter (QDir::Files | QDir::Readable);
@@ -41,13 +48,14 @@ void PhotoViewer::on_actionChange_folder_triggered()
 {
     QString directory;
     QFileDialog *fd = new QFileDialog;
-    QImage *_currentImage;
+    QSettings settings;
     // QFileDialog::getOpenFileName(this,
     //                                     tr("Open File"), QDir::currentPath());
     // QTreeView *tree = fd->findChild <QTreeView*>();
 
     // tree->setRootIsDecorated(true);
     // tree->setItemsExpandable(true);
+    fd->setDirectory(settings.value("last_directory", "~").toString());
     fd->setFileMode (QFileDialog::Directory);
     fd->setOption (QFileDialog::ShowDirsOnly);
     fd->setViewMode (QFileDialog::Detail);
@@ -56,6 +64,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
     if (result)
     {
         directory = fd->selectedFiles ()[0];
+        settings.setValue("last_directory", directory);
 
         _currentDir->setPath (fd->selectedFiles()[0]);
         _currentFile = 0;
@@ -86,7 +95,17 @@ void PhotoViewer::showCurrentPicture()
         view = this->findChild<QGraphicsView*> ("gvPicture");
 
         item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
-        item->setScale(0.2);
+        // item->setScale(0.2);
+        qreal scale;
+
+        // img.width -> 1
+        // qgv.width -> x
+        // x = img.width / qgv.width
+        scale = (view->width() / img->width());
+
+        qDebug() << qSetRealNumberPrecision(10) << "Scale: " << scale << ", img->width: " << img->width() << ", view->width: " << view->width();
+
+        item->setScale(0.32);
 
         _pictureScene->clear();
         _pictureScene->addItem(item);
@@ -94,7 +113,6 @@ void PhotoViewer::showCurrentPicture()
         view->setScene(_pictureScene);
     }
 }
-
 
 
 

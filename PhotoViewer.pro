@@ -20,7 +20,6 @@ HEADERS  += photoviewer.h
 FORMS    += photoviewer.ui
 
 OTHER_FILES += \
-    images/emblem-star.png \
     images/folder-open.png \
     images/media-playback-start.png
 
