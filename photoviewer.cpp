@@ -188,12 +188,13 @@ void PhotoViewer::showCurrentPicture()
             toolbars[i]->hide();
         }
 
+/*
         QList<QStatusBar *> statusbars;
         statusbars = this->findChildren<QStatusBar*> ();
         for (int i = 0; i < statusbars.length(); i++) {
             statusbars[i]->hide();
         }
-
+*/
         QList<QMenuBar *> menubars;
         menubars = this->findChildren<QMenuBar*> ();
         for (int i = 0; i < menubars.length(); i++) {
