@@ -21,6 +21,10 @@ public:
 private slots:
     void on_actionChange_folder_triggered();
 
+    void on_actionNext_picture_triggered();
+
+    void on_actionPrevious_picture_triggered();
+
 private:
     Ui::PhotoViewer *ui;
 

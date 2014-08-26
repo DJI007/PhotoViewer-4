@@ -11,6 +11,9 @@
 #include <QDebug>
 #include <QCoreApplication>
 #include <QSettings>
+#include <QToolBar>
+#include <QStatusBar>
+#include <QMenuBar>
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -74,6 +77,33 @@ void PhotoViewer::on_actionChange_folder_triggered()
     delete fd;
 }
 
+void PhotoViewer::on_actionNext_picture_triggered()
+{
+    if (_currentFile < _currentDir->entryList().count() - 1) {
+        _currentFile++;
+        showCurrentPicture();
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Image Viewer"),
+                                 tr("Last picture"));
+    }
+}
+
+void PhotoViewer::on_actionPrevious_picture_triggered()
+{
+
+    if (_currentFile > 0) {
+        _currentFile--;
+        showCurrentPicture();
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Image Viewer"),
+                                 tr("First picture"));
+    }
+}
+
 void PhotoViewer::showCurrentPicture()
 {
     QString fileName;
@@ -91,40 +121,90 @@ void PhotoViewer::showCurrentPicture()
     else {
         QGraphicsView *view;
         QGraphicsItem *item;
+        qreal scale;
+        int newWidth;
+        int newHeight;
 
         view = this->findChild<QGraphicsView*> ("gvPicture");
-
         item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
-        // item->setScale(0.2);
-        qreal scale;
 
-        // img.width -> 1
-        // qgv.width -> x
-        // x = img.width / qgv.width
-        scale = (view->width() / img->width());
+        scale =  ((qreal) (view->width() - 4) / (qreal) img->width());
+        if ((img->height() * scale) > view->height()) {
+            scale =  ((qreal) (view->height() - 4) / (qreal) img->height());
+        }
+/*
+        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->width: " << img->width() << ", view->width: " << view->width();
+        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->height: " << img->height() << ", view->height: " << view->height();
+*/
+        item->setScale(scale);
 
-        qDebug() << qSetRealNumberPrecision(10) << "Scale: " << scale << ", img->width: " << img->width() << ", view->width: " << view->width();
+        newWidth = img->width() * scale;
+        newHeight = img->height() * scale;
+        qreal newX;
+        qreal newY;
 
-        item->setScale(0.32);
+        if (newWidth < view->width()) {
+            newX = (view->width() / 2) - (newWidth / 2);
+        }
+        else {
+            newX = 0;
+        }
+
+        if (newHeight < view->height()) {
+            newY = (view->height() / 2) - (newHeight / 2);
+        }
+        else {
+            newY = 0;
+        }
+
+        QTransform transform;
+
+        transform.translate(newX, newY);
+
+        item->setTransform(transform, true);
 
         _pictureScene->clear();
         _pictureScene->addItem(item);
 
         view->setScene(_pictureScene);
+
+        // view in fullscreen
+        /*
+        view->setParent(NULL);
+        view->setWindowFlags(view->windowFlags() |
+                             Qt::CustomizeWindowHint |
+                             Qt::WindowStaysOnTopHint |
+                             Qt::WindowMaximizeButtonHint |
+                             Qt::WindowCloseButtonHint);
+        view->setWindowState(view->windowState() | Qt::WindowFullScreen);
+        view->show();
+        */
+
+        // Window in fullscreen
+        this->showFullScreen();
+        QList<QToolBar *> toolbars;
+        toolbars = this->findChildren<QToolBar*> ();
+        for (int i = 0; i < toolbars.length(); i++) {
+            toolbars[i]->hide();
+        }
+
+        QList<QStatusBar *> statusbars;
+        statusbars = this->findChildren<QStatusBar*> ();
+        for (int i = 0; i < statusbars.length(); i++) {
+            statusbars[i]->hide();
+        }
+
+        QList<QMenuBar *> menubars;
+        menubars = this->findChildren<QMenuBar*> ();
+        for (int i = 0; i < menubars.length(); i++) {
+            menubars[i]->hide();
+        }
+
+
     }
+
+    delete img;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

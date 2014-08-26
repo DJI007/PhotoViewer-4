@@ -15,10 +15,32 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <item row="0" column="0">
-       <widget class="QGraphicsView" name="gvPicture"/>
+       <widget class="QGraphicsView" name="gvPicture">
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
