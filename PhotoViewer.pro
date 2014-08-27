@@ -13,9 +13,11 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        photoviewer.cpp
+        photoviewer.cpp \
+    pictureview.cpp
 
-HEADERS  += photoviewer.h
+HEADERS  += photoviewer.h \
+    pictureview.h
 
 FORMS    += photoviewer.ui
 

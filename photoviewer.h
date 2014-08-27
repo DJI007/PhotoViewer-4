@@ -25,6 +25,11 @@ private slots:
 
     void on_actionPrevious_picture_triggered();
 
+    void on_pictureDoubleClick();
+
+protected:
+    void resizeEvent(QResizeEvent *event);
+
 private:
     Ui::PhotoViewer *ui;
 
@@ -34,6 +39,8 @@ private:
     QGraphicsScene *_pictureScene;
 
     void showCurrentPicture ();
+    void hideWidgetList(QList<QWidget *>);
+    void toggleFullScreen();
 
 };
 

@@ -36,8 +36,11 @@
        <number>6</number>
       </property>
       <item row="0" column="0">
-       <widget class="QGraphicsView" name="gvPicture">
+       <widget class="PictureView" name="gvPicture">
         <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="interactive">
          <bool>true</bool>
         </property>
        </widget>
@@ -126,6 +129,13 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>PictureView</class>
+   <extends>QGraphicsView</extends>
+   <header>pictureview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="PhotoViewer.qrc"/>
  </resources>

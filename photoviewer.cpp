@@ -31,13 +31,31 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     QCoreApplication::setOrganizationDomain("cachirulop.com");
     QCoreApplication::setApplicationName("Photo viewer");
 
+    QSettings settings;
+
     _currentDir = new QDir ();
     _currentDir->setFilter (QDir::Files | QDir::Readable);
     _currentDir->setSorting (QDir::Name);
+    _currentDir->setPath(settings.value("last_directory", "~").toString());
+
+    qDebug () << settings.value("last_directory", "~").toString();
 
     _currentFile = 0;
 
     _pictureScene = new QGraphicsScene(this);
+    _pictureScene->setObjectName("gsScene");
+
+    // qApp->installEventFilter(this);
+    /*
+    _pictureScene->installEventFilter(this);
+
+    ui->mainToolBar->installEventFilter(this);
+    ui->gvPicture->installEventFilter(this);
+    */
+    QObject::connect(ui->gvPicture,
+                     SIGNAL(mouseDoubleClick(QMouseEvent*)),
+                     this,
+                     SLOT(on_pictureDoubleClick()));
 }
 
 PhotoViewer::~PhotoViewer()
@@ -58,6 +76,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
 
     // tree->setRootIsDecorated(true);
     // tree->setItemsExpandable(true);
+
     fd->setDirectory(settings.value("last_directory", "~").toString());
     fd->setFileMode (QFileDialog::Directory);
     fd->setOption (QFileDialog::ShowDirsOnly);
@@ -117,24 +136,22 @@ void PhotoViewer::showCurrentPicture()
         QMessageBox::information(this,
                                  tr("Image Viewer"),
                                  tr("Cannot load %1.").arg(fileName));
-     }
+    }
     else {
-        QGraphicsView *view;
         QGraphicsItem *item;
         qreal scale;
         int newWidth;
         int newHeight;
 
-        view = this->findChild<QGraphicsView*> ("gvPicture");
         item = new QGraphicsPixmapItem(QPixmap::fromImage(*img));
 
-        scale =  ((qreal) (view->width() - 4) / (qreal) img->width());
-        if ((img->height() * scale) > view->height()) {
-            scale =  ((qreal) (view->height() - 4) / (qreal) img->height());
+        scale =  ((qreal) (ui->gvPicture->width() - 4) / (qreal) img->width());
+        if ((img->height() * scale) > ui->gvPicture->height()) {
+            scale =  ((qreal) (ui->gvPicture->height() - 4) / (qreal) img->height());
         }
 /*
-        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->width: " << img->width() << ", view->width: " << view->width();
-        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->height: " << img->height() << ", view->height: " << view->height();
+        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->width: " << img->width() << ", ui->gvPicture->width: " << ui->gvPicture->width();
+        qDebug() << "Scale: " << QString::number(scale, 'f', 5) << ", img->height: " << img->height() << ", ui->gvPicture->height: " << ui->gvPicture->height();
 */
         item->setScale(scale);
 
@@ -143,15 +160,15 @@ void PhotoViewer::showCurrentPicture()
         qreal newX;
         qreal newY;
 
-        if (newWidth < view->width()) {
-            newX = (view->width() / 2) - (newWidth / 2);
+        if (newWidth < ui->gvPicture->width()) {
+            newX = (ui->gvPicture->width() / 2) - (newWidth / 2);
         }
         else {
             newX = 0;
         }
 
-        if (newHeight < view->height()) {
-            newY = (view->height() / 2) - (newHeight / 2);
+        if (newHeight < ui->gvPicture->height()) {
+            newY = (ui->gvPicture->height() / 2) - (newHeight / 2);
         }
         else {
             newY = 0;
@@ -166,46 +183,51 @@ void PhotoViewer::showCurrentPicture()
         _pictureScene->clear();
         _pictureScene->addItem(item);
 
-        view->setScene(_pictureScene);
+        ui->gvPicture->setScene(_pictureScene);
+   }
 
-        // view in fullscreen
-        /*
-        view->setParent(NULL);
-        view->setWindowFlags(view->windowFlags() |
-                             Qt::CustomizeWindowHint |
-                             Qt::WindowStaysOnTopHint |
-                             Qt::WindowMaximizeButtonHint |
-                             Qt::WindowCloseButtonHint);
-        view->setWindowState(view->windowState() | Qt::WindowFullScreen);
-        view->show();
-        */
+    delete img;
+}
 
-        // Window in fullscreen
+void PhotoViewer::on_pictureDoubleClick()
+{
+    qDebug () << "Picture double click";
+    toggleFullScreen();
+}
+
+void PhotoViewer::toggleFullScreen()
+{
+    if (this->isFullScreen()) {
+        this->showNormal();
+    }
+    else {
         this->showFullScreen();
+
+        /*
         QList<QToolBar *> toolbars;
         toolbars = this->findChildren<QToolBar*> ();
         for (int i = 0; i < toolbars.length(); i++) {
             toolbars[i]->hide();
         }
+*/
 
-/*
         QList<QStatusBar *> statusbars;
         statusbars = this->findChildren<QStatusBar*> ();
         for (int i = 0; i < statusbars.length(); i++) {
             statusbars[i]->hide();
         }
-*/
         QList<QMenuBar *> menubars;
         menubars = this->findChildren<QMenuBar*> ();
         for (int i = 0; i < menubars.length(); i++) {
             menubars[i]->hide();
         }
-
-
     }
-
-    delete img;
 }
 
+void PhotoViewer::resizeEvent(QResizeEvent *event)
+{
+    showCurrentPicture();
 
+    QWidget::resizeEvent(event);
+}
 
