@@ -44,6 +44,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 
     _pictureScene = new QGraphicsScene(this);
     _pictureScene->setObjectName("gsScene");
+    ui->gvPicture->setScene(_pictureScene);
 
     // qApp->installEventFilter(this);
     /*
@@ -178,12 +179,15 @@ void PhotoViewer::showCurrentPicture()
 
         transform.translate(newX, newY);
 
-        item->setTransform(transform, true);
+        //item->setTransform(transform, true);
 
+        QRect rect;
+
+        rect.adjust(_pictureScene->sceneRect().left(), _pictureScene->sceneRect().top(), newWidth, newHeight);
+        _pictureScene->setSceneRect(rect);
         _pictureScene->clear();
         _pictureScene->addItem(item);
 
-        ui->gvPicture->setScene(_pictureScene);
    }
 
     delete img;
@@ -199,6 +203,18 @@ void PhotoViewer::toggleFullScreen()
 {
     if (this->isFullScreen()) {
         this->showNormal();
+
+        QList<QStatusBar *> statusbars;
+        statusbars = this->findChildren<QStatusBar*> ();
+        for (int i = 0; i < statusbars.length(); i++) {
+            statusbars[i]->show();
+        }
+        QList<QMenuBar *> menubars;
+        menubars = this->findChildren<QMenuBar*> ();
+        for (int i = 0; i < menubars.length(); i++) {
+            menubars[i]->show();
+        }
+
     }
     else {
         this->showFullScreen();
@@ -226,8 +242,7 @@ void PhotoViewer::toggleFullScreen()
 
 void PhotoViewer::resizeEvent(QResizeEvent *event)
 {
-    showCurrentPicture();
-
     QWidget::resizeEvent(event);
+    showCurrentPicture();
 }
 
