@@ -15,6 +15,8 @@
 #include <QStatusBar>
 #include <QMenuBar>
 
+#include <exiv2/exiv2.hpp>
+
 /**
  * PhotoView application to view pictures in a simple mode
  *
@@ -188,6 +190,47 @@ void PhotoViewer::showCurrentPicture()
         _pictureScene->clear();
         _pictureScene->addItem(item);
 
+        // EXIF information
+        Exiv2::Image::AutoPtr imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
+
+        imageData->readMetadata ();
+
+        Exiv2::ExifData &exifData = imageData->exifData();
+
+        if (exifData.empty()) {
+            QMessageBox::information(this,
+                                     tr("Image Viewer"),
+                                     tr("Cannot load %1 data.").arg(fileName));
+        }
+        else {
+            Exiv2::ExifData::const_iterator end = exifData.end();
+
+            /*
+             * Interesting tags:
+             * "Exif.Image.Rating" -> stars
+             * Exif.Photo.DateTimeDigitized or Exif.Photo.DateTimeOriginal
+             * Exif.Image.GPSTag, Exif.GPSInfo.GPSLatitude, Exif.GPSInfo.*
+             */
+            qDebug() << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>";
+            for (Exiv2::ExifData::const_iterator i = exifData.begin(); i != end; ++i) {
+                const char* tn = i->typeName();
+
+                qDebug () << QString::fromUtf8(i->key().c_str()) << " "
+                          << i->tag() << " "
+                          << (tn ? tn : "Unknown") << " "
+                          << i->count() << "  "
+                          << QString::fromUtf8(i->value().toString ().c_str());
+            }
+            qDebug() << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+
+            QGraphicsTextItem * io = new QGraphicsTextItem;
+
+            io->setPos(150,70);
+            io->setHtml("<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">Hello world!</span>");
+
+            _pictureScene->addRect(io->boundingRect(), QPen(QColor::fromRgb(0, 0, 0)));
+            _pictureScene->addItem(io);
+        }
    }
 
     delete img;
