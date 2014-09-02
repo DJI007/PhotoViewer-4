@@ -14,16 +14,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         photoviewer.cpp \
-    pictureview.cpp
+    pictureview.cpp \
+    exifmetadata.cpp
 
 HEADERS  += photoviewer.h \
-    pictureview.h
+    pictureview.h \
+    exifmetadata.h
 
 FORMS    += photoviewer.ui
 
-OTHER_FILES += \
-    images/folder-open.png \
-    images/media-playback-start.png
 
 RESOURCES += \
     PhotoViewer.qrc

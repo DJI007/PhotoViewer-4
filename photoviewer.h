@@ -3,8 +3,6 @@
 
 #include <QMainWindow>
 #include <QDir>
-#include <QImage>
-#include <QGraphicsScene>
 
 namespace Ui {
 class PhotoViewer;
@@ -36,7 +34,6 @@ private:
     QDir *_currentDir;
     int _currentFile;
 
-    QGraphicsScene *_pictureScene;
 
     void showCurrentPicture ();
     void hideWidgetList(QList<QWidget *>);
