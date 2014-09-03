@@ -28,9 +28,15 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
 
 private:
+    QString _fileName;
     QImage *_picture;
     QGraphicsScene *_pictureScene;
     ExifMetadata _pictureData;
+
+    void addPicture ();
+    void addInfo ();
+    void addRating ();
+    void addStar (bool, int left, int top);
 };
 
 #endif // PICTUREVIEW_H

@@ -24,7 +24,24 @@ QDateTime ExifMetadata::getPictureDate()
 
     strDate = QString::fromUtf8 (_imageData->exifData() ["Exif.Photo.DateTimeOriginal"].toString().c_str());
 
-    qDebug () << strDate;
-
     return QDateTime::fromString(strDate, "yyyy:MM:dd hh:mm:ss");
+}
+
+int ExifMetadata::getRating()
+{
+    long result;
+
+    result = _imageData->exifData() ["Exif.Image.Rating"].toLong();
+    if (result == -1) {
+        result = _imageData->exifData() ["Exif.Image.RatingPercent"].toLong();
+
+        if (result != -1) {
+            result = (long) ((result * 4) / 100);
+        }
+    }
+
+    if (result == -1)
+        return 0;
+
+    return (int) result;
 }

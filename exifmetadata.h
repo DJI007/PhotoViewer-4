@@ -14,6 +14,7 @@ public:
 
     QString getManufacturer ();
     QDateTime getPictureDate ();
+    int getRating ();
 
 private:
     Exiv2::Image::AutoPtr _imageData;

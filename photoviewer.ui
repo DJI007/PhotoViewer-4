@@ -40,6 +40,15 @@
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
+        <property name="backgroundBrush">
+         <brush brushstyle="Dense2Pattern">
+          <color alpha="255">
+           <red>181</red>
+           <green>181</green>
+           <blue>181</blue>
+          </color>
+         </brush>
+        </property>
         <property name="interactive">
          <bool>true</bool>
         </property>
@@ -62,7 +71,18 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuRating">
+     <property name="title">
+      <string>Rating</string>
+     </property>
+     <addaction name="actionSet_1_star"/>
+     <addaction name="actionSet_2_stars"/>
+     <addaction name="actionSet_3_stars"/>
+     <addaction name="actionSet_4_stars"/>
+     <addaction name="actionSet_5_stars"/>
+    </widget>
     <addaction name="actionChange_folder"/>
+    <addaction name="menuRating"/>
    </widget>
    <widget class="QMenu" name="menuPresentation">
     <property name="title">
@@ -86,6 +106,7 @@
    <addaction name="actionPrevious_picture"/>
    <addaction name="actionPlay"/>
    <addaction name="actionNext_picture"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionChange_folder">
@@ -125,6 +146,53 @@
    </property>
    <property name="text">
     <string>Previous picture</string>
+   </property>
+  </action>
+  <action name="actionSet_1_star">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-off.png</normaloff>
+     <activeon>:/images/images/star-on.png</activeon>
+     <selectedon>:/images/images/star-on.png</selectedon>:/images/images/star-off.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 1 star</string>
+   </property>
+  </action>
+  <action name="actionSet_2_stars">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 2 stars</string>
+   </property>
+  </action>
+  <action name="actionSet_3_stars">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 3 stars</string>
+   </property>
+  </action>
+  <action name="actionSet_4_stars">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 4 stars</string>
+   </property>
+  </action>
+  <action name="actionSet_5_stars">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 5 stars</string>
    </property>
   </action>
  </widget>

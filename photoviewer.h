@@ -25,6 +25,10 @@ private slots:
 
     void on_pictureDoubleClick();
 
+    void on_actionSet_1_star_hovered();
+
+    void on_actionSet_2_stars_hovered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

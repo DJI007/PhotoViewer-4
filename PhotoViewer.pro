@@ -15,11 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         photoviewer.cpp \
     pictureview.cpp \
-    exifmetadata.cpp
+    exifmetadata.cpp \
+    settingshelper.cpp \
+    starsaction.cpp \
+    starlabel.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
-    exifmetadata.h
+    exifmetadata.h \
+    settingshelper.h \
+    starsaction.h \
+    starlabel.h
 
 FORMS    += photoviewer.ui
 

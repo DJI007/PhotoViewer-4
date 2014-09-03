@@ -7,12 +7,13 @@
 #include <QMessageBox>
 #include <QScrollArea>
 #include <QDebug>
-#include <QCoreApplication>
 #include <QSettings>
 #include <QToolBar>
 #include <QStatusBar>
 #include <QMenuBar>
 
+#include "settingshelper.h"
+#include "starsaction.h"
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -26,20 +27,25 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QCoreApplication::setOrganizationName("Cachirulop");
-    QCoreApplication::setOrganizationDomain("cachirulop.com");
-    QCoreApplication::setApplicationName("Photo viewer");
+    StarsAction *action;
 
-    QSettings settings;
+    action = new StarsAction (ui->mainToolBar);
+    ui->mainToolBar->addAction(action);
+
+    QString lastDirectory;
+
+    lastDirectory = SettingsHelper::getInstance ().lastDirectory ();
 
     _currentDir = new QDir ();
     _currentDir->setFilter (QDir::Files | QDir::Readable);
     _currentDir->setSorting (QDir::Name);
-    _currentDir->setPath(settings.value("last_directory", "~").toString());
-
-    qDebug () << settings.value("last_directory", "~").toString();
+    _currentDir->setPath(lastDirectory);
 
     _currentFile = 0;
+
+    if (lastDirectory.compare("~") != 0) {
+        showCurrentPicture();
+    }
 
     QObject::connect(ui->gvPicture,
                      SIGNAL(mouseDoubleClick(QMouseEvent*)),
@@ -57,7 +63,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
 {
     QString directory;
     QFileDialog *fd = new QFileDialog;
-    QSettings settings;
+
     // QFileDialog::getOpenFileName(this,
     //                                     tr("Open File"), QDir::currentPath());
     // QTreeView *tree = fd->findChild <QTreeView*>();
@@ -65,7 +71,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
     // tree->setRootIsDecorated(true);
     // tree->setItemsExpandable(true);
 
-    fd->setDirectory(settings.value("last_directory", "~").toString());
+    fd->setDirectory(SettingsHelper::getInstance ().lastDirectory ());
     fd->setFileMode (QFileDialog::Directory);
     fd->setOption (QFileDialog::ShowDirsOnly);
     fd->setViewMode (QFileDialog::Detail);
@@ -74,7 +80,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
     if (result)
     {
         directory = fd->selectedFiles ()[0];
-        settings.setValue("last_directory", directory);
+        SettingsHelper::getInstance().setLastDirectory (directory);
 
         _currentDir->setPath (fd->selectedFiles()[0]);
         _currentFile = 0;
@@ -130,7 +136,6 @@ void PhotoViewer::showCurrentPicture()
 
 void PhotoViewer::on_pictureDoubleClick()
 {
-    qDebug () << "Picture double click";
     toggleFullScreen();
 }
 
@@ -184,3 +189,12 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     }
 }
 
+
+void PhotoViewer::on_actionSet_1_star_hovered()
+{
+}
+
+void PhotoViewer::on_actionSet_2_stars_hovered()
+{
+   this->ui->actionSet_1_star->setChecked(true);
+}
