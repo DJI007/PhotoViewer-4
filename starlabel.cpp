@@ -9,17 +9,12 @@
 StarLabel::StarLabel(QWidget *parent) :
     QLabel(parent)
 {
-    QPixmap *tmp;
-
-    tmp = new QPixmap(":/images/images/star-on.png");
-    _pixmapStarOn = tmp->scaledToHeight(this->height() - 10, Qt::SmoothTransformation);
-
-    delete tmp;
-
-    tmp = new QPixmap(":/images/images/star-off.png");
-    _pixmapStarOff = tmp->scaledToHeight(this->height() - 10, Qt::SmoothTransformation);
-
-    delete tmp;
+    _pixmapStarOn = QPixmap(":/images/images/star-on.png").scaledToHeight(this->height() - 10,
+                                                                              Qt::SmoothTransformation);
+    _pixmapStarOff = QPixmap(":/images/images/star-off.png").scaledToHeight(this->height() - 10,
+                                                                            Qt::SmoothTransformation);
+    _pixmapStarCancel = QPixmap(":/images/images/star-cancel.png").scaledToHeight(this->height() - 10,
+                                                                                  Qt::SmoothTransformation);
 
     this->installEventFilter(this);
     this->setPixmap(_pixmapStarOff);
@@ -65,4 +60,9 @@ void StarLabel::setOn()
 void StarLabel::setOff()
 {
     this->setPixmap(_pixmapStarOff);
+}
+
+void StarLabel::setCancel()
+{
+    this->setPixmap(_pixmapStarCancel);
 }

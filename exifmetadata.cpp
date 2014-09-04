@@ -9,26 +9,45 @@ ExifMetadata::ExifMetadata()
 
 void ExifMetadata::loadData(QString fileName)
 {
-    _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
-    _imageData->readMetadata ();
+    try {
+        _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
+        _imageData->readMetadata ();
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Caught Exiv2 exception " << QString::fromUtf8 (e.what());
+    }
 }
 
 QString ExifMetadata::getString(const char *tagName)
 {
-    return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+    try {
+        return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Error reading string data: " << QString::fromUtf8(e.what());
+
+        return "";
+    }
 }
 
 long ExifMetadata::getLong(const char *tagName)
 {
-    return _imageData->exifData() [tagName].toLong();
+    try {
+        return _imageData->exifData() [tagName].toLong();
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
+
+        return -1;
+    }
 }
 
-QString ExifMetadata::getManufacturer()
+QString ExifMetadata::manufacturer()
 {
     return getString ("Exif.Image.Make");
 }
 
-QDateTime ExifMetadata::getPictureDate()
+QDateTime ExifMetadata::pictureDate()
 {
     QString strDate;
 
@@ -37,7 +56,7 @@ QDateTime ExifMetadata::getPictureDate()
     return QDateTime::fromString(strDate, "yyyy:MM:dd hh:mm:ss");
 }
 
-int ExifMetadata::getRating()
+int ExifMetadata::rating()
 {
     long result;
 
@@ -46,7 +65,7 @@ int ExifMetadata::getRating()
         result = getLong ("Exif.Image.RatingPercent");
 
         if (result != -1) {
-            result = (long) ((result * 4) / 100);
+            result = (long) ((result * 5) / 100);
         }
     }
 
@@ -56,7 +75,25 @@ int ExifMetadata::getRating()
     return (int) result;
 }
 
-int ExifMetadata::getOrientation()
+void ExifMetadata::setRating(int value)
 {
-    return (int) getLong ("Exif.Image.Orientation");
+    _imageData->exifData() ["Exif.Image.Rating"] = value;
+    _imageData->exifData() ["Exif.Image.RatingPercent"] = (100 * value) / 5;
+    _imageData->writeMetadata();
+}
+
+int ExifMetadata::orientation()
+{
+    int result;
+
+    result = (int) getLong ("Exif.Image.Orientation");
+    if (result == -1) {
+        result = 1;
+
+        // If don't save default value, when save metadata the exif
+        // data saved is corrupted
+        _imageData->exifData() ["Exif.Image.Orientation"] = 1;
+    }
+
+    return result;
 }

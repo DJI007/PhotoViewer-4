@@ -23,6 +23,7 @@ signals:
 
 public slots:
     void showPicture ();
+    void setPictureRating (int rating);
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
@@ -33,9 +34,10 @@ private:
     QGraphicsScene *_pictureScene;
     ExifMetadata _pictureData;
 
-    QPixmap getCorrectOrientationPicture();
-    QPixmap getScaledImage(QPixmap src);
+    QPixmap correctOrientationPicture();
+    QPixmap scaledImage(QPixmap src);
 
+    void hidePicture ();
     void addPicture ();
     void addInfo ();
     void addRating ();

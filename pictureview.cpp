@@ -3,6 +3,9 @@
 #include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsPixmapItem>
+#include <QPropertyAnimation>
+#include <QTimeLine>
+#include <QGraphicsItemAnimation>
 
 PictureView::PictureView(QWidget *parent) :
     QGraphicsView(parent)
@@ -36,6 +39,8 @@ void PictureView::setPicture(QString fileName)
         delete _picture;
     }
 
+    // qDebug () << "setPicture: " << fileName;
+
     _fileName = fileName;
     _picture = new QImage (fileName);
     _pictureData.loadData(fileName);
@@ -49,10 +54,44 @@ bool PictureView::hasPicture()
 
 void PictureView::showPicture()
 {
+    if (_pictureScene->items().size() > 0) {
+        hidePicture ();
+    }
+
     _pictureScene->clear();
 
     addPicture ();
     addInfo ();
+    addRating ();
+}
+
+void PictureView::hidePicture()
+{
+/*
+    QGraphicsPixmapItem item;
+
+    item = (QGraphicsPixmapItem *) _pictureScene->items() [0];
+
+    QTimeLine *timer = new QTimeLine(5000);
+
+    timer->setFrameRange(0, 100);
+
+
+    QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
+
+    animation->setItem(item);
+    animation->setTimeLine(timer);
+
+    for (int i = 0; i < 200; ++i)
+        animation->setPosAt(i / 200.0, QPointF(i, i));
+
+    timer->start();
+*/
+}
+
+void PictureView::setPictureRating(int rating)
+{
+    _pictureData.setRating(rating);
     addRating ();
 }
 
@@ -61,8 +100,8 @@ void PictureView::addPicture()
     QGraphicsItem *item;
     QPixmap image;
 
-    image = getCorrectOrientationPicture();
-    image = getScaledImage (image);
+    image = correctOrientationPicture();
+    image = scaledImage (image);
 
     item = new QGraphicsPixmapItem(image);
 
@@ -70,7 +109,7 @@ void PictureView::addPicture()
 
     rect.adjust(_pictureScene->sceneRect().left(),
                 _pictureScene->sceneRect().top(),
-                item->boundingRect().width(),
+                item->boundingRect().width() - 2,
                 item->boundingRect().height() - 2);
 
     _pictureScene->setSceneRect(rect);
@@ -105,7 +144,7 @@ void PictureView::addPicture()
  *
  * http://sylvana.net/jpegcrop/exif_orientation.html
  */
-QPixmap PictureView::getCorrectOrientationPicture()
+QPixmap PictureView::correctOrientationPicture()
 {
     QPixmap image;
     QTransform trans;
@@ -113,7 +152,7 @@ QPixmap PictureView::getCorrectOrientationPicture()
     image = QPixmap::fromImage(*_picture);
 
     // Set the correct orientation
-    switch (_pictureData.getOrientation())
+    switch (_pictureData.orientation())
     {
     case 1:
         // Nothing to do
@@ -160,7 +199,7 @@ QPixmap PictureView::getCorrectOrientationPicture()
     return image.transformed(trans);
 }
 
-QPixmap PictureView::getScaledImage (QPixmap src)
+QPixmap PictureView::scaledImage (QPixmap src)
 {
     QPixmap image;
 
@@ -180,7 +219,7 @@ void PictureView::addInfo()
     msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
     msg += _fileName;
     msg += "<br />";
-    msg += _pictureData.getPictureDate().toString(Qt::SystemLocaleLongDate);
+    msg += _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
     msg += "</span>";
 
     QRectF rect;
@@ -202,18 +241,18 @@ void PictureView::addRating()
     QRectF rect;
 
     rect = _pictureScene->sceneRect();
-    rating = _pictureData.getRating();
-    left = rect.right() - 30;
+    rating = _pictureData.rating();
+    left = rect.right() - (10 + (20 * 5));   // margin: 10, star width: 20
     top = rect.top() + 5;
 
     for (int i = 0; i < rating; i++) {
         addStar (true, left, top);
-        left -= 20;
+        left += 20;
     }
 
     for (int i = rating; i < 5; i++) {
         addStar (false, left, top);
-        left -= 20;
+        left += 20;
     }
 }
 

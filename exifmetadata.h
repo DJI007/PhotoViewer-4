@@ -12,10 +12,12 @@ public:
 
     void loadData (QString);
 
-    QString getManufacturer ();
-    QDateTime getPictureDate ();
-    int getRating ();
-    int getOrientation ();
+    QString manufacturer ();
+    QDateTime pictureDate ();
+    int rating ();
+    int orientation ();
+
+    void setRating (int value);
 
 private:
     Exiv2::Image::AutoPtr _imageData;

@@ -15,7 +15,7 @@ private:
     void operator=(SettingsHelper const&);
 
 public:
-    static SettingsHelper& getInstance()
+    static SettingsHelper& instance()
             {
                 static SettingsHelper instance; // Guaranteed to be destroyed.
                                                 // Instantiated on first use.

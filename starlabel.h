@@ -14,6 +14,7 @@ public:
 
     void setOn ();
     void setOff ();
+    void setCancel ();
 
 signals:
     void mouseEnter (StarLabel *sender);
@@ -25,6 +26,7 @@ public slots:
 private:
     QPixmap _pixmapStarOn;
     QPixmap _pixmapStarOff;
+    QPixmap _pixmapStarCancel;
 };
 
 #endif // STARLABEL_H

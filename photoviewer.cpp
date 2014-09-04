@@ -32,12 +32,17 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     action = new StarsAction (ui->mainToolBar);
     ui->mainToolBar->addAction(action);
 
+    QObject::connect(action,
+                     SIGNAL(setRating(int)),
+                     ui->gvPicture,
+                     SLOT(setPictureRating(int)));
+
     QString lastDirectory;
     QStringList filters;
 
     filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png";
 
-    lastDirectory = SettingsHelper::getInstance ().lastDirectory ();
+    lastDirectory = SettingsHelper::instance ().lastDirectory ();
 
     _currentDir = new QDir ();
     _currentDir->setFilter (QDir::Files | QDir::Readable);
@@ -75,7 +80,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
     // tree->setRootIsDecorated(true);
     // tree->setItemsExpandable(true);
 
-    fd->setDirectory(SettingsHelper::getInstance ().lastDirectory ());
+    fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
     fd->setFileMode (QFileDialog::Directory);
     fd->setOption (QFileDialog::ShowDirsOnly);
     fd->setViewMode (QFileDialog::Detail);
@@ -84,7 +89,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
     if (result)
     {
         directory = fd->selectedFiles ()[0];
-        SettingsHelper::getInstance().setLastDirectory (directory);
+        SettingsHelper::instance().setLastDirectory (directory);
 
         _currentDir->setPath (fd->selectedFiles()[0]);
         _currentFile = 0;

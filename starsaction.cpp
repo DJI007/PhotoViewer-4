@@ -25,6 +25,9 @@ QWidget *StarsAction::createStars (QWidget *parent)
     layout = new QHBoxLayout (tmp);
     layout->setSpacing(0);
 
+    _star0 = new StarLabel (tmp);
+    _star0->setCancel();
+    _star0->show();
     _star1 = new StarLabel (tmp);
     _star1->show();
     _star2 = new StarLabel (tmp);
@@ -36,12 +39,14 @@ QWidget *StarsAction::createStars (QWidget *parent)
     _star5 = new StarLabel (tmp);
     _star5->show();
 
+    connectSignals (_star0);
     connectSignals (_star1);
     connectSignals (_star2);
     connectSignals (_star3);
     connectSignals (_star4);
     connectSignals (_star5);
 
+    layout->addWidget(_star0);
     layout->addWidget(_star1);
     layout->addWidget(_star2);
     layout->addWidget(_star3);
@@ -123,19 +128,22 @@ void StarsAction::on_star_mouseLeave (StarLabel *sender)
 
 void StarsAction::on_star_mouseClick(StarLabel *sender)
 {
-    if (sender == _star1) {
-        qDebug () << "1 Star for the image!!";
+    if (sender == _star0) {
+        emit setRating(0);
+    }
+    else if (sender == _star1) {
+        emit setRating(1);
     }
     else if (sender == _star2) {
-        qDebug () << "2 Stars for the image!!";
+        emit setRating(2);
     }
     else if (sender == _star3) {
-        qDebug () << "3 Stars for the image!!";
+        emit setRating(3);
     }
     else if (sender == _star4) {
-        qDebug () << "4 Stars for the image!!";
+        emit setRating(4);
     }
     else if (sender == _star5) {
-        qDebug () << "5 Stars for the image!!";
+        emit setRating(5);
     }
 }

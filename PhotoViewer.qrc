@@ -11,5 +11,6 @@
         <file>images/media-skip-forward.png</file>
         <file>images/star-off.png</file>
         <file>images/star-on.png</file>
+        <file>images/star-cancel.png</file>
     </qresource>
 </RCC>
