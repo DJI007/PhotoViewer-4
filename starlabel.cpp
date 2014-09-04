@@ -3,22 +3,21 @@
 #include <QEvent>
 #include <QDebug>
 #include <QToolBar>
+#include <QMouseEvent>
 
 
 StarLabel::StarLabel(QWidget *parent) :
     QLabel(parent)
 {
-    qDebug() << "Creating label";
-
     QPixmap *tmp;
 
     tmp = new QPixmap(":/images/images/star-on.png");
-    _pixmapStarOn = tmp->scaledToHeight(this->height() - 8, Qt::SmoothTransformation);
+    _pixmapStarOn = tmp->scaledToHeight(this->height() - 10, Qt::SmoothTransformation);
 
     delete tmp;
 
     tmp = new QPixmap(":/images/images/star-off.png");
-    _pixmapStarOff = tmp->scaledToHeight(this->height() - 8, Qt::SmoothTransformation);
+    _pixmapStarOff = tmp->scaledToHeight(this->height() - 10, Qt::SmoothTransformation);
 
     delete tmp;
 
@@ -36,9 +35,23 @@ bool StarLabel::eventFilter(QObject *object, QEvent *event)
 
     if (event->type() == QEvent::Enter) {
         emit mouseEnter(this);
+
+        return true;
     }
     else if (event->type() == QEvent::Leave) {
         emit mouseLeave(this);
+
+        return true;
+    }
+    else if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mEvent;
+
+        mEvent = static_cast<QMouseEvent *> (event);
+        if (mEvent->button() == Qt::LeftButton) {
+            emit mouseClick(this);
+
+            return true;
+        }
     }
 
     return false;

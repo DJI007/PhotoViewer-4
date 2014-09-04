@@ -19,6 +19,7 @@ signals:
 public slots:
    void on_star_mouseEnter (StarLabel *sender);
    void on_star_mouseLeave (StarLabel *sender);
+   void on_star_mouseClick (StarLabel *sender);
 
 private:
    StarLabel *_star1;

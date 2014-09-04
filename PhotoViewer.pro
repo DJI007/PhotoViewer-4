@@ -43,5 +43,6 @@ LIBS         += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/xmpsdk/Win32/Deb
 
 unix {
 INCLUDEPATH  += /usr/local/include
-LIBS         += -L/usr/local/lib -lexiv2
+# LIBS         += -L/usr/local/lib -lexiv2
+LIBS += -lexiv2
 }

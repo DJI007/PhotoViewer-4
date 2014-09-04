@@ -33,6 +33,9 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->mainToolBar->addAction(action);
 
     QString lastDirectory;
+    QStringList filters;
+
+    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png";
 
     lastDirectory = SettingsHelper::getInstance ().lastDirectory ();
 
@@ -40,6 +43,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     _currentDir->setFilter (QDir::Files | QDir::Readable);
     _currentDir->setSorting (QDir::Name);
     _currentDir->setPath(lastDirectory);
+    _currentDir->setNameFilters(filters);
 
     _currentFile = 0;
 
@@ -119,10 +123,10 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
 
 void PhotoViewer::showCurrentPicture()
 {
-    // TODO: Use QMimeDatabase to get only supported files
     QString fileName;
 
     fileName = _currentDir->absoluteFilePath(_currentDir->entryList()[_currentFile]);
+
     ui->gvPicture->setPicture(fileName);
     if (!ui->gvPicture->hasPicture()) {
         QMessageBox::information(this,

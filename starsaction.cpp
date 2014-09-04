@@ -64,6 +64,11 @@ void StarsAction::connectSignals (StarLabel *lbl)
                      SIGNAL(mouseLeave(StarLabel*)),
                      this,
                      SLOT(on_star_mouseLeave(StarLabel *)));
+
+    QObject::connect(lbl,
+                     SIGNAL(mouseClick(StarLabel*)),
+                     this,
+                     SLOT(on_star_mouseClick(StarLabel *)));
 }
 
 void StarsAction::on_star_mouseEnter (StarLabel *sender)
@@ -114,4 +119,23 @@ void StarsAction::on_star_mouseLeave (StarLabel *sender)
     _star3->setOff();
     _star4->setOff();
     _star5->setOff();
+}
+
+void StarsAction::on_star_mouseClick(StarLabel *sender)
+{
+    if (sender == _star1) {
+        qDebug () << "1 Star for the image!!";
+    }
+    else if (sender == _star2) {
+        qDebug () << "2 Stars for the image!!";
+    }
+    else if (sender == _star3) {
+        qDebug () << "3 Stars for the image!!";
+    }
+    else if (sender == _star4) {
+        qDebug () << "4 Stars for the image!!";
+    }
+    else if (sender == _star5) {
+        qDebug () << "5 Stars for the image!!";
+    }
 }

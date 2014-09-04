@@ -33,6 +33,9 @@ private:
     QGraphicsScene *_pictureScene;
     ExifMetadata _pictureData;
 
+    QPixmap getCorrectOrientationPicture();
+    QPixmap getScaledImage(QPixmap src);
+
     void addPicture ();
     void addInfo ();
     void addRating ();

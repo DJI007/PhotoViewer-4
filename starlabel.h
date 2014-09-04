@@ -18,6 +18,7 @@ public:
 signals:
     void mouseEnter (StarLabel *sender);
     void mouseLeave (StarLabel *sender);
+    void mouseClick (StarLabel *sender);
 
 public slots:
 

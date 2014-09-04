@@ -1,6 +1,7 @@
 #include "exifmetadata.h"
 
 #include <QDebug>
+#include <exiv2/exiv2.hpp>
 
 ExifMetadata::ExifMetadata()
 {
@@ -12,10 +13,19 @@ void ExifMetadata::loadData(QString fileName)
     _imageData->readMetadata ();
 }
 
+QString ExifMetadata::getString(const char *tagName)
+{
+    return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+}
+
+long ExifMetadata::getLong(const char *tagName)
+{
+    return _imageData->exifData() [tagName].toLong();
+}
 
 QString ExifMetadata::getManufacturer()
 {
-    return QString::fromUtf8 (_imageData->exifData() ["Exif.Image.Make"].toString().c_str());
+    return getString ("Exif.Image.Make");
 }
 
 QDateTime ExifMetadata::getPictureDate()
@@ -31,9 +41,9 @@ int ExifMetadata::getRating()
 {
     long result;
 
-    result = _imageData->exifData() ["Exif.Image.Rating"].toLong();
+    result = getLong ("Exif.Image.Rating");
     if (result == -1) {
-        result = _imageData->exifData() ["Exif.Image.RatingPercent"].toLong();
+        result = getLong ("Exif.Image.RatingPercent");
 
         if (result != -1) {
             result = (long) ((result * 4) / 100);
@@ -44,4 +54,9 @@ int ExifMetadata::getRating()
         return 0;
 
     return (int) result;
+}
+
+int ExifMetadata::getOrientation()
+{
+    return (int) getLong ("Exif.Image.Orientation");
 }

@@ -59,31 +59,117 @@ void PictureView::showPicture()
 void PictureView::addPicture()
 {
     QGraphicsItem *item;
-    qreal scale;
-    item = new QGraphicsPixmapItem(QPixmap::fromImage(*_picture));
+    QPixmap image;
 
-    scale =  ((qreal) (this->width() - 4) / (qreal) _picture->width());
-    if ((_picture->height() * scale) > this->height()) {
-        scale =  ((qreal) (this->height() - 4) / (qreal) _picture->height());
-    }
+    image = getCorrectOrientationPicture();
+    image = getScaledImage (image);
 
-    int newWidth;
-    int newHeight;
+    item = new QGraphicsPixmapItem(image);
+
     QRect rect;
-
-    item->setScale(scale);
-
-    newWidth = _picture->width() * scale;
-    newHeight = _picture->height() * scale;
 
     rect.adjust(_pictureScene->sceneRect().left(),
                 _pictureScene->sceneRect().top(),
-                newWidth,
-                newHeight);
+                item->boundingRect().width(),
+                item->boundingRect().height() - 2);
 
     _pictureScene->setSceneRect(rect);
 
     _pictureScene->addItem(item);
+}
+
+/**
+ * @brief Get the current picture in the correct orientation
+ * @return
+ *
+ * Rotate the selected picture in the correct orientation.
+ * EXIF Orientation can has this values:
+ * Value    0th Row        0th Column
+ *   1        top          left side
+ *   2        top          right side
+ *   3        bottom       right side
+ *   4        bottom       left side
+ *   5        left side    top
+ *   6        right side   top
+ *   7        right side   bottom
+ *   8        left side    bottom
+ *
+ * Here is what the letter F would look like if it were tagged correctly and
+ * displayed by a program that ignores the orientation tag:
+ *    1        2       3      4          5           6          7            8
+ *  888888  888888      88  88      8888888888  88                  88  8888888888
+ *  88          88      88  88      88  88      88  88          88  88      88  88
+ *  8888      8888    8888  8888    88          8888888888  8888888888          88
+ *  88          88      88  88
+ *  88          88  888888  888888
+ *
+ * http://sylvana.net/jpegcrop/exif_orientation.html
+ */
+QPixmap PictureView::getCorrectOrientationPicture()
+{
+    QPixmap image;
+    QTransform trans;
+
+    image = QPixmap::fromImage(*_picture);
+
+    // Set the correct orientation
+    switch (_pictureData.getOrientation())
+    {
+    case 1:
+        // Nothing to do
+        break;
+
+    case 2:
+        // Horizontal mirror
+        image = QPixmap::fromImage(_picture->mirrored(true, false));
+        break;
+
+    case 3:
+        // Rotate 180 degrees
+        trans.rotate(180);
+        break;
+
+    case 4:
+        // Vertical mirror
+        image = QPixmap::fromImage(_picture->mirrored(false, true));
+        break;
+
+    case 5:
+        // Vertical mirror and rotate 90 degrees
+        image = QPixmap::fromImage(_picture->mirrored(false, true));
+        trans.rotate(90);
+        break;
+
+    case 6:
+        // Rotate 90 degrees
+        trans.rotate(90);
+        break;
+
+    case 7:
+        // Horizontal mirror and rotate 90 degrees
+        image = QPixmap::fromImage(_picture->mirrored(true, false));
+        trans.rotate(90);
+        break;
+
+    case 8:
+        // Rotate 270 degrees
+        trans.rotate(270);
+        break;
+    }
+
+    return image.transformed(trans);
+}
+
+QPixmap PictureView::getScaledImage (QPixmap src)
+{
+    QPixmap image;
+
+    image = src.scaledToWidth(this->width(), Qt::SmoothTransformation);
+    if (image.height() > this->height()) {
+        image = src.scaledToHeight(this->height(), Qt::SmoothTransformation);
+    }
+
+    return image;
 }
 
 void PictureView::addInfo()
