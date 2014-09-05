@@ -39,7 +39,7 @@ private:
     int _currentFile;
 
 
-    void showCurrentPicture ();
+    void showCurrentPicture (bool animation = false);
     void hideWidgetList(QList<QWidget *>);
     void toggleFullScreen();
 

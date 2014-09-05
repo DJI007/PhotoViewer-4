@@ -5,8 +5,12 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QImage>
+#include <QAbstractAnimation>
+#include <QGraphicsItem>
 
 #include "exifmetadata.h"
+#include "animateditempicture.h"
+#include "animateditemtext.h"
 
 class PictureView : public QGraphicsView
 {
@@ -17,6 +21,7 @@ public:
 
     void setPicture (QString);
     bool hasPicture ();
+    void showPictureWithAnimation ();
 
 signals:
     void mouseDoubleClick (QMouseEvent *);
@@ -24,6 +29,7 @@ signals:
 public slots:
     void showPicture ();
     void setPictureRating (int rating);
+    void on_finish_outAnimation ();
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
@@ -37,13 +43,14 @@ private:
     QPixmap correctOrientationPicture();
     QPixmap scaledImage(QPixmap src);
 
-    void addPicture ();
-    void addInfo ();
-    void addRating ();
-    void addStar (bool, int left, int top);
+    AnimatedItemPicture *createPicture ();
+    AnimatedItemText *createInfo ();
+    QGraphicsItemGroup *createRating ();
 
-    void setAnimationIn (QGraphicsItem *item);
-    void setAnimationOut (QGraphicsItem *item);
+    AnimatedItemPicture *createStar (bool, int left, int top);
+
+    QAbstractAnimation *createAnimationIn (QGraphicsItemGroup *);
+    QAbstractAnimation *createAnimationOut (QGraphicsItemGroup *);
 };
 
 #endif // PICTUREVIEW_H

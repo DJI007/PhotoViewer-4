@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     settingshelper.cpp \
     starsaction.cpp \
     starlabel.cpp \
-    pictureitem.cpp
+    animateditemtext.cpp \
+    animateditempicture.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -27,7 +28,8 @@ HEADERS  += photoviewer.h \
     settingshelper.h \
     starsaction.h \
     starlabel.h \
-    pictureitem.h
+    animateditemtext.h \
+    animateditempicture.h
 
 FORMS    += photoviewer.ui
 

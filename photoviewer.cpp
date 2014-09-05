@@ -103,7 +103,7 @@ void PhotoViewer::on_actionNext_picture_triggered()
 {
     if (_currentFile < _currentDir->entryList().count() - 1) {
         _currentFile++;
-        showCurrentPicture();
+        showCurrentPicture(true);
     }
     else {
         QMessageBox::information(this,
@@ -117,7 +117,7 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
 
     if (_currentFile > 0) {
         _currentFile--;
-        showCurrentPicture();
+        showCurrentPicture(true);
     }
     else {
         QMessageBox::information(this,
@@ -126,7 +126,7 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
     }
 }
 
-void PhotoViewer::showCurrentPicture()
+void PhotoViewer::showCurrentPicture(bool animation)
 {
     QString fileName;
 
@@ -139,9 +139,15 @@ void PhotoViewer::showCurrentPicture()
                                  tr("Cannot load %1.").arg(fileName));
     }
     else {
-        ui->gvPicture->showPicture ();
+        if (animation) {
+            ui->gvPicture->showPictureWithAnimation ();
+        }
+        else {
+            ui->gvPicture->showPicture ();
+        }
     }
 }
+
 
 void PhotoViewer::on_pictureDoubleClick()
 {

@@ -6,8 +6,9 @@
 #include <QPropertyAnimation>
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
+#include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
 
-#include "pictureitem.h"
 
 PictureView::PictureView(QWidget *parent) :
     QGraphicsView(parent)
@@ -56,29 +57,125 @@ bool PictureView::hasPicture()
 
 void PictureView::showPicture()
 {
+    if (_pictureScene->items().count() > 0) {
+        QGraphicsItem *first;
+
+        first = _pictureScene->items() [0];
+
+        _pictureScene->removeItem(first->group());
+    }
+
+    QGraphicsItemGroup *pictureGroup;
+
+    pictureGroup = new QGraphicsItemGroup ();
+    pictureGroup->addToGroup(createPicture());
+    pictureGroup->addToGroup(createRating ());
+    pictureGroup->addToGroup(createInfo ());
+
+    _pictureScene->addItem(pictureGroup);
+
+    qDebug() << _pictureScene->items().count();
+}
+
+void PictureView::showPictureWithAnimation()
+{
+/*
    _pictureScene->clear();
 
     addPicture ();
     addInfo ();
     addRating ();
+*/
+    QAbstractAnimation *animOut = NULL;
+
+    if (_pictureScene->items().count() > 0) {
+        QGraphicsItem *first;
+
+        first = _pictureScene->items() [0];
+
+        animOut = createAnimationOut (first->group());
+
+        QObject::connect(animOut,
+                         SIGNAL(finished()),
+                         this,
+                         SLOT(on_finish_outAnimation ()));
+
+        // animOut->start(QAbstractAnimation::DeleteWhenStopped);
+        //_pictureScene->removeItem(first->group());
+    }
+
+    QAbstractAnimation *animIn;
+    QGraphicsItemGroup *pictureGroup;
+
+    pictureGroup = new QGraphicsItemGroup ();
+    pictureGroup->addToGroup(createPicture());
+    pictureGroup->addToGroup(createRating ());
+    pictureGroup->addToGroup(createInfo ());
+
+    animIn = createAnimationIn (pictureGroup);
+
+    QParallelAnimationGroup *anim;
+
+    anim = new QParallelAnimationGroup();
+
+    if (animOut != NULL) {
+        anim->addAnimation (animOut);
+    }
+
+    anim->addAnimation (animIn);
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    _pictureScene->addItem(pictureGroup);
+
+    qDebug() << "Animation: " << _pictureScene->items().count();
+}
+
+void PictureView::on_finish_outAnimation()
+{
+    QGraphicsItem *first;
+
+    first = _pictureScene->items() [0];
+    _pictureScene->removeItem(first->group());
+
+    qDebug() << "2" << _pictureScene->items().count();
+/*
+    QAbstractAnimation *animIn;
+    QGraphicsItemGroup *pictureGroup;
+
+    pictureGroup = new QGraphicsItemGroup ();
+    pictureGroup->addToGroup(createPicture());
+    pictureGroup->addToGroup(createRating ());
+    pictureGroup->addToGroup(createInfo ());
+
+    animIn = createAnimationIn (pictureGroup);
+
+    QSequentialAnimationGroup *anim;
+
+    anim = new QSequentialAnimationGroup();
+    anim->addAnimation (animIn);
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+    _pictureScene->addItem(pictureGroup);
+*/
 }
 
 void PictureView::setPictureRating(int rating)
 {
     _pictureData.setRating(rating);
-    addRating ();
+    createRating ();
 }
 
-void PictureView::addPicture()
+AnimatedItemPicture *PictureView::createPicture()
 {
-    QGraphicsItem *item;
+    AnimatedItemPicture *item;
     QPixmap image;
 
     image = correctOrientationPicture();
     image = scaledImage (image);
 
-    //item = new QGraphicsPixmapItem(image);
-    item = new PictureItem(image);
+    item = new AnimatedItemPicture(image);
 
     QRect rect;
 
@@ -86,56 +183,46 @@ void PictureView::addPicture()
                 _pictureScene->sceneRect().top(),
                 item->boundingRect().width() - 2,
                 item->boundingRect().height() - 2);
-
     _pictureScene->setSceneRect(rect);
-    _pictureScene->addItem(item);
-    setAnimationIn (item);
+
+    //_pictureScene->addItem(item);
+    //setAnimationIn (item);
+
+    return item;
 }
 
-void PictureView::setAnimationIn (QGraphicsItem *item)
+QAbstractAnimation *PictureView::createAnimationIn (QGraphicsItemGroup *group)
 {
-    PictureItem *pItem;
+    AnimatedItemPicture *picture;
+    QPropertyAnimation* anim;
 
-    pItem = (PictureItem *) item;
+    picture = (AnimatedItemPicture *) group->childItems()[0];
 
-    /*
-    QPropertyAnimation animation(pItem, "pos");
-    // animation.setTargetObject(pItem);
-    // animation.setPropertyName("pos");
-    animation.setDuration(2000);
-    animation.setStartValue(QPointF(0, 0));
-    animation.setEndValue(QPointF(100, 100));
-    animation.setEasingCurve(QEasingCurve::InOutElastic);
-
-    animation.start();
-    */
-
-    // Start animate this class
-    QPropertyAnimation* anim = new QPropertyAnimation(pItem, "pos");
-
-    // 2 second duration animation
+    anim = new QPropertyAnimation(picture, "pos");
     anim->setDuration(2000);
-    // position to start animation
-    anim->setStartValue(QPointF(0, 0));
-    // end position of animation
-    anim->setEndValue(QPointF(100, 100));
-    // easing curve
-    anim->setEasingCurve(QEasingCurve::InOutElastic);
+    anim->setStartValue(QPointF(this->width(), 0));
+    anim->setEndValue(QPointF(0, 0));
+    anim->setEasingCurve(QEasingCurve::OutExpo);
 
-    // Listen animation finished signal
-    // QObject::connect(anim, SIGNAL(finished()), this, SLOT(animationFinished()));
-
-    // Start animation and delete QPropertyAnimation class on the end
-    anim->start(QAbstractAnimation::DeleteWhenStopped);
-
-
-
-    //  ((PictureItem *) item)->animatePosition(QPointF(0, 0), QPointF(100, 100));
+    // anim->start(QAbstractAnimation::DeleteWhenStopped);
+    return anim;
 }
 
-void PictureView::setAnimationOut(QGraphicsItem *item)
+QAbstractAnimation *PictureView::createAnimationOut(QGraphicsItemGroup *group)
 {
-    Q_UNUSED(item);
+    AnimatedItemPicture *picture;
+    QPropertyAnimation* anim;
+
+    picture = (AnimatedItemPicture *) group->childItems()[0];
+
+    anim = new QPropertyAnimation(picture, "pos");
+    anim->setDuration(2000);
+    anim->setStartValue(QPointF(0, 0));
+    anim->setEndValue(QPointF(-this->width(), 0));
+    anim->setEasingCurve(QEasingCurve::OutExpo);
+
+    // anim->start(QAbstractAnimation::DeleteWhenStopped);
+    return anim;
 }
 
 /**
@@ -232,9 +319,9 @@ QPixmap PictureView::scaledImage (QPixmap src)
     return image;
 }
 
-void PictureView::addInfo()
+AnimatedItemText *PictureView::createInfo()
 {
-    QGraphicsTextItem *item;
+    AnimatedItemText *item;
     QString msg;
 
     msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
@@ -247,19 +334,23 @@ void PictureView::addInfo()
 
     rect = _pictureScene->sceneRect();
 
-    item = new QGraphicsTextItem();
+    item = new AnimatedItemText();
     item->setPos(rect.left(), rect.bottom() - 40);
     item->setHtml(msg);
 
-    _pictureScene->addItem(item);
+    // _pictureScene->addItem(item);
+    return item;
 }
 
-void PictureView::addRating()
+QGraphicsItemGroup *PictureView::createRating()
 {
     int rating;
     int left;
     int top;
     QRectF rect;
+    QGraphicsItemGroup *result;
+
+    result = new QGraphicsItemGroup ();
 
     rect = _pictureScene->sceneRect();
     rating = _pictureData.rating();
@@ -267,19 +358,21 @@ void PictureView::addRating()
     top = rect.top() + 5;
 
     for (int i = 0; i < rating; i++) {
-        addStar (true, left, top);
+        result->addToGroup(createStar (true, left, top));
         left += 20;
     }
 
     for (int i = rating; i < 5; i++) {
-        addStar (false, left, top);
+        result->addToGroup(createStar (false, left, top));
         left += 20;
     }
+
+    return result;
 }
 
-void PictureView::addStar (bool isOn, int left, int top)
+AnimatedItemPicture *PictureView::createStar (bool isOn, int left, int top)
 {
-    QGraphicsItem *item;
+    AnimatedItemPicture *item;
     QPixmap *star;
 
     if (isOn) {
@@ -289,11 +382,13 @@ void PictureView::addStar (bool isOn, int left, int top)
         star = new QPixmap(":/images/images/star-off.png");
     }
 
-    item = new QGraphicsPixmapItem(star->scaledToHeight(20, Qt::SmoothTransformation));
+    item = new AnimatedItemPicture(star->scaledToHeight(20, Qt::SmoothTransformation));
     item->setPos(left, top);
 
-    _pictureScene->addItem(item);
+    // _pictureScene->addItem(item);
 
     delete star;
+
+    return item;
 }
 
