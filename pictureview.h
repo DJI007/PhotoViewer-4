@@ -37,11 +37,13 @@ private:
     QPixmap correctOrientationPicture();
     QPixmap scaledImage(QPixmap src);
 
-    void hidePicture ();
     void addPicture ();
     void addInfo ();
     void addRating ();
     void addStar (bool, int left, int top);
+
+    void setAnimationIn (QGraphicsItem *item);
+    void setAnimationOut (QGraphicsItem *item);
 };
 
 #endif // PICTUREVIEW_H

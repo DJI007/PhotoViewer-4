@@ -18,14 +18,16 @@ SOURCES += main.cpp\
     exifmetadata.cpp \
     settingshelper.cpp \
     starsaction.cpp \
-    starlabel.cpp
+    starlabel.cpp \
+    pictureitem.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
     exifmetadata.h \
     settingshelper.h \
     starsaction.h \
-    starlabel.h
+    starlabel.h \
+    pictureitem.h
 
 FORMS    += photoviewer.ui
 

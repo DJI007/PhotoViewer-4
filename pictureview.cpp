@@ -7,6 +7,8 @@
 #include <QTimeLine>
 #include <QGraphicsItemAnimation>
 
+#include "pictureitem.h"
+
 PictureView::PictureView(QWidget *parent) :
     QGraphicsView(parent)
 {
@@ -54,39 +56,11 @@ bool PictureView::hasPicture()
 
 void PictureView::showPicture()
 {
-    if (_pictureScene->items().size() > 0) {
-        hidePicture ();
-    }
-
-    _pictureScene->clear();
+   _pictureScene->clear();
 
     addPicture ();
     addInfo ();
     addRating ();
-}
-
-void PictureView::hidePicture()
-{
-/*
-    QGraphicsPixmapItem item;
-
-    item = (QGraphicsPixmapItem *) _pictureScene->items() [0];
-
-    QTimeLine *timer = new QTimeLine(5000);
-
-    timer->setFrameRange(0, 100);
-
-
-    QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
-
-    animation->setItem(item);
-    animation->setTimeLine(timer);
-
-    for (int i = 0; i < 200; ++i)
-        animation->setPosAt(i / 200.0, QPointF(i, i));
-
-    timer->start();
-*/
 }
 
 void PictureView::setPictureRating(int rating)
@@ -103,7 +77,8 @@ void PictureView::addPicture()
     image = correctOrientationPicture();
     image = scaledImage (image);
 
-    item = new QGraphicsPixmapItem(image);
+    //item = new QGraphicsPixmapItem(image);
+    item = new PictureItem(image);
 
     QRect rect;
 
@@ -113,8 +88,54 @@ void PictureView::addPicture()
                 item->boundingRect().height() - 2);
 
     _pictureScene->setSceneRect(rect);
-
     _pictureScene->addItem(item);
+    setAnimationIn (item);
+}
+
+void PictureView::setAnimationIn (QGraphicsItem *item)
+{
+    PictureItem *pItem;
+
+    pItem = (PictureItem *) item;
+
+    /*
+    QPropertyAnimation animation(pItem, "pos");
+    // animation.setTargetObject(pItem);
+    // animation.setPropertyName("pos");
+    animation.setDuration(2000);
+    animation.setStartValue(QPointF(0, 0));
+    animation.setEndValue(QPointF(100, 100));
+    animation.setEasingCurve(QEasingCurve::InOutElastic);
+
+    animation.start();
+    */
+
+    // Start animate this class
+    QPropertyAnimation* anim = new QPropertyAnimation(pItem, "pos");
+
+    // 2 second duration animation
+    anim->setDuration(2000);
+    // position to start animation
+    anim->setStartValue(QPointF(0, 0));
+    // end position of animation
+    anim->setEndValue(QPointF(100, 100));
+    // easing curve
+    anim->setEasingCurve(QEasingCurve::InOutElastic);
+
+    // Listen animation finished signal
+    // QObject::connect(anim, SIGNAL(finished()), this, SLOT(animationFinished()));
+
+    // Start animation and delete QPropertyAnimation class on the end
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+
+
+
+    //  ((PictureItem *) item)->animatePosition(QPointF(0, 0), QPointF(100, 100));
+}
+
+void PictureView::setAnimationOut(QGraphicsItem *item)
+{
+    Q_UNUSED(item);
 }
 
 /**
