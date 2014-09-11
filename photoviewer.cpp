@@ -60,6 +60,9 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
                      SIGNAL(mouseDoubleClick(QMouseEvent*)),
                      this,
                      SLOT(on_pictureDoubleClick()));
+
+    _playerTimer = new QTimer (this);
+    connect (_playerTimer, SIGNAL(timeout()), this, SLOT(on_playerTimerTimeout()));
 }
 
 PhotoViewer::~PhotoViewer()
@@ -72,13 +75,6 @@ void PhotoViewer::on_actionChange_folder_triggered()
 {
     QString directory;
     QFileDialog *fd = new QFileDialog;
-
-    // QFileDialog::getOpenFileName(this,
-    //                                     tr("Open File"), QDir::currentPath());
-    // QTreeView *tree = fd->findChild <QTreeView*>();
-
-    // tree->setRootIsDecorated(true);
-    // tree->setItemsExpandable(true);
 
     fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
     fd->setFileMode (QFileDialog::Directory);
@@ -132,27 +128,9 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 
     fileName = _currentDir->absoluteFilePath(_currentDir->entryList()[_currentFile]);
 
-    // ui->gvPicture->setPicture(fileName);
-/*
-    if (!ui->gvPicture->hasPicture()) {
-        QMessageBox::information(this,
-                                 tr("Image Viewer"),
-                                 tr("Cannot load %1.").arg(fileName));
-    }
-    else {
-        if (animation) {
-            ui->gvPicture->showPictureWithAnimation ();
-        }
-        else {
-            ui->gvPicture->showPicture (fileName);
-        }
-    }
-*/
     ui->gvPicture->loadPicture (fileName);
     ui->gvPicture->showPicture (anim);
 }
-
-
 
 void PhotoViewer::on_pictureDoubleClick()
 {
@@ -203,8 +181,7 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 
     if (this->ui->gvPicture->hasPicture()) {
-        // this->ui->gvPicture->showPicture();
-        this->ui->gvPicture->changeSize();
+        this->ui->gvPicture->resize ();
     }
 }
 
@@ -216,4 +193,28 @@ void PhotoViewer::on_actionSet_1_star_hovered()
 void PhotoViewer::on_actionSet_2_stars_hovered()
 {
    this->ui->actionSet_1_star->setChecked(true);
+}
+
+void PhotoViewer::on_actionPlay_triggered()
+{
+    if (_playerTimer->isActive()) {
+        _playerTimer->stop();
+    }
+    else {
+        _playerTimer->start(5000);
+    }
+}
+
+void PhotoViewer::on_playerTimerTimeout ()
+{
+    if (_currentFile < _currentDir->entryList().count() - 1) {
+        _currentFile++;
+        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Image Viewer"),
+                                 tr("End of slide show!"));
+        _playerTimer->stop();
+    }
 }

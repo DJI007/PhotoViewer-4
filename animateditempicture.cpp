@@ -25,11 +25,6 @@ AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent
 
 AnimatedItemPicture::~AnimatedItemPicture()
 {
-    if (_info != NULL)
-        delete _info;
-
-    if (_rating != NULL)
-        delete _rating;
 }
 
 void AnimatedItemPicture::load ()
@@ -159,9 +154,9 @@ QPixmap AnimatedItemPicture::scaledImage (QPixmap src)
 {
     QPixmap image;
 
-    image = src.scaledToWidth(this->scene()->width(), Qt::SmoothTransformation);
+    image = src.scaledToWidth(this->scene()->width(), Qt::FastTransformation);
     if (image.height() > this->scene()->height()) {
-        image = src.scaledToHeight(this->scene()->height(), Qt::SmoothTransformation);
+        image = src.scaledToHeight(this->scene()->height(), Qt::FastTransformation);
     }
 
     return image;
@@ -201,10 +196,8 @@ void AnimatedItemPicture::centerOnScene()
 
 void AnimatedItemPicture::setChildrenPos ()
 {
-    // QRectF rect(0, 0, this->scene()->width(), this->scene()->height());
     QRectF rect;
 
-    //rect = this->boundingRect();
     rect = this->pixmap().rect();
 
     _info->setPos(rect.left(), rect.bottom() - 40);
@@ -215,9 +208,6 @@ void AnimatedItemPicture::setChildrenPos ()
     left = rect.right() - (10 + (20 * 5));   // margin: 10, star width: 20
     top = rect.top() + 5;
     _rating->setPos(left, top);
-
-    // qDebug() << "AnimatedItemPicture::resize: " << rect.width() << "-.-" << rect.height();
-    // qDebug() << "AnimatedItemPicture::resize: scene: " << this->scene()->width() << "-.-" << this->scene()->height();
 }
 
 AnimatedItemText *AnimatedItemPicture::createInfo()
@@ -237,7 +227,6 @@ AnimatedItemText *AnimatedItemPicture::createInfo()
 
     item = new AnimatedItemText();
     item->setHtml(msg);
-    // item->setPos(rect.left(), rect.bottom() - 40);
 
     return item;
 }
@@ -254,8 +243,6 @@ QGraphicsItemGroup *AnimatedItemPicture::createRating()
     rect = this->boundingRect();
 
     rating = _pictureData.rating();
-    // left = rect.right() - (10 + (20 * 5));   // margin: 10, star width: 20
-    // top = rect.top() + 5;
     left = 0;
 
     for (int i = 0; i < rating; i++) {
@@ -294,8 +281,6 @@ AnimatedItemPicture *AnimatedItemPicture::createStar (bool isOn, int left, int t
 
     item = new AnimatedItemPicture(star->scaledToHeight(20, Qt::SmoothTransformation));
     item->setPos(left, top);
-
-    // _pictureScene->addItem(item);
 
     delete star;
 

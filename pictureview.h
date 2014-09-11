@@ -25,9 +25,7 @@ public:
     explicit PictureView(QWidget *parent = 0);
     ~PictureView ();
 
-    void changeSize ();
     bool hasPicture ();
-    void showPictureWithAnimation ();
 
 signals:
     void mouseDoubleClick (QMouseEvent *);
@@ -36,7 +34,7 @@ public slots:
     void loadPicture (QString fileName);
     void showPicture (PictureAnimationType animType = PictureAnimationType::None);
     void setPictureRating (int rating);
-    void on_finish_outAnimation ();
+    void on_finishPrevPictureAnimation ();
     void resize ();
 
 protected:
@@ -47,21 +45,6 @@ private:
     AnimatedItemPicture *_currentPicture;
     AnimatedItemPicture *_prevPicture;
     QAnimationGroup *_currentAnimation;
-/*
-    QString _fileName;
-    QImage *_picture;
-    ExifMetadata _pictureData;
-
-    QPixmap correctOrientationPicture();
-    QPixmap scaledImage(QPixmap src);
-
-    AnimatedItemPicture *createPicture ();
-    AnimatedItemText *createInfo ();
-    QGraphicsItemGroup *createRating ();
-
-    AnimatedItemPicture *createStar (bool, int left, int top);
-*/
-
     QAbstractAnimation *createAnimationIn (QGraphicsItemGroup *);
     QAbstractAnimation *createAnimationOut (QGraphicsItemGroup *);
 };

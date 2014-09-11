@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QDir>
+#include <QTimer>
 
 #include "pictureview.h"
 
@@ -26,6 +27,10 @@ private slots:
     void on_actionSet_1_star_hovered();
     void on_actionSet_2_stars_hovered();
 
+    void on_actionPlay_triggered();
+
+    void on_playerTimerTimeout();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
@@ -35,6 +40,8 @@ private:
     QDir *_currentDir;
     int _currentFile;
     bool _lastStatusMaximized;
+
+    QTimer *_playerTimer;
 
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void hideWidgetList(QList<QWidget *>);
