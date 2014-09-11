@@ -16,16 +16,14 @@ PictureView::PictureView(QWidget *parent) :
     _pictureScene = new QGraphicsScene(this);
     _pictureScene->setObjectName("gsScene");
 
-    this->setScene(_pictureScene);
+    _currentPicture = NULL;
+    _currentAnimation = NULL;
 
-    _picture = NULL;
+    this->setScene(_pictureScene);
 }
 
 PictureView::~PictureView ()
 {
-    if (_picture != NULL)
-        delete _picture;
-
     delete _pictureScene;
 }
 
@@ -36,27 +34,105 @@ void PictureView::mouseDoubleClickEvent (QMouseEvent *event)
    }
 }
 
-void PictureView::setPicture(QString fileName)
-{
-    if (_picture != NULL) {
-        delete _picture;
-    }
-
-    // qDebug () << "setPicture: " << fileName;
-
-    _fileName = fileName;
-    _picture = new QImage (fileName);
-    _pictureData.loadData(fileName);
-}
-
-
 bool PictureView::hasPicture()
 {
-    return (_picture != NULL) && (!_picture->isNull());
+    return _pictureScene->items().count() > 0;
 }
 
-void PictureView::showPicture()
+void PictureView::changeSize()
 {
+    resize ();
+     _currentPicture->resize();
+
+/*
+    QRect rect;
+
+    rect.adjust(0,
+                0,
+                this->width() - 4,
+                this->height() - 4);
+
+    qDebug() << "this: " << this->width() << "-.-" << this->height();
+    qDebug() << "scene: " << _pictureScene->sceneRect().width() << "-.-" << _pictureScene->sceneRect().height();
+
+
+    // _pictureScene->setSceneRect(rect);
+    _currentPicture->load();
+    */
+}
+
+void PictureView::resize()
+{
+    qreal x;
+    qreal y;
+
+    x = 0;
+    y = 0;
+
+    _pictureScene->setSceneRect (x, y, this->width() - 2, this->height() - 2);
+}
+
+void PictureView::loadPicture(QString fileName)
+{
+    if (_currentAnimation) {
+        _currentAnimation->stop();
+        on_finish_outAnimation();
+    }
+
+    // _pictureScene->clear();
+    _prevPicture = _currentPicture;
+    _currentPicture = new AnimatedItemPicture (fileName, this);
+    // _pictureScene->addItem(_currentPicture);
+    // showPicture (PictureAnimationType::None);
+}
+
+void PictureView::showPicture(PictureAnimationType animType)
+{
+    if (_currentPicture != NULL) {
+        _pictureScene->addItem(_currentPicture);
+        _currentPicture->load();
+    }
+
+    if (animType != PictureAnimationType::None) {
+        qreal startX;
+        qreal endX;
+
+        if (animType == PictureAnimationType::RightToLeft) {
+            startX = this->width();
+            endX = 0;
+        }
+        else {
+            startX = -this->width();
+            endX = 0;
+        }
+
+        QPropertyAnimation *anim;
+
+        _currentAnimation = new QParallelAnimationGroup();
+
+        anim = new QPropertyAnimation(_prevPicture, "pos");
+        anim->setDuration(1000);
+        anim->setStartValue(QPointF(endX, 0));
+        anim->setEndValue(QPointF(-startX, 0));
+        anim->setEasingCurve(QEasingCurve::OutExpo);
+        QObject::connect(anim,
+                         SIGNAL(finished()),
+                         this,
+                         SLOT(on_finish_outAnimation ()));
+        _currentAnimation->addAnimation(anim);
+
+        anim = new QPropertyAnimation(_currentPicture, "pos");
+        anim->setDuration(1000);
+        anim->setStartValue(QPointF(startX, 0));
+        anim->setEndValue(QPointF(endX, 0));
+        anim->setEasingCurve(QEasingCurve::OutExpo);
+        _currentAnimation->addAnimation(anim);
+
+        _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+
+
+/*
     if (_pictureScene->items().count() > 0) {
         QGraphicsItem *first;
 
@@ -75,6 +151,7 @@ void PictureView::showPicture()
     _pictureScene->addItem(pictureGroup);
 
     qDebug() << _pictureScene->items().count();
+*/
 }
 
 void PictureView::showPictureWithAnimation()
@@ -86,6 +163,7 @@ void PictureView::showPictureWithAnimation()
     addInfo ();
     addRating ();
 */
+/*
     QAbstractAnimation *animOut = NULL;
 
     if (_pictureScene->items().count() > 0) {
@@ -129,16 +207,22 @@ void PictureView::showPictureWithAnimation()
     _pictureScene->addItem(pictureGroup);
 
     qDebug() << "Animation: " << _pictureScene->items().count();
+*/
 }
 
 void PictureView::on_finish_outAnimation()
 {
+    _pictureScene->removeItem(_prevPicture);
+    delete _prevPicture;
+    _currentAnimation = NULL;
+/*
     QGraphicsItem *first;
 
     first = _pictureScene->items() [0];
     _pictureScene->removeItem(first->group());
 
     qDebug() << "2" << _pictureScene->items().count();
+*/
 /*
     QAbstractAnimation *animIn;
     QGraphicsItemGroup *pictureGroup;
@@ -163,10 +247,14 @@ void PictureView::on_finish_outAnimation()
 
 void PictureView::setPictureRating(int rating)
 {
+    _currentPicture->setPictureRating (rating);
+/*
     _pictureData.setRating(rating);
     createRating ();
+*/
 }
 
+/*
 AnimatedItemPicture *PictureView::createPicture()
 {
     AnimatedItemPicture *item;
@@ -224,6 +312,7 @@ QAbstractAnimation *PictureView::createAnimationOut(QGraphicsItemGroup *group)
     // anim->start(QAbstractAnimation::DeleteWhenStopped);
     return anim;
 }
+*/
 
 /**
  * @brief Get the current picture in the correct orientation
@@ -252,6 +341,7 @@ QAbstractAnimation *PictureView::createAnimationOut(QGraphicsItemGroup *group)
  *
  * http://sylvana.net/jpegcrop/exif_orientation.html
  */
+/*
 QPixmap PictureView::correctOrientationPicture()
 {
     QPixmap image;
@@ -392,3 +482,4 @@ AnimatedItemPicture *PictureView::createStar (bool isOn, int left, int top)
     return item;
 }
 
+*/

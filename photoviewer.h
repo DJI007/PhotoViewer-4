@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QDir>
 
+#include "pictureview.h"
+
 namespace Ui {
 class PhotoViewer;
 }
@@ -18,15 +20,10 @@ public:
 
 private slots:
     void on_actionChange_folder_triggered();
-
     void on_actionNext_picture_triggered();
-
     void on_actionPrevious_picture_triggered();
-
     void on_pictureDoubleClick();
-
     void on_actionSet_1_star_hovered();
-
     void on_actionSet_2_stars_hovered();
 
 protected:
@@ -37,9 +34,9 @@ private:
 
     QDir *_currentDir;
     int _currentFile;
+    bool _lastStatusMaximized;
 
-
-    void showCurrentPicture (bool animation = false);
+    void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void hideWidgetList(QList<QWidget *>);
     void toggleFullScreen();
 

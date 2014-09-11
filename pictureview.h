@@ -5,7 +5,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QImage>
-#include <QAbstractAnimation>
+#include <QAnimationGroup>
 #include <QGraphicsItem>
 
 #include "exifmetadata.h"
@@ -16,10 +16,16 @@ class PictureView : public QGraphicsView
 {
     Q_OBJECT
 public:
+    enum PictureAnimationType {
+        None,
+        LeftToRight,
+        RightToLeft
+    };
+
     explicit PictureView(QWidget *parent = 0);
     ~PictureView ();
 
-    void setPicture (QString);
+    void changeSize ();
     bool hasPicture ();
     void showPictureWithAnimation ();
 
@@ -27,17 +33,23 @@ signals:
     void mouseDoubleClick (QMouseEvent *);
 
 public slots:
-    void showPicture ();
+    void loadPicture (QString fileName);
+    void showPicture (PictureAnimationType animType = PictureAnimationType::None);
     void setPictureRating (int rating);
     void on_finish_outAnimation ();
+    void resize ();
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
 
 private:
+    QGraphicsScene *_pictureScene;
+    AnimatedItemPicture *_currentPicture;
+    AnimatedItemPicture *_prevPicture;
+    QAnimationGroup *_currentAnimation;
+/*
     QString _fileName;
     QImage *_picture;
-    QGraphicsScene *_pictureScene;
     ExifMetadata _pictureData;
 
     QPixmap correctOrientationPicture();
@@ -48,6 +60,7 @@ private:
     QGraphicsItemGroup *createRating ();
 
     AnimatedItemPicture *createStar (bool, int left, int top);
+*/
 
     QAbstractAnimation *createAnimationIn (QGraphicsItemGroup *);
     QAbstractAnimation *createAnimationOut (QGraphicsItemGroup *);

@@ -103,7 +103,7 @@ void PhotoViewer::on_actionNext_picture_triggered()
 {
     if (_currentFile < _currentDir->entryList().count() - 1) {
         _currentFile++;
-        showCurrentPicture(true);
+        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
     }
     else {
         QMessageBox::information(this,
@@ -117,7 +117,7 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
 
     if (_currentFile > 0) {
         _currentFile--;
-        showCurrentPicture(true);
+        showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
     }
     else {
         QMessageBox::information(this,
@@ -126,13 +126,14 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
     }
 }
 
-void PhotoViewer::showCurrentPicture(bool animation)
+void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 {
     QString fileName;
 
     fileName = _currentDir->absoluteFilePath(_currentDir->entryList()[_currentFile]);
 
-    ui->gvPicture->setPicture(fileName);
+    // ui->gvPicture->setPicture(fileName);
+/*
     if (!ui->gvPicture->hasPicture()) {
         QMessageBox::information(this,
                                  tr("Image Viewer"),
@@ -143,10 +144,14 @@ void PhotoViewer::showCurrentPicture(bool animation)
             ui->gvPicture->showPictureWithAnimation ();
         }
         else {
-            ui->gvPicture->showPicture ();
+            ui->gvPicture->showPicture (fileName);
         }
     }
+*/
+    ui->gvPicture->loadPicture (fileName);
+    ui->gvPicture->showPicture (anim);
 }
+
 
 
 void PhotoViewer::on_pictureDoubleClick()
@@ -157,8 +162,6 @@ void PhotoViewer::on_pictureDoubleClick()
 void PhotoViewer::toggleFullScreen()
 {
     if (this->isFullScreen()) {
-        this->showNormal();
-
         QList<QStatusBar *> statusbars;
         statusbars = this->findChildren<QStatusBar*> ();
         for (int i = 0; i < statusbars.length(); i++) {
@@ -170,17 +173,15 @@ void PhotoViewer::toggleFullScreen()
             menubars[i]->show();
         }
 
+        if (_lastStatusMaximized) {
+            this->showMaximized();
+        }
+        else {
+            this->showNormal();
+        }
     }
     else {
-        this->showFullScreen();
-
-        /*
-        QList<QToolBar *> toolbars;
-        toolbars = this->findChildren<QToolBar*> ();
-        for (int i = 0; i < toolbars.length(); i++) {
-            toolbars[i]->hide();
-        }
-*/
+        _lastStatusMaximized = this->isMaximized();
 
         QList<QStatusBar *> statusbars;
         statusbars = this->findChildren<QStatusBar*> ();
@@ -192,6 +193,8 @@ void PhotoViewer::toggleFullScreen()
         for (int i = 0; i < menubars.length(); i++) {
             menubars[i]->hide();
         }
+
+        this->showFullScreen();
     }
 }
 
@@ -200,7 +203,8 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent(event);
 
     if (this->ui->gvPicture->hasPicture()) {
-        this->ui->gvPicture->showPicture();
+        // this->ui->gvPicture->showPicture();
+        this->ui->gvPicture->changeSize();
     }
 }
 
