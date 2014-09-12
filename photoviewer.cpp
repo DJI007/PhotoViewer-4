@@ -29,15 +29,24 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->setupUi(this);
 
     // centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+/*
     setCentralWidget(ui->gvPicture);
     ui->gvPicture->setMouseTracking(true);
     setMouseTracking(true);
-
+*/
     _playerTimer = new QTimer (this);
+    _playerTimer->setInterval(PLAYER_TIMER_MILLISECONDS);
     connect (_playerTimer,
              SIGNAL(timeout()),
              this,
              SLOT(on_playerTimerTimeout()));
+
+    _toolBarTimer = new QTimer (this);
+    _toolBarTimer->setInterval(2000);
+    connect (_toolBarTimer,
+             SIGNAL(timeout()),
+             this,
+             SLOT(on_toolBarTimerTimeout()));
 
     StarsAction *action;
 
@@ -117,7 +126,7 @@ void PhotoViewer::on_actionNext_picture_triggered()
 
         if (_playerTimer->isActive()) {
             _playerTimer->stop();
-            _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
+            _playerTimer->start();
         }
     }
     else {
@@ -136,7 +145,7 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
 
         if (_playerTimer->isActive()) {
             _playerTimer->stop();
-            _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
+            _playerTimer->start();
         }
     }
     else {
@@ -164,13 +173,19 @@ void PhotoViewer::on_pictureDoubleClick()
 void PhotoViewer::on_pictureMouseMove()
 {
     if (isFullScreen()) {
+        showToolBarFullScreen();
+        // if (!_toolBarTimer->isActive()) {
+        //   QApplication::restoreOverrideCursor();
+        //   showToolBar (true);
+        // }
+
         // Only show the main toolbar
         // this->ui->mainToolBar->show();
+        // QPropertyAnimation *animation = new QPropertyAnimation(this->ui->mainToolBar, "geometry");
 
-        this->ui->dockWidget->show();
-
-        QPropertyAnimation *animation = new QPropertyAnimation(this->ui->dockWidget, "pos");
-
+        //this->ui->dockWidget->show();
+        //QPropertyAnimation *animation = new QPropertyAnimation(this->ui->dockWidget, "geometry");
+/*
         animation->setDuration(5000);
         animation->setStartValue(QRect(0, 0, 10, 10));
         animation->setEndValue(QRect(100, 100, 10, 10));
@@ -178,12 +193,15 @@ void PhotoViewer::on_pictureMouseMove()
         animation->start(QAbstractAnimation::DeleteWhenStopped);
 
         QApplication::restoreOverrideCursor();
+*/
     }
 }
 
 void PhotoViewer::toggleFullScreen()
 {
     if (this->isFullScreen()) {
+        endToolBarFullScreen();
+
         setMenuBarsVisibility(true);
         setStatusBarsVisibility(true);
         setToolBarsVisibility(true);
@@ -199,6 +217,8 @@ void PhotoViewer::toggleFullScreen()
         }
     }
     else {
+        startToolBarFullScreen();
+
         _lastStatusMaximized = this->isMaximized();
 
         setMenuBarsVisibility(false);
@@ -278,10 +298,11 @@ void PhotoViewer::on_actionSet_2_stars_hovered()
 void PhotoViewer::on_actionPlay_triggered()
 {
     if (_playerTimer->isActive()) {
+
         _playerTimer->stop();
     }
     else {
-        _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
+        _playerTimer->start();
     }
 }
 
@@ -298,3 +319,37 @@ void PhotoViewer::on_playerTimerTimeout ()
         _playerTimer->stop();
     }
 }
+
+void PhotoViewer::on_toolBarTimerTimeout ()
+{
+    hideToolBarFullScreen();
+}
+
+void PhotoViewer::startToolBarFullScreen ()
+{
+    _toolBarWindowFlags = ui->mainToolBar->windowFlags();
+}
+
+void PhotoViewer::showToolBarFullScreen ()
+{
+   QApplication::restoreOverrideCursor();
+
+    ui->mainToolBar->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+    ui->mainToolBar->show();
+
+    _toolBarTimer->start();
+}
+
+void PhotoViewer::hideToolBarFullScreen ()
+{
+    QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+    ui->mainToolBar->hide();
+    _toolBarTimer->stop();
+}
+
+void PhotoViewer::endToolBarFullScreen ()
+{
+    ui->mainToolBar->setWindowFlags(_toolBarWindowFlags);
+    _toolBarTimer->stop();
+}
+

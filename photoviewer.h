@@ -31,6 +31,7 @@ private slots:
     void on_actionPlay_triggered();
 
     void on_playerTimerTimeout();
+    void on_toolBarTimerTimeout();
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -43,17 +44,22 @@ private:
     QDir *_currentDir;
     int _currentFile;
     bool _lastStatusMaximized;
+    Qt::WindowFlags _toolBarWindowFlags;
 
     QTimer *_playerTimer;
+    QTimer *_toolBarTimer;
 
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void toggleFullScreen();
 
+    void startToolBarFullScreen ();
+    void showToolBarFullScreen ();
+    void hideToolBarFullScreen ();
+    void endToolBarFullScreen ();
+
     void setMenuBarsVisibility (bool visible);
     void setStatusBarsVisibility (bool visible);
     void setToolBarsVisibility (bool visible);
-
-
 };
 
 #endif // PHOTOVIEWER_H

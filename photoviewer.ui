@@ -76,7 +76,7 @@
      <x>0</x>
      <y>0</y>
      <width>596</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -87,6 +87,7 @@
      <property name="title">
       <string>Rating</string>
      </property>
+     <addaction name="actionSet_0_stars"/>
      <addaction name="actionSet_1_star"/>
      <addaction name="actionSet_2_stars"/>
      <addaction name="actionSet_3_stars"/>
@@ -124,12 +125,6 @@
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dockWidget">
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
-  </widget>
   <action name="actionChange_folder">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
@@ -143,12 +138,19 @@
    </property>
   </action>
   <action name="actionPlay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/media-playback-start.png</normaloff>:/images/images/media-playback-start.png</iconset>
+     <normaloff>:/images/images/media-playback-start.png</normaloff>
+     <normalon>:/images/images/media-playback-pause.png</normalon>:/images/images/media-playback-start.png</iconset>
    </property>
    <property name="text">
-    <string>Play</string>
+    <string>Play/Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Play/Pause</string>
    </property>
   </action>
   <action name="actionNext_picture">
@@ -172,9 +174,9 @@
   <action name="actionSet_1_star">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/star-off.png</normaloff>
+     <normaloff>:/images/images/star-on-menu.png</normaloff>
      <activeon>:/images/images/star-on.png</activeon>
-     <selectedon>:/images/images/star-on.png</selectedon>:/images/images/star-off.png</iconset>
+     <selectedon>:/images/images/star-on.png</selectedon>:/images/images/star-on-menu.png</iconset>
    </property>
    <property name="text">
     <string>Set 1 star</string>
@@ -183,7 +185,7 @@
   <action name="actionSet_2_stars">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+     <normaloff>:/images/images/star-on-menu-2.png</normaloff>:/images/images/star-on-menu-2.png</iconset>
    </property>
    <property name="text">
     <string>Set 2 stars</string>
@@ -192,7 +194,7 @@
   <action name="actionSet_3_stars">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+     <normaloff>:/images/images/star-on-menu-3.png</normaloff>:/images/images/star-on-menu-3.png</iconset>
    </property>
    <property name="text">
     <string>Set 3 stars</string>
@@ -201,7 +203,7 @@
   <action name="actionSet_4_stars">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+     <normaloff>:/images/images/star-on-menu-4.png</normaloff>:/images/images/star-on-menu-4.png</iconset>
    </property>
    <property name="text">
     <string>Set 4 stars</string>
@@ -210,10 +212,22 @@
   <action name="actionSet_5_stars">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/star-on.png</normaloff>:/images/images/star-on.png</iconset>
+     <normaloff>:/images/images/star-on-menu-5.png</normaloff>:/images/images/star-on-menu-5.png</iconset>
    </property>
    <property name="text">
     <string>Set 5 stars</string>
+   </property>
+  </action>
+  <action name="actionSet_0_stars">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/star-cancel.png</normaloff>:/images/images/star-cancel.png</iconset>
+   </property>
+   <property name="text">
+    <string>Set 0 stars</string>
+   </property>
+   <property name="toolTip">
+    <string>Set 0 stars</string>
    </property>
   </action>
  </widget>

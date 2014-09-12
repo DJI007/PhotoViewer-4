@@ -29,6 +29,8 @@ public:
     void setNormalBackground ();
     void setFullScreenBackground ();
 
+    QGraphicsScene *getScene ();
+
 
 signals:
     void mouseDoubleClick (QMouseEvent *);

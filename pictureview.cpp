@@ -70,6 +70,11 @@ void PictureView::loadPicture(QString fileName)
     _currentPicture = new AnimatedItemPicture (fileName, this);
 }
 
+QGraphicsScene *PictureView::getScene()
+{
+    return _pictureScene;
+}
+
 void PictureView::showPicture(PictureAnimationType animType)
 {
     if (_currentPicture != NULL) {
