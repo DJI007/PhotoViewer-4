@@ -28,12 +28,6 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    // centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
-/*
-    setCentralWidget(ui->gvPicture);
-    ui->gvPicture->setMouseTracking(true);
-    setMouseTracking(true);
-*/
     _playerTimer = new QTimer (this);
     _playerTimer->setInterval(PLAYER_TIMER_MILLISECONDS);
     connect (_playerTimer,
@@ -94,67 +88,6 @@ PhotoViewer::~PhotoViewer()
     delete _currentDir;
 }
 
-void PhotoViewer::on_actionChange_folder_triggered()
-{
-    QString directory;
-    QFileDialog *fd = new QFileDialog;
-
-    fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
-    fd->setFileMode (QFileDialog::Directory);
-    fd->setOption (QFileDialog::ShowDirsOnly);
-    fd->setViewMode (QFileDialog::Detail);
-
-    int result = fd->exec();
-    if (result)
-    {
-        directory = fd->selectedFiles ()[0];
-        SettingsHelper::instance().setLastDirectory (directory);
-
-        _currentDir->setPath (fd->selectedFiles()[0]);
-        _currentFile = 0;
-        showCurrentPicture ();
-    }
-
-    delete fd;
-}
-
-void PhotoViewer::on_actionNext_picture_triggered()
-{
-    if (_currentFile < _currentDir->entryList().count() - 1) {
-        _currentFile++;
-        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
-
-        if (_playerTimer->isActive()) {
-            _playerTimer->stop();
-            _playerTimer->start();
-        }
-    }
-    else {
-        QMessageBox::information(this,
-                                 tr("Image Viewer"),
-                                 tr("Last picture"));
-    }
-}
-
-void PhotoViewer::on_actionPrevious_picture_triggered()
-{
-
-    if (_currentFile > 0) {
-        _currentFile--;
-        showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
-
-        if (_playerTimer->isActive()) {
-            _playerTimer->stop();
-            _playerTimer->start();
-        }
-    }
-    else {
-        QMessageBox::information(this,
-                                 tr("Image Viewer"),
-                                 tr("First picture"));
-    }
-}
-
 void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 {
     QString fileName;
@@ -174,26 +107,6 @@ void PhotoViewer::on_pictureMouseMove()
 {
     if (isFullScreen()) {
         showToolBarFullScreen();
-        // if (!_toolBarTimer->isActive()) {
-        //   QApplication::restoreOverrideCursor();
-        //   showToolBar (true);
-        // }
-
-        // Only show the main toolbar
-        // this->ui->mainToolBar->show();
-        // QPropertyAnimation *animation = new QPropertyAnimation(this->ui->mainToolBar, "geometry");
-
-        //this->ui->dockWidget->show();
-        //QPropertyAnimation *animation = new QPropertyAnimation(this->ui->dockWidget, "geometry");
-/*
-        animation->setDuration(5000);
-        animation->setStartValue(QRect(0, 0, 10, 10));
-        animation->setEndValue(QRect(100, 100, 10, 10));
-
-        animation->start(QAbstractAnimation::DeleteWhenStopped);
-
-        QApplication::restoreOverrideCursor();
-*/
     }
 }
 
@@ -286,6 +199,7 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     }
 }
 
+/*
 void PhotoViewer::on_actionSet_1_star_hovered()
 {
 }
@@ -294,17 +208,7 @@ void PhotoViewer::on_actionSet_2_stars_hovered()
 {
    this->ui->actionSet_1_star->setChecked(true);
 }
-
-void PhotoViewer::on_actionPlay_triggered()
-{
-    if (_playerTimer->isActive()) {
-
-        _playerTimer->stop();
-    }
-    else {
-        _playerTimer->start();
-    }
-}
+*/
 
 void PhotoViewer::on_playerTimerTimeout ()
 {
@@ -351,5 +255,107 @@ void PhotoViewer::endToolBarFullScreen ()
 {
     ui->mainToolBar->setWindowFlags(_toolBarWindowFlags);
     _toolBarTimer->stop();
+}
+
+void PhotoViewer::on_actionChange_folder_triggered()
+{
+    QString directory;
+    QFileDialog *fd = new QFileDialog;
+
+    fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
+    fd->setFileMode (QFileDialog::Directory);
+    fd->setOption (QFileDialog::ShowDirsOnly);
+    fd->setViewMode (QFileDialog::Detail);
+
+    int result = fd->exec();
+    if (result)
+    {
+        directory = fd->selectedFiles ()[0];
+        SettingsHelper::instance().setLastDirectory (directory);
+
+        _currentDir->setPath (fd->selectedFiles()[0]);
+        _currentFile = 0;
+        showCurrentPicture ();
+    }
+
+    delete fd;
+}
+
+void PhotoViewer::on_actionPrevious_picture_triggered()
+{
+
+    if (_currentFile > 0) {
+        _currentFile--;
+        showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
+
+        if (_playerTimer->isActive()) {
+            _playerTimer->stop();
+            _playerTimer->start();
+        }
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Image Viewer"),
+                                 tr("First picture"));
+    }
+}
+
+void PhotoViewer::on_actionPlay_triggered()
+{
+    if (_playerTimer->isActive()) {
+
+        _playerTimer->stop();
+    }
+    else {
+        _playerTimer->start();
+    }
+}
+
+void PhotoViewer::on_actionNext_picture_triggered()
+{
+    if (_currentFile < _currentDir->entryList().count() - 1) {
+        _currentFile++;
+        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+
+        if (_playerTimer->isActive()) {
+            _playerTimer->stop();
+            _playerTimer->start();
+        }
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Image Viewer"),
+                                 tr("Last picture"));
+    }
+}
+
+void PhotoViewer::on_actionSet_0_stars_triggered()
+{
+    ui->gvPicture->setPictureRating(0);
+}
+
+void PhotoViewer::on_actionSet_1_star_triggered()
+{
+    ui->gvPicture->setPictureRating(1);
+}
+
+void PhotoViewer::on_actionSet_2_stars_triggered()
+{
+    ui->gvPicture->setPictureRating(2);
+}
+
+void PhotoViewer::on_actionSet_3_stars_triggered()
+{
+    ui->gvPicture->setPictureRating(3);
+}
+
+void PhotoViewer::on_actionSet_4_stars_triggered()
+{
+    ui->gvPicture->setPictureRating(4);
+}
+
+void PhotoViewer::on_actionSet_5_stars_triggered()
+{
+    ui->gvPicture->setPictureRating(5);
 }
 

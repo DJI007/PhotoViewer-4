@@ -21,14 +21,22 @@ public:
 
 private slots:
     void on_actionChange_folder_triggered();
-    void on_actionNext_picture_triggered();
     void on_actionPrevious_picture_triggered();
+    void on_actionPlay_triggered();
+    void on_actionNext_picture_triggered();
+    void on_actionSet_0_stars_triggered();
+    void on_actionSet_1_star_triggered();
+    void on_actionSet_2_stars_triggered();
+    void on_actionSet_3_stars_triggered();
+    void on_actionSet_4_stars_triggered();
+    void on_actionSet_5_stars_triggered();
+
     void on_pictureDoubleClick();
     void on_pictureMouseMove();
+/*
     void on_actionSet_1_star_hovered();
     void on_actionSet_2_stars_hovered();
-
-    void on_actionPlay_triggered();
+*/
 
     void on_playerTimerTimeout();
     void on_toolBarTimerTimeout();
