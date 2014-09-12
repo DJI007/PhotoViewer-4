@@ -20,6 +20,7 @@ PictureView::PictureView(QWidget *parent) :
     _currentAnimation = NULL;
 
     this->setScene(_pictureScene);
+    this->setNormalBackground();
 }
 
 PictureView::~PictureView ()
@@ -33,6 +34,12 @@ void PictureView::mouseDoubleClickEvent (QMouseEvent *event)
        emit mouseDoubleClick(event);
    }
 }
+
+void PictureView::mouseMoveEvent(QMouseEvent *event)
+{
+   emit mouseMove(event);
+}
+
 
 bool PictureView::hasPicture()
 {
@@ -120,3 +127,22 @@ void PictureView::setPictureRating(int rating)
     _currentPicture->setPictureRating (rating);
 }
 
+void PictureView::setNormalBackground()
+{
+    QBrush brush;
+
+    brush.setStyle(Qt::BrushStyle::Dense4Pattern);
+    brush.setColor(Qt::GlobalColor::lightGray);
+
+    this->setBackgroundBrush(brush);
+}
+
+void PictureView::setFullScreenBackground()
+{
+    QBrush brush;
+
+    brush.setStyle(Qt::BrushStyle::SolidPattern);
+    brush.setColor(Qt::GlobalColor::black);
+
+    this->setBackgroundBrush(brush);
+}

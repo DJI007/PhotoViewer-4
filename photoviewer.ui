@@ -40,12 +40,24 @@
         <property name="autoFillBackground">
          <bool>true</bool>
         </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
         <property name="backgroundBrush">
-         <brush brushstyle="Dense2Pattern">
+         <brush brushstyle="Dense4Pattern">
           <color alpha="255">
-           <red>181</red>
-           <green>181</green>
-           <blue>181</blue>
+           <red>198</red>
+           <green>198</green>
+           <blue>198</blue>
+          </color>
+         </brush>
+        </property>
+        <property name="foregroundBrush">
+         <brush brushstyle="NoBrush">
+          <color alpha="255">
+           <red>0</red>
+           <green>0</green>
+           <blue>0</blue>
           </color>
          </brush>
         </property>
@@ -112,6 +124,12 @@
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
   <action name="actionChange_folder">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">

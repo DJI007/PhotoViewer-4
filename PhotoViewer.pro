@@ -11,7 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = PhotoViewer
 TEMPLATE = app
 
-
 SOURCES += main.cpp\
         photoviewer.cpp \
     pictureview.cpp \
@@ -49,4 +48,5 @@ unix {
 INCLUDEPATH  += /usr/local/include
 # LIBS         += -L/usr/local/lib -lexiv2
 LIBS += -lexiv2
+QMAKE_CXXFLAGS += -std=c++11
 }

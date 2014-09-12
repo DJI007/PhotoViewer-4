@@ -11,6 +11,7 @@
 #include <QToolBar>
 #include <QStatusBar>
 #include <QMenuBar>
+#include <QPropertyAnimation>
 
 #include "settingshelper.h"
 #include "starsaction.h"
@@ -27,15 +28,26 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
+    setCentralWidget(ui->gvPicture);
+    ui->gvPicture->setMouseTracking(true);
+    setMouseTracking(true);
+
+    _playerTimer = new QTimer (this);
+    connect (_playerTimer,
+             SIGNAL(timeout()),
+             this,
+             SLOT(on_playerTimerTimeout()));
+
     StarsAction *action;
 
     action = new StarsAction (ui->mainToolBar);
     ui->mainToolBar->addAction(action);
 
-    QObject::connect(action,
-                     SIGNAL(setRating(int)),
-                     ui->gvPicture,
-                     SLOT(setPictureRating(int)));
+    connect(action,
+            SIGNAL(setRating(int)),
+            ui->gvPicture,
+            SLOT(setPictureRating(int)));
 
     QString lastDirectory;
     QStringList filters;
@@ -56,13 +68,15 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
         showCurrentPicture();
     }
 
-    QObject::connect(ui->gvPicture,
-                     SIGNAL(mouseDoubleClick(QMouseEvent*)),
-                     this,
-                     SLOT(on_pictureDoubleClick()));
+    connect(ui->gvPicture,
+            SIGNAL(mouseDoubleClick(QMouseEvent*)),
+            this,
+            SLOT(on_pictureDoubleClick()));
+    connect(ui->gvPicture,
+            SIGNAL(mouseMove(QMouseEvent*)),
+            this,
+            SLOT(on_pictureMouseMove()));
 
-    _playerTimer = new QTimer (this);
-    connect (_playerTimer, SIGNAL(timeout()), this, SLOT(on_playerTimerTimeout()));
 }
 
 PhotoViewer::~PhotoViewer()
@@ -100,6 +114,11 @@ void PhotoViewer::on_actionNext_picture_triggered()
     if (_currentFile < _currentDir->entryList().count() - 1) {
         _currentFile++;
         showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+
+        if (_playerTimer->isActive()) {
+            _playerTimer->stop();
+            _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
+        }
     }
     else {
         QMessageBox::information(this,
@@ -114,6 +133,11 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
     if (_currentFile > 0) {
         _currentFile--;
         showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
+
+        if (_playerTimer->isActive()) {
+            _playerTimer->stop();
+            _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
+        }
     }
     else {
         QMessageBox::information(this,
@@ -137,42 +161,99 @@ void PhotoViewer::on_pictureDoubleClick()
     toggleFullScreen();
 }
 
+void PhotoViewer::on_pictureMouseMove()
+{
+    if (isFullScreen()) {
+        // Only show the main toolbar
+        // this->ui->mainToolBar->show();
+
+        this->ui->dockWidget->show();
+
+        QPropertyAnimation *animation = new QPropertyAnimation(this->ui->dockWidget, "pos");
+
+        animation->setDuration(5000);
+        animation->setStartValue(QRect(0, 0, 10, 10));
+        animation->setEndValue(QRect(100, 100, 10, 10));
+
+        animation->start(QAbstractAnimation::DeleteWhenStopped);
+
+        QApplication::restoreOverrideCursor();
+    }
+}
+
 void PhotoViewer::toggleFullScreen()
 {
     if (this->isFullScreen()) {
-        QList<QStatusBar *> statusbars;
-        statusbars = this->findChildren<QStatusBar*> ();
-        for (int i = 0; i < statusbars.length(); i++) {
-            statusbars[i]->show();
-        }
-        QList<QMenuBar *> menubars;
-        menubars = this->findChildren<QMenuBar*> ();
-        for (int i = 0; i < menubars.length(); i++) {
-            menubars[i]->show();
-        }
+        setMenuBarsVisibility(true);
+        setStatusBarsVisibility(true);
+        setToolBarsVisibility(true);
 
+        ui->gvPicture->setNormalBackground();
+
+        QApplication::restoreOverrideCursor();
         if (_lastStatusMaximized) {
-            this->showMaximized();
+            showMaximized();
         }
         else {
-            this->showNormal();
+            showNormal();
         }
     }
     else {
         _lastStatusMaximized = this->isMaximized();
 
-        QList<QStatusBar *> statusbars;
-        statusbars = this->findChildren<QStatusBar*> ();
-        for (int i = 0; i < statusbars.length(); i++) {
-            statusbars[i]->hide();
+        setMenuBarsVisibility(false);
+        setStatusBarsVisibility(false);
+        setToolBarsVisibility(false);
+
+        ui->gvPicture->setFullScreenBackground();
+
+        QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+        showFullScreen();
+    }
+}
+
+void PhotoViewer::setMenuBarsVisibility(bool visible)
+{
+    QList<QMenuBar *> menubars;
+
+    menubars = this->findChildren<QMenuBar*> ();
+    for (int i = 0; i < menubars.length(); i++) {
+        if (visible) {
+            menubars[i]->show();
         }
-        QList<QMenuBar *> menubars;
-        menubars = this->findChildren<QMenuBar*> ();
-        for (int i = 0; i < menubars.length(); i++) {
+        else {
             menubars[i]->hide();
         }
+    }
+}
 
-        this->showFullScreen();
+void PhotoViewer::setStatusBarsVisibility(bool visible)
+{
+    QList<QStatusBar *> statusbars;
+
+    statusbars = this->findChildren<QStatusBar*> ();
+    for (int i = 0; i < statusbars.length(); i++) {
+        if (visible) {
+            statusbars[i]->show();
+        }
+        else {
+            statusbars[i]->hide();
+        }
+    }
+}
+
+void PhotoViewer::setToolBarsVisibility(bool visible)
+{
+    QList<QToolBar *> toolbars;
+
+    toolbars = this->findChildren<QToolBar*> ();
+    for (int i = 0; i < toolbars.length(); i++) {
+        if (visible) {
+            toolbars[i]->show();
+        }
+        else {
+            toolbars[i]->hide();
+        }
     }
 }
 
@@ -184,7 +265,6 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
         this->ui->gvPicture->resize ();
     }
 }
-
 
 void PhotoViewer::on_actionSet_1_star_hovered()
 {
@@ -201,7 +281,7 @@ void PhotoViewer::on_actionPlay_triggered()
         _playerTimer->stop();
     }
     else {
-        _playerTimer->start(5000);
+        _playerTimer->start(PLAYER_TIMER_MILLISECONDS);
     }
 }
 

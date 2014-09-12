@@ -24,6 +24,7 @@ private slots:
     void on_actionNext_picture_triggered();
     void on_actionPrevious_picture_triggered();
     void on_pictureDoubleClick();
+    void on_pictureMouseMove();
     void on_actionSet_1_star_hovered();
     void on_actionSet_2_stars_hovered();
 
@@ -37,6 +38,8 @@ protected:
 private:
     Ui::PhotoViewer *ui;
 
+    const int PLAYER_TIMER_MILLISECONDS = 5000;
+
     QDir *_currentDir;
     int _currentFile;
     bool _lastStatusMaximized;
@@ -44,8 +47,12 @@ private:
     QTimer *_playerTimer;
 
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
-    void hideWidgetList(QList<QWidget *>);
     void toggleFullScreen();
+
+    void setMenuBarsVisibility (bool visible);
+    void setStatusBarsVisibility (bool visible);
+    void setToolBarsVisibility (bool visible);
+
 
 };
 

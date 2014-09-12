@@ -26,19 +26,24 @@ public:
     ~PictureView ();
 
     bool hasPicture ();
+    void setNormalBackground ();
+    void setFullScreenBackground ();
+
 
 signals:
     void mouseDoubleClick (QMouseEvent *);
+    void mouseMove (QMouseEvent *);
 
 public slots:
     void loadPicture (QString fileName);
-    void showPicture (PictureAnimationType animType = PictureAnimationType::None);
+    void showPicture (PictureAnimationType animType /* = PictureAnimationType::None */);
     void setPictureRating (int rating);
     void on_finishPrevPictureAnimation ();
     void resize ();
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
+    virtual void mouseMoveEvent(QMouseEvent *event);
 
 private:
     QGraphicsScene *_pictureScene;
