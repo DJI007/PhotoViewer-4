@@ -19,7 +19,8 @@ public:
     enum PictureAnimationType {
         None,
         LeftToRight,
-        RightToLeft
+        RightToLeft,
+        Random
     };
 
     explicit PictureView(QWidget *parent = 0);

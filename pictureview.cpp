@@ -83,41 +83,73 @@ void PictureView::showPicture(PictureAnimationType animType)
     }
 
     if (animType != PictureAnimationType::None) {
-        qreal startX;
-        qreal endX;
+        if (animType == PictureAnimationType::Random) {
+            QPropertyAnimation *anim;
 
-        if (animType == PictureAnimationType::RightToLeft) {
-            startX = this->width();
-            endX = 0;
+            _currentPicture->setOpacity(0);
+            // _currentAnimation = new QSequentialAnimationGroup();
+            _currentAnimation = new QParallelAnimationGroup();
+
+            anim = new QPropertyAnimation();
+            anim->setTargetObject(_prevPicture);
+            anim->setPropertyName("opacity");
+            anim->setDuration(2000);
+            anim->setStartValue(1);
+            anim->setEndValue(0);
+            anim->setEasingCurve(QEasingCurve::OutExpo);
+            QObject::connect(anim,
+                             SIGNAL(finished()),
+                             this,
+                             SLOT(on_finishPrevPictureAnimation ()));
+
+            _currentAnimation->addAnimation(anim);
+
+            anim = new QPropertyAnimation(_currentPicture, "opacity");
+            anim->setDuration(2000);
+            anim->setStartValue(0);
+            anim->setEndValue(1);
+            anim->setEasingCurve(QEasingCurve::OutExpo);
+            _currentAnimation->addAnimation(anim);
+
+            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
         }
         else {
-            startX = -this->width();
-            endX = 0;
+            qreal startX;
+            qreal endX;
+
+            if (animType == PictureAnimationType::RightToLeft) {
+                startX = this->width();
+                endX = 0;
+            }
+            else {
+                startX = -this->width();
+                endX = 0;
+            }
+
+            QPropertyAnimation *anim;
+
+            _currentAnimation = new QParallelAnimationGroup();
+
+            anim = new QPropertyAnimation(_prevPicture, "pos");
+            anim->setDuration(2000);
+            anim->setStartValue(QPointF(endX, 0));
+            anim->setEndValue(QPointF(-startX, 0));
+            anim->setEasingCurve(QEasingCurve::OutExpo);
+            QObject::connect(anim,
+                             SIGNAL(finished()),
+                             this,
+                             SLOT(on_finishPrevPictureAnimation ()));
+            _currentAnimation->addAnimation(anim);
+
+            anim = new QPropertyAnimation(_currentPicture, "pos");
+            anim->setDuration(2000);
+            anim->setStartValue(QPointF(startX, 0));
+            anim->setEndValue(QPointF(endX, 0));
+            anim->setEasingCurve(QEasingCurve::OutExpo);
+            _currentAnimation->addAnimation(anim);
+
+            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
         }
-
-        QPropertyAnimation *anim;
-
-        _currentAnimation = new QParallelAnimationGroup();
-
-        anim = new QPropertyAnimation(_prevPicture, "pos");
-        anim->setDuration(1000);
-        anim->setStartValue(QPointF(endX, 0));
-        anim->setEndValue(QPointF(-startX, 0));
-        anim->setEasingCurve(QEasingCurve::OutExpo);
-        QObject::connect(anim,
-                         SIGNAL(finished()),
-                         this,
-                         SLOT(on_finishPrevPictureAnimation ()));
-        _currentAnimation->addAnimation(anim);
-
-        anim = new QPropertyAnimation(_currentPicture, "pos");
-        anim->setDuration(1000);
-        anim->setStartValue(QPointF(startX, 0));
-        anim->setEndValue(QPointF(endX, 0));
-        anim->setEasingCurve(QEasingCurve::OutExpo);
-        _currentAnimation->addAnimation(anim);
-
-        _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     }
 }
 

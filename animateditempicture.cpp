@@ -154,9 +154,11 @@ QPixmap AnimatedItemPicture::scaledImage (QPixmap src)
 {
     QPixmap image;
 
-    image = src.scaledToWidth(this->scene()->width(), Qt::FastTransformation);
+    //image = src.scaledToWidth(this->scene()->width(), Qt::FastTransformation);
+    image = src.scaledToWidth(this->scene()->width(), Qt::SmoothTransformation);
     if (image.height() > this->scene()->height()) {
-        image = src.scaledToHeight(this->scene()->height(), Qt::FastTransformation);
+        // image = src.scaledToHeight(this->scene()->height(), Qt::FastTransformation);
+        image = src.scaledToHeight(this->scene()->height(), Qt::SmoothTransformation);
     }
 
     return image;

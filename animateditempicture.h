@@ -11,8 +11,8 @@ class AnimatedItemPicture: public QObject, public QGraphicsPixmapItem
 {
     Q_OBJECT
 
-    // Change picture position property for QPropertyAnimation
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
 
 public:
     explicit AnimatedItemPicture(const QPixmap& pixmap, QObject* parent = 0);

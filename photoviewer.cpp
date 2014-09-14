@@ -214,7 +214,13 @@ void PhotoViewer::on_playerTimerTimeout ()
 {
     if (_currentFile < _currentDir->entryList().count() - 1) {
         _currentFile++;
-        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+        if (isFullScreen()) {
+            showCurrentPicture(PictureView::PictureAnimationType::Random);
+        }
+        else {
+            // showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+            showCurrentPicture(PictureView::PictureAnimationType::Random);
+        }
     }
     else {
         QMessageBox::information(this,
