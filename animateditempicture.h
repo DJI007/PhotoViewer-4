@@ -3,6 +3,8 @@
 
 #include <QGraphicsPixmapItem>
 #include <QString>
+#include <QGeoServiceProvider>
+#include <QGeoCodingManager>
 
 #include "exifmetadata.h"
 #include "animateditemtext.h"
@@ -13,6 +15,8 @@ class AnimatedItemPicture: public QObject, public QGraphicsPixmapItem
 
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
+    Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
+    Q_PROPERTY(qreal scale READ scale WRITE setScale)
 
 public:
     explicit AnimatedItemPicture(const QPixmap& pixmap, QObject* parent = 0);
@@ -28,19 +32,28 @@ public:
 signals:
 
 public slots:
+    void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
+    void on_reverseGeocode_finished();
 
 private:
     QString _fileName;
     QPixmap _correctImage;
     AnimatedItemText *_info;
+    AnimatedItemText *_geoInfo;
     QGraphicsItemGroup *_rating;
     ExifMetadata _pictureData;
+
+    QGeoServiceProvider *_geoProvider;
+    QGeoCodingManager  *_geoManager;
+    QGeoCodeReply *_reverseGeocodeReply;
+
 
     QPixmap correctOrientationPicture(QPixmap src);
     QPixmap scaledImage(QPixmap src);
 
     void loadPicture ();
     AnimatedItemText *createInfo ();
+    AnimatedItemText *createGeoInfo ();
     QGraphicsItemGroup *createRating ();
 
     void refreshRating ();

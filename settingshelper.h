@@ -24,6 +24,9 @@ public:
 
     QString lastDirectory ();
     void setLastDirectory (QString);
+
+    int lastFileIndex ();
+    void setLastFileIndex (int value);
 };
 
 #endif // SETTINGSHELPER_H

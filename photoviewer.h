@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QDir>
 #include <QTimer>
+#include <QLabel>
 
 #include "pictureview.h"
 
@@ -47,15 +48,18 @@ protected:
 private:
     Ui::PhotoViewer *ui;
 
-    const int PLAYER_TIMER_MILLISECONDS = 5000;
+    const int PLAYER_TIMER_MILLISECONDS = 4000;
 
     QDir *_currentDir;
-    int _currentFile;
+    uint _currentFile;
     bool _lastStatusMaximized;
     Qt::WindowFlags _toolBarWindowFlags;
 
     QTimer *_playerTimer;
     QTimer *_toolBarTimer;
+
+    QLabel *_lblStatusFileCount;
+    QLabel *_lblStatusPath;
 
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void toggleFullScreen();
@@ -68,6 +72,8 @@ private:
     void setMenuBarsVisibility (bool visible);
     void setStatusBarsVisibility (bool visible);
     void setToolBarsVisibility (bool visible);
+
+    void updateStatusBar ();
 };
 
 #endif // PHOTOVIEWER_H

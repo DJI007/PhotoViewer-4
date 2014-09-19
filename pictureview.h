@@ -11,6 +11,7 @@
 #include "exifmetadata.h"
 #include "animateditempicture.h"
 #include "animateditemtext.h"
+#include "pictureanimation.h"
 
 class PictureView : public QGraphicsView
 {
@@ -29,9 +30,7 @@ public:
     bool hasPicture ();
     void setNormalBackground ();
     void setFullScreenBackground ();
-
-    QGraphicsScene *getScene ();
-
+    void cleanPicture ();
 
 signals:
     void mouseDoubleClick (QMouseEvent *);
@@ -53,8 +52,8 @@ private:
     AnimatedItemPicture *_currentPicture;
     AnimatedItemPicture *_prevPicture;
     QAnimationGroup *_currentAnimation;
-    QAbstractAnimation *createAnimationIn (QGraphicsItemGroup *);
-    QAbstractAnimation *createAnimationOut (QGraphicsItemGroup *);
+
+    QList<AbstractPictureAnimation *> _animations;
 };
 
 #endif // PICTUREVIEW_H

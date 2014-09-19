@@ -9,6 +9,12 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 
+#include "animationfade.h"
+#include "animationrotate.h"
+#include "animationrotatemove.h"
+#include "animationscale.h"
+#include "animationslide.h"
+
 
 PictureView::PictureView(QWidget *parent) :
     QGraphicsView(parent)
@@ -18,9 +24,18 @@ PictureView::PictureView(QWidget *parent) :
 
     _currentPicture = NULL;
     _currentAnimation = NULL;
+    _prevPicture = NULL;
 
     this->setScene(_pictureScene);
     this->setNormalBackground();
+
+    _animations.append(new AnimationFade());
+    _animations.append(new AnimationRotate());
+    _animations.append(new AnimationRotateMove());
+    _animations.append(new AnimationScale());
+    _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
+    _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
+
 }
 
 PictureView::~PictureView ()
@@ -56,7 +71,9 @@ void PictureView::resize()
 
     _pictureScene->setSceneRect (x, y, this->width() - 2, this->height() - 2);
 
-     _currentPicture->resize();
+    if (_currentPicture != NULL) {
+        _currentPicture->resize();
+    }
 }
 
 void PictureView::loadPicture(QString fileName)
@@ -70,11 +87,6 @@ void PictureView::loadPicture(QString fileName)
     _currentPicture = new AnimatedItemPicture (fileName, this);
 }
 
-QGraphicsScene *PictureView::getScene()
-{
-    return _pictureScene;
-}
-
 void PictureView::showPicture(PictureAnimationType animType)
 {
     if (_currentPicture != NULL) {
@@ -83,73 +95,63 @@ void PictureView::showPicture(PictureAnimationType animType)
     }
 
     if (animType != PictureAnimationType::None) {
-        if (animType == PictureAnimationType::Random) {
-            QPropertyAnimation *anim;
+        QAbstractAnimation *animIn;
+        QAbstractAnimation *animOut;
+        AnimationSlide slide;
 
-            _currentPicture->setOpacity(0);
-            // _currentAnimation = new QSequentialAnimationGroup();
-            _currentAnimation = new QParallelAnimationGroup();
+        _currentAnimation = new QParallelAnimationGroup();
 
-            anim = new QPropertyAnimation();
-            anim->setTargetObject(_prevPicture);
-            anim->setPropertyName("opacity");
-            anim->setDuration(2000);
-            anim->setStartValue(1);
-            anim->setEndValue(0);
-            anim->setEasingCurve(QEasingCurve::OutExpo);
-            QObject::connect(anim,
-                             SIGNAL(finished()),
-                             this,
-                             SLOT(on_finishPrevPictureAnimation ()));
+        switch (animType) {
+        case PictureAnimationType::Random:
+            int current;
 
-            _currentAnimation->addAnimation(anim);
+            current = qrand() % _animations.count();
+            animIn = _animations.at(current)->getAnimationIn(_prevPicture, 2000, this->width());
 
-            anim = new QPropertyAnimation(_currentPicture, "opacity");
-            anim->setDuration(2000);
-            anim->setStartValue(0);
-            anim->setEndValue(1);
-            anim->setEasingCurve(QEasingCurve::OutExpo);
-            _currentAnimation->addAnimation(anim);
+            current = qrand() % _animations.count();
+            animOut = _animations.at(current)->getAnimationOut(_currentPicture, 2000, this->width());
+            break;
 
-            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+        case PictureAnimationType::LeftToRight:
+            slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
+            animIn = slide.getAnimationIn(_prevPicture, 2000, this->width());
+            animOut = slide.getAnimationOut(_currentPicture, 2000, this->width());
+            break;
+
+        case PictureAnimationType::RightToLeft:
+            slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
+            animIn = slide.getAnimationIn(_prevPicture, 2000, this->width());
+            animOut = slide.getAnimationOut(_currentPicture, 2000, this->width());
+            break;
         }
-        else {
-            qreal startX;
-            qreal endX;
 
-            if (animType == PictureAnimationType::RightToLeft) {
-                startX = this->width();
-                endX = 0;
-            }
-            else {
-                startX = -this->width();
-                endX = 0;
-            }
+        connect(animIn,
+                SIGNAL(finished()),
+                this,
+                SLOT(on_finishPrevPictureAnimation ()));
 
-            QPropertyAnimation *anim;
 
-            _currentAnimation = new QParallelAnimationGroup();
+        _currentAnimation->addAnimation(animIn);
+        _currentAnimation->addAnimation(animOut);
 
-            anim = new QPropertyAnimation(_prevPicture, "pos");
-            anim->setDuration(2000);
-            anim->setStartValue(QPointF(endX, 0));
-            anim->setEndValue(QPointF(-startX, 0));
-            anim->setEasingCurve(QEasingCurve::OutExpo);
-            QObject::connect(anim,
-                             SIGNAL(finished()),
-                             this,
-                             SLOT(on_finishPrevPictureAnimation ()));
-            _currentAnimation->addAnimation(anim);
+        _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+    else {
+        delete _prevPicture;
+        _currentAnimation = NULL;
+    }
+}
 
-            anim = new QPropertyAnimation(_currentPicture, "pos");
-            anim->setDuration(2000);
-            anim->setStartValue(QPointF(startX, 0));
-            anim->setEndValue(QPointF(endX, 0));
-            anim->setEasingCurve(QEasingCurve::OutExpo);
-            _currentAnimation->addAnimation(anim);
+void PictureView::cleanPicture()
+{
+    if (_currentPicture != NULL) {
+        delete _currentPicture;
+        _currentPicture = NULL;
+    }
 
-            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
-        }
+    if (_prevPicture != NULL) {
+        delete _prevPicture;
+        _prevPicture = NULL;
     }
 }
 

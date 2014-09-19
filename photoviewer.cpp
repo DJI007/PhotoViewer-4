@@ -28,6 +28,17 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    _lblStatusFileCount = new QLabel (this);
+    _lblStatusFileCount->setObjectName("lblStatusFileCount");
+    _lblStatusFileCount->show();
+
+    _lblStatusPath= new QLabel (this);
+    _lblStatusPath->setObjectName("lblStatusPath");
+    _lblStatusPath->show();
+
+    ui->statusBar->addWidget(_lblStatusPath, 1);
+    ui->statusBar->addWidget(_lblStatusFileCount);
+
     _playerTimer = new QTimer (this);
     _playerTimer->setInterval(PLAYER_TIMER_MILLISECONDS);
     connect (_playerTimer,
@@ -65,7 +76,10 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     _currentDir->setPath(lastDirectory);
     _currentDir->setNameFilters(filters);
 
-    _currentFile = 0;
+    _currentFile = SettingsHelper::instance().lastFileIndex();
+    if (_currentFile >= _currentDir->count()) {
+        _currentFile = 0;
+    }
 
     if (lastDirectory.compare("~") != 0) {
         showCurrentPicture();
@@ -80,6 +94,16 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
             this,
             SLOT(on_pictureMouseMove()));
 
+    // Add actions to main window to preserve the shortcuts in fullscreen mode
+    this->addAction(ui->actionPrevious_picture);
+    this->addAction(ui->actionPlay);
+    this->addAction(ui->actionNext_picture);
+    this->addAction(ui->actionSet_0_stars);
+    this->addAction(ui->actionSet_1_star);
+    this->addAction(ui->actionSet_2_stars);
+    this->addAction(ui->actionSet_3_stars);
+    this->addAction(ui->actionSet_4_stars);
+    this->addAction(ui->actionSet_5_stars);
 }
 
 PhotoViewer::~PhotoViewer()
@@ -91,11 +115,26 @@ PhotoViewer::~PhotoViewer()
 void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 {
     QString fileName;
+    QFileInfo info;
 
-    fileName = _currentDir->absoluteFilePath(_currentDir->entryList()[_currentFile]);
+    if (_currentDir->count() == 0) {
+        QMessageBox::information(this,
+                                 tr("Photo Viewer"),
+                                 tr("There is no images in this folder"));
+        ui->gvPicture->cleanPicture ();
+    }
+    else {
+        info = _currentDir->entryInfoList() [_currentFile];
 
-    ui->gvPicture->loadPicture (fileName);
-    ui->gvPicture->showPicture (anim);
+        SettingsHelper::instance().setLastFileIndex(_currentFile);
+
+        fileName = info.absoluteFilePath();
+
+        ui->gvPicture->loadPicture (fileName);
+        ui->gvPicture->showPicture (anim);
+    }
+
+    updateStatusBar();
 }
 
 void PhotoViewer::on_pictureDoubleClick()
@@ -199,34 +238,31 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     }
 }
 
-/*
-void PhotoViewer::on_actionSet_1_star_hovered()
-{
-}
-
-void PhotoViewer::on_actionSet_2_stars_hovered()
-{
-   this->ui->actionSet_1_star->setChecked(true);
-}
-*/
-
 void PhotoViewer::on_playerTimerTimeout ()
 {
-    if (_currentFile < _currentDir->entryList().count() - 1) {
+    if (_currentFile < _currentDir->count() - 1) {
         _currentFile++;
         if (isFullScreen()) {
             showCurrentPicture(PictureView::PictureAnimationType::Random);
         }
         else {
-            // showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
-            showCurrentPicture(PictureView::PictureAnimationType::Random);
+            showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
         }
     }
     else {
+        if (isFullScreen()) {
+            QApplication::restoreOverrideCursor();
+        }
+
         QMessageBox::information(this,
-                                 tr("Image Viewer"),
+                                 tr("Photo Viewer"),
                                  tr("End of slide show!"));
         _playerTimer->stop();
+        ui->actionPlay->setChecked(false);
+
+        if (isFullScreen()) {
+            QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+        }
     }
 }
 
@@ -281,6 +317,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
 
         _currentDir->setPath (fd->selectedFiles()[0]);
         _currentFile = 0;
+        ui->gvPicture->resize();
         showCurrentPicture ();
     }
 
@@ -301,25 +338,32 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
     }
     else {
         QMessageBox::information(this,
-                                 tr("Image Viewer"),
+                                 tr("Photo Viewer"),
                                  tr("First picture"));
     }
 }
 
 void PhotoViewer::on_actionPlay_triggered()
 {
-    if (_playerTimer->isActive()) {
-
-        _playerTimer->stop();
+    if (_currentDir->count() == 0) {
+        QMessageBox::information(this,
+                                 tr("Photo Viewer"),
+                                 tr("There is no images in this folder"));
+        ui->actionPlay->setChecked(false);
     }
     else {
-        _playerTimer->start();
+        if (_playerTimer->isActive()) {
+            _playerTimer->stop();
+        }
+        else {
+            _playerTimer->start();
+        }
     }
 }
 
 void PhotoViewer::on_actionNext_picture_triggered()
 {
-    if (_currentFile < _currentDir->entryList().count() - 1) {
+    if (_currentFile < _currentDir->count() - 1) {
         _currentFile++;
         showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
 
@@ -330,7 +374,7 @@ void PhotoViewer::on_actionNext_picture_triggered()
     }
     else {
         QMessageBox::information(this,
-                                 tr("Image Viewer"),
+                                 tr("Photo Viewer"),
                                  tr("Last picture"));
     }
 }
@@ -365,3 +409,8 @@ void PhotoViewer::on_actionSet_5_stars_triggered()
     ui->gvPicture->setPictureRating(5);
 }
 
+void PhotoViewer::updateStatusBar ()
+{
+    _lblStatusFileCount->setText(QString ("[%1/%2]").arg(_currentFile + 1).arg(_currentDir->count()));
+    _lblStatusPath->setText(_currentDir->absolutePath());
+}

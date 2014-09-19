@@ -16,6 +16,12 @@ public:
     QDateTime pictureDate ();
     int rating ();
     int orientation ();
+    QString gpsTag ();
+    double gpsLatitude ();
+    QString gpsLatitudeRef();
+    double gpsLongitude();
+    QString gpsLongitudeRef();
+    double gpsAltitude ();
 
     void setRating (int value);
 
@@ -24,6 +30,8 @@ private:
 
     QString getString (const char *tagName);
     long getLong (const char *tagName);
+    double getDoubleFromDegrees(const char *tagName);
+    double getDoubleFromRational(const char *tagName);
 };
 
 #endif // EXIFMETADATA_H

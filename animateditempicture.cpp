@@ -4,11 +4,19 @@
 #include <QGraphicsScene>
 #include <QDebug>
 #include <QGraphicsWidget>
+#include <QFileInfo>
+#include <QGeoAddress>
 
 AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent) :
     QObject(parent), QGraphicsPixmapItem(pixmap)
 {
     setCacheMode(DeviceCoordinateCache);
+
+    _info = NULL;
+    _geoInfo = NULL;
+    _rating = NULL;
+    _geoProvider = NULL;
+    _geoManager = NULL;
 }
 
 AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent) :
@@ -20,11 +28,36 @@ AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent
     _pictureData.loadData(fileName);
 
     _info = NULL;
+    _geoInfo = NULL;
     _rating = NULL;
+
+/*
+    QStringList providers;
+
+    providers = QGeoServiceProvider::availableServiceProviders();
+    qDebug() << "Providers available:";
+    for (int i = 0; i < providers.count(); i++) {
+        qDebug () << providers[i];
+    }
+    qDebug() << "<<<<<<<<<<<<<<<<<<<";
+*/
+    _geoProvider = new QGeoServiceProvider("osm");
+    if (_geoProvider) {
+        if (_geoProvider->error() != _geoProvider->NoError) {
+            qDebug () << _geoProvider->errorString();
+        }
+
+        _geoManager = _geoProvider->geocodingManager();
+    }
 }
 
 AnimatedItemPicture::~AnimatedItemPicture()
 {
+    // if (_geoProvider)
+    //     delete _geoProvider;
+
+    // if (_geoManager)
+    //    delete _geoManager;
 }
 
 void AnimatedItemPicture::load ()
@@ -32,9 +65,11 @@ void AnimatedItemPicture::load ()
     loadPicture ();
 
     _info = createInfo();
+    _geoInfo = createGeoInfo();
     _rating = createRating();
 
     _info->setParentItem (this);
+    _geoInfo->setParentItem(this);
     _rating->setParentItem(this);
 
     this->centerOnScene ();
@@ -203,6 +238,7 @@ void AnimatedItemPicture::setChildrenPos ()
     rect = this->pixmap().rect();
 
     _info->setPos(rect.left(), rect.bottom() - 40);
+    _geoInfo->setPos(rect.right() - 200, rect.bottom() - 40);
 
     qreal left;
     qreal top;
@@ -216,21 +252,97 @@ AnimatedItemText *AnimatedItemPicture::createInfo()
 {
     AnimatedItemText *item;
     QString msg;
+    QString date;
+    QFileInfo info;
+
+    info.setFile(_fileName);
+
+    date = _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
+    if (date == "") {
+        date = info.created().toString(Qt::SystemLocaleLongDate);
+    }
 
     msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
-    msg += _fileName;
+    msg += info.fileName();
     msg += "<br />";
-    msg += _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
+    msg += date;
     msg += "</span>";
-
-    QRectF rect;
-
-    rect = this->boundingRect();
 
     item = new AnimatedItemText();
     item->setHtml(msg);
 
     return item;
+}
+
+AnimatedItemText *AnimatedItemPicture::createGeoInfo()
+{
+    AnimatedItemText *item;
+    QString msg;
+/*
+    date = _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
+    if (date == "") {
+        date = info.created().toString(Qt::SystemLocaleLongDate);
+    }
+*/
+
+    QGeoCoordinate coord;
+
+    coord.setLatitude(_pictureData.gpsLatitude());
+    coord.setLongitude(_pictureData.gpsLongitude());
+    coord.setAltitude(_pictureData.gpsAltitude());
+
+    if (_geoManager) {
+    _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
+        connect (_reverseGeocodeReply,
+                 SIGNAL(error(QGeoCodeReply::Error,QString)),
+                 this,
+                 SLOT(on_reverseGeocode_error(QGeoCodeReply::Error,QString)));
+        connect (_reverseGeocodeReply,
+                 SIGNAL(finished()),
+                 this,
+                 SLOT(on_reverseGeocode_finished()));
+    }
+
+    msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
+    msg += QString::number(_pictureData.gpsLatitude()) + " " + _pictureData.gpsLatitudeRef() + " ";
+    msg += QString::number(_pictureData.gpsLongitude()) + " " + _pictureData.gpsLongitudeRef();
+
+    msg += "</span>";
+
+    qDebug () << _pictureData.gpsLatitudeRef() << QString::number(_pictureData.gpsLatitude());
+    qDebug () << _pictureData.gpsLongitudeRef() << QString::number(_pictureData.gpsLongitude());
+
+    item = new AnimatedItemText();
+    item->setHtml(msg);
+
+    return item;
+}
+
+void AnimatedItemPicture::on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString)
+{
+    qDebug () << "Error on reverse geocode: " << errorString;
+    _reverseGeocodeReply->deleteLater();
+}
+
+void AnimatedItemPicture::on_reverseGeocode_finished()
+{
+    qDebug () << "Reverse geocode finished: " << _reverseGeocodeReply->locations().count();
+    if (_reverseGeocodeReply->locations().count() > 0) {
+        QGeoLocation loc;
+
+        loc = _reverseGeocodeReply->locations()[0];
+        qDebug() << loc.address().country() << "-.-" << loc.address().text() << "-.-" << loc.address().city();
+
+        QString msg;
+
+        msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
+        msg += loc.address().text().replace(",", "<br />");
+        msg += "</span>";
+
+        _geoInfo->setHtml(msg);
+    }
+
+    _reverseGeocodeReply->deleteLater();
 }
 
 QGraphicsItemGroup *AnimatedItemPicture::createRating()
@@ -288,3 +400,4 @@ AnimatedItemPicture *AnimatedItemPicture::createStar (bool isOn, int left, int t
 
     return item;
 }
+

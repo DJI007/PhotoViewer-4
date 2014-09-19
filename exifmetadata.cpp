@@ -42,6 +42,52 @@ long ExifMetadata::getLong(const char *tagName)
     }
 }
 
+double ExifMetadata::getDoubleFromDegrees(const char *tagName)
+{
+    try {
+        Exiv2::Rational r1;
+        Exiv2::Rational r2;
+        Exiv2::Rational r3;
+        double result;
+
+        if (_imageData->exifData() [tagName].count() == 3) {
+            r1 = _imageData->exifData() [tagName].toRational(0);
+            r2 = _imageData->exifData() [tagName].toRational(1);
+            r3 = _imageData->exifData() [tagName].toRational(2);
+
+            result = ((double) r1.first) / ((double) r1.second);
+            result += (((double) r2.first) / ((double) r2.second) / 60);
+            result += (((double) r3.first) / ((double) r3.second)) / 3600;
+
+            return result;
+        }
+        else {
+            return 0;
+        }
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
+
+        return -1;
+    }
+}
+
+double ExifMetadata::getDoubleFromRational(const char *tagName)
+{
+    try {
+        Exiv2::Rational r;
+
+        r = _imageData->exifData() [tagName].toRational(0);
+
+        return ((double) r.first) / ((double) r.second);
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
+
+        return -1;
+    }
+}
+
 QString ExifMetadata::manufacturer()
 {
     return getString ("Exif.Image.Make");
@@ -96,4 +142,53 @@ int ExifMetadata::orientation()
     }
 
     return result;
+}
+
+QString ExifMetadata::gpsTag()
+{
+    return getString ("Exif.Image.GPSTag");
+}
+
+double ExifMetadata::gpsLatitude()
+{
+    double result;
+
+    result = getDoubleFromDegrees ("Exif.GPSInfo.GPSLatitude");
+    if (gpsLatitudeRef() == "N")
+        return result;
+    else
+        return -result;
+}
+
+QString ExifMetadata::gpsLatitudeRef ()
+{
+    return getString ("Exif.GPSInfo.GPSLatitudeRef");
+}
+
+double ExifMetadata::gpsLongitude()
+{
+    double result;
+
+    result = getDoubleFromDegrees("Exif.GPSInfo.GPSLongitude");
+    if (gpsLongitudeRef() == "E")
+        return result;
+    else
+        return -result;
+}
+
+QString ExifMetadata::gpsLongitudeRef ()
+{
+    return getString ("Exif.GPSInfo.GPSLongitudeRef");
+}
+
+double ExifMetadata::gpsAltitude()
+{
+    double result;
+
+    result = getDoubleFromRational ("Exif.GPSInfo.GPSAltitude");
+    if (getLong("Exif.GPSInfo.GPSAltitudeRef") == 0)
+        return result;
+    else
+        return -result;
+
 }

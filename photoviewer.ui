@@ -161,6 +161,9 @@
    <property name="text">
     <string>Next picture</string>
    </property>
+   <property name="shortcut">
+    <string>Right</string>
+   </property>
   </action>
   <action name="actionPrevious_picture">
    <property name="icon">
@@ -169,6 +172,9 @@
    </property>
    <property name="text">
     <string>Previous picture</string>
+   </property>
+   <property name="shortcut">
+    <string>Left</string>
    </property>
   </action>
   <action name="actionSet_1_star">
@@ -181,6 +187,9 @@
    <property name="text">
     <string>Set 1 star</string>
    </property>
+   <property name="shortcut">
+    <string>1</string>
+   </property>
   </action>
   <action name="actionSet_2_stars">
    <property name="icon">
@@ -189,6 +198,9 @@
    </property>
    <property name="text">
     <string>Set 2 stars</string>
+   </property>
+   <property name="shortcut">
+    <string>2</string>
    </property>
   </action>
   <action name="actionSet_3_stars">
@@ -199,6 +211,9 @@
    <property name="text">
     <string>Set 3 stars</string>
    </property>
+   <property name="shortcut">
+    <string>3</string>
+   </property>
   </action>
   <action name="actionSet_4_stars">
    <property name="icon">
@@ -208,6 +223,9 @@
    <property name="text">
     <string>Set 4 stars</string>
    </property>
+   <property name="shortcut">
+    <string>4</string>
+   </property>
   </action>
   <action name="actionSet_5_stars">
    <property name="icon">
@@ -216,6 +234,9 @@
    </property>
    <property name="text">
     <string>Set 5 stars</string>
+   </property>
+   <property name="shortcut">
+    <string>5</string>
    </property>
   </action>
   <action name="actionSet_0_stars">
@@ -228,6 +249,9 @@
    </property>
    <property name="toolTip">
     <string>Set 0 stars</string>
+   </property>
+   <property name="shortcut">
+    <string>0</string>
    </property>
   </action>
  </widget>
