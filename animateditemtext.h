@@ -13,8 +13,12 @@ class AnimatedItemText : public QGraphicsTextItem
 public:
 
 signals:
+    void leftMousePressed();
 
 public slots:
+
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event);
 
 };
 

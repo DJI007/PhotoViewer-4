@@ -309,11 +309,10 @@ AnimatedItemText *AnimatedItemPicture::createGeoInfo()
 
     msg += "</span>";
 
-    qDebug () << _pictureData.gpsLatitudeRef() << QString::number(_pictureData.gpsLatitude());
-    qDebug () << _pictureData.gpsLongitudeRef() << QString::number(_pictureData.gpsLongitude());
-
     item = new AnimatedItemText();
     item->setHtml(msg);
+
+    connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
 
     return item;
 }
@@ -343,6 +342,11 @@ void AnimatedItemPicture::on_reverseGeocode_finished()
     }
 
     _reverseGeocodeReply->deleteLater();
+}
+
+void AnimatedItemPicture::on_geoInfo_leftMousePressed()
+{
+    qDebug () << "geoInfo left mouse pressed";
 }
 
 QGraphicsItemGroup *AnimatedItemPicture::createRating()

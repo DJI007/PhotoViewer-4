@@ -34,6 +34,7 @@ signals:
 public slots:
     void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
     void on_reverseGeocode_finished();
+    void on_geoInfo_leftMousePressed ();
 
 private:
     QString _fileName;
