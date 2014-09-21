@@ -86,11 +86,11 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     }
 
     connect(ui->gvPicture,
-            SIGNAL(mouseDoubleClick(QMouseEvent*)),
+            SIGNAL(mouseDoubleClick()),
             this,
             SLOT(on_pictureDoubleClick()));
     connect(ui->gvPicture,
-            SIGNAL(mouseMove(QMouseEvent*)),
+            SIGNAL(mouseMove()),
             this,
             SLOT(on_pictureMouseMove()));
 
@@ -144,7 +144,7 @@ void PhotoViewer::on_pictureDoubleClick()
 
 void PhotoViewer::on_pictureMouseMove()
 {
-    if (isFullScreen()) {
+    if (isFullScreen() && !_toolBarTimer->isActive()) {
         showToolBarFullScreen();
     }
 }
@@ -278,7 +278,7 @@ void PhotoViewer::startToolBarFullScreen ()
 
 void PhotoViewer::showToolBarFullScreen ()
 {
-   QApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
 
     ui->mainToolBar->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
     ui->mainToolBar->show();

@@ -45,16 +45,16 @@ PictureView::~PictureView ()
 
 void PictureView::mouseDoubleClickEvent (QMouseEvent *event)
 {
-   if (event->button() == Qt::LeftButton) {
-       emit mouseDoubleClick(event);
-   }
+    if (event->button() == Qt::LeftButton) {
+        emit mouseDoubleClick();
+    }
 }
 
 void PictureView::mouseMoveEvent(QMouseEvent *event)
 {
-   emit mouseMove(event);
+    QGraphicsView::mouseMoveEvent(event);
+    emit mouseMove();
 }
-
 
 bool PictureView::hasPicture()
 {
@@ -95,8 +95,8 @@ void PictureView::showPicture(PictureAnimationType animType)
     }
 
     if (animType != PictureAnimationType::None) {
-        QAbstractAnimation *animIn;
-        QAbstractAnimation *animOut;
+        QAbstractAnimation *animIn = NULL;
+        QAbstractAnimation *animOut = NULL;
         AnimationSlide slide;
 
         _currentAnimation = new QParallelAnimationGroup();
@@ -106,35 +106,42 @@ void PictureView::showPicture(PictureAnimationType animType)
             int current;
 
             current = qrand() % _animations.count();
-            animIn = _animations.at(current)->getAnimationIn(_prevPicture, 2000, this->width());
+            animIn = _animations.at(current)->getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
 
             current = qrand() % _animations.count();
-            animOut = _animations.at(current)->getAnimationOut(_currentPicture, 2000, this->width());
+            animOut = _animations.at(current)->getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::LeftToRight:
             slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
-            animIn = slide.getAnimationIn(_prevPicture, 2000, this->width());
-            animOut = slide.getAnimationOut(_currentPicture, 2000, this->width());
+            animIn = slide.getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::RightToLeft:
             slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
-            animIn = slide.getAnimationIn(_prevPicture, 2000, this->width());
-            animOut = slide.getAnimationOut(_currentPicture, 2000, this->width());
+            animIn = slide.getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            break;
+
+        case PictureAnimationType::None:  // To supress compile warning
+            animIn = NULL;
+            animOut = NULL;
             break;
         }
 
-        connect(animIn,
-                SIGNAL(finished()),
-                this,
-                SLOT(on_finishPrevPictureAnimation ()));
+        if (animIn != NULL) {
+            connect(animIn,
+                    SIGNAL(finished()),
+                    this,
+                    SLOT(on_finishPrevPictureAnimation ()));
 
 
-        _currentAnimation->addAnimation(animIn);
-        _currentAnimation->addAnimation(animOut);
+            _currentAnimation->addAnimation(animIn);
+            _currentAnimation->addAnimation(animOut);
 
-        _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+        }
     }
     else {
         delete _prevPicture;

@@ -6,6 +6,9 @@
 #include <QGeoServiceProvider>
 #include <QGeoCodingManager>
 
+#include <QQuickView>
+#include <QQuickItem>
+
 #include "exifmetadata.h"
 #include "animateditemtext.h"
 
@@ -36,6 +39,10 @@ public slots:
     void on_reverseGeocode_finished();
     void on_geoInfo_leftMousePressed ();
 
+protected:
+    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+
+
 private:
     QString _fileName;
     QPixmap _correctImage;
@@ -43,6 +50,9 @@ private:
     AnimatedItemText *_geoInfo;
     QGraphicsItemGroup *_rating;
     ExifMetadata _pictureData;
+
+    QQuickView *_mainView;
+    QQuickItem *_mapView;
 
     QGeoServiceProvider *_geoProvider;
     QGeoCodingManager  *_geoManager;

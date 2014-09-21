@@ -18,4 +18,7 @@
         <file>images/star-on-menu-4.png</file>
         <file>images/star-on-menu-5.png</file>
     </qresource>
+    <qresource prefix="/qml">
+        <file>MapViewer.qml</file>
+    </qresource>
 </RCC>

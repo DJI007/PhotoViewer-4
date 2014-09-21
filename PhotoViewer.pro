@@ -6,6 +6,7 @@
 
 QT += core gui
 QT += positioning location
+QT += qml quick
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -78,4 +79,7 @@ unix {
     # marble
     #LIBS += -L/usr/local/lib -lmarblewidget
 }
+
+OTHER_FILES += \
+    MapViewer.qml
 

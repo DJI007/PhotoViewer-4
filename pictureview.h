@@ -33,8 +33,8 @@ public:
     void cleanPicture ();
 
 signals:
-    void mouseDoubleClick (QMouseEvent *);
-    void mouseMove (QMouseEvent *);
+    void mouseDoubleClick ();
+    void mouseMove ();
 
 public slots:
     void loadPicture (QString fileName);
@@ -48,6 +48,8 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
 
 private:
+    const int ANIMATION_DURATION_MILLISECONDS = 3000;
+
     QGraphicsScene *_pictureScene;
     AnimatedItemPicture *_currentPicture;
     AnimatedItemPicture *_prevPicture;

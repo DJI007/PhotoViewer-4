@@ -48,7 +48,7 @@ protected:
 private:
     Ui::PhotoViewer *ui;
 
-    const int PLAYER_TIMER_MILLISECONDS = 4000;
+    const int PLAYER_TIMER_MILLISECONDS = 6000;
 
     QDir *_currentDir;
     uint _currentFile;

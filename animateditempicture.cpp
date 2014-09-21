@@ -7,6 +7,13 @@
 #include <QFileInfo>
 #include <QGeoAddress>
 
+#include <QQuickView>
+#include <QQuickItem>
+#include <QMetaObject>
+#include <QApplication>
+
+#include "animateditemtext.h"
+
 AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent) :
     QObject(parent), QGraphicsPixmapItem(pixmap)
 {
@@ -17,6 +24,8 @@ AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent)
     _rating = NULL;
     _geoProvider = NULL;
     _geoManager = NULL;
+    _mapView = NULL;
+    _mainView = NULL;
 }
 
 AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent) :
@@ -49,6 +58,17 @@ AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent
 
         _geoManager = _geoProvider->geocodingManager();
     }
+
+    // QQuickView *view = new QQuickView;
+    QQuickItem *root;
+
+    _mainView = new QQuickView();
+    _mainView->setSource(QUrl("qrc:///qml/MapViewer.qml"));
+
+    root = _mainView->rootObject();
+    // root->setProperty("width", 1800);
+
+    _mapView = root->findChild<QQuickItem *>("map");
 }
 
 AnimatedItemPicture::~AnimatedItemPicture()
@@ -58,6 +78,11 @@ AnimatedItemPicture::~AnimatedItemPicture()
 
     // if (_geoManager)
     //    delete _geoManager;
+
+    if (_mainView) {
+        _mainView->hide();
+        delete _mainView;
+    }
 }
 
 void AnimatedItemPicture::load ()
@@ -71,6 +96,8 @@ void AnimatedItemPicture::load ()
     _info->setParentItem (this);
     _geoInfo->setParentItem(this);
     _rating->setParentItem(this);
+
+    this->setAcceptHoverEvents(true);
 
     this->centerOnScene ();
     this->setChildrenPos();
@@ -238,7 +265,7 @@ void AnimatedItemPicture::setChildrenPos ()
     rect = this->pixmap().rect();
 
     _info->setPos(rect.left(), rect.bottom() - 40);
-    _geoInfo->setPos(rect.right() - 200, rect.bottom() - 40);
+    _geoInfo->setPos(rect.left(), rect.top() + 5);
 
     qreal left;
     qreal top;
@@ -278,13 +305,6 @@ AnimatedItemText *AnimatedItemPicture::createGeoInfo()
 {
     AnimatedItemText *item;
     QString msg;
-/*
-    date = _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
-    if (date == "") {
-        date = info.created().toString(Qt::SystemLocaleLongDate);
-    }
-*/
-
     QGeoCoordinate coord;
 
     coord.setLatitude(_pictureData.gpsLatitude());
@@ -292,7 +312,7 @@ AnimatedItemText *AnimatedItemPicture::createGeoInfo()
     coord.setAltitude(_pictureData.gpsAltitude());
 
     if (_geoManager) {
-    _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
+        _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
         connect (_reverseGeocodeReply,
                  SIGNAL(error(QGeoCodeReply::Error,QString)),
                  this,
@@ -306,10 +326,11 @@ AnimatedItemText *AnimatedItemPicture::createGeoInfo()
     msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
     msg += QString::number(_pictureData.gpsLatitude()) + " " + _pictureData.gpsLatitudeRef() + " ";
     msg += QString::number(_pictureData.gpsLongitude()) + " " + _pictureData.gpsLongitudeRef();
-
     msg += "</span>";
 
     item = new AnimatedItemText();
+    setAcceptHoverEvents(true);
+    item->setIsClickable(true);
     item->setHtml(msg);
 
     connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
@@ -319,18 +340,19 @@ AnimatedItemText *AnimatedItemPicture::createGeoInfo()
 
 void AnimatedItemPicture::on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString)
 {
+    Q_UNUSED(error);
+
     qDebug () << "Error on reverse geocode: " << errorString;
+
     _reverseGeocodeReply->deleteLater();
 }
 
 void AnimatedItemPicture::on_reverseGeocode_finished()
 {
-    qDebug () << "Reverse geocode finished: " << _reverseGeocodeReply->locations().count();
     if (_reverseGeocodeReply->locations().count() > 0) {
         QGeoLocation loc;
 
         loc = _reverseGeocodeReply->locations()[0];
-        qDebug() << loc.address().country() << "-.-" << loc.address().text() << "-.-" << loc.address().city();
 
         QString msg;
 
@@ -346,7 +368,14 @@ void AnimatedItemPicture::on_reverseGeocode_finished()
 
 void AnimatedItemPicture::on_geoInfo_leftMousePressed()
 {
-    qDebug () << "geoInfo left mouse pressed";
+    if (_mainView) {
+        _mainView->show ();
+
+        QMetaObject::invokeMethod(_mapView,
+                                  "setPosition",
+                                  Q_ARG(QVariant, _pictureData.gpsLatitude()),
+                                  Q_ARG(QVariant, _pictureData.gpsLongitude()));
+    }
 }
 
 QGraphicsItemGroup *AnimatedItemPicture::createRating()
@@ -405,3 +434,11 @@ AnimatedItemPicture *AnimatedItemPicture::createStar (bool isOn, int left, int t
     return item;
 }
 
+void AnimatedItemPicture::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    Q_UNUSED (event);
+
+    if (_mainView->isActive()) {
+        _mainView->hide();
+    }
+}
