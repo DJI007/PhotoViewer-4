@@ -28,6 +28,21 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    // dock map window
+    ui->dwMap->hide();
+
+    connect(ui->gvPicture,
+            SIGNAL(requestMapWindow(double,double,double)),
+            this,
+            SLOT(on_pictureRequestMapWindow(double,double,double)));
+
+    QWidget *container;
+
+    _mapView = new MapView();
+    container = QWidget::createWindowContainer(_mapView, this);
+    ui->dwMap->setWidget(container);
+
+
     _lblStatusFileCount = new QLabel (this);
     _lblStatusFileCount->setObjectName("lblStatusFileCount");
     _lblStatusFileCount->show();
@@ -95,15 +110,19 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
             SLOT(on_pictureMouseMove()));
 
     // Add actions to main window to preserve the shortcuts in fullscreen mode
+    this->addAction(ui->actionFirst_picture);
     this->addAction(ui->actionPrevious_picture);
     this->addAction(ui->actionPlay);
     this->addAction(ui->actionNext_picture);
+    this->addAction(ui->actionLast_picture);
     this->addAction(ui->actionSet_0_stars);
     this->addAction(ui->actionSet_1_star);
     this->addAction(ui->actionSet_2_stars);
     this->addAction(ui->actionSet_3_stars);
     this->addAction(ui->actionSet_4_stars);
     this->addAction(ui->actionSet_5_stars);
+    this->addAction(ui->actionFull_screen);
+    this->addAction(ui->actionExit_full_screen);
 }
 
 PhotoViewer::~PhotoViewer()
@@ -132,6 +151,10 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 
         ui->gvPicture->loadPicture (fileName);
         ui->gvPicture->showPicture (anim);
+
+        if (ui->dwMap->isVisible()) {
+            _mapView->setPosition(ui->gvPicture->pictureLatitude(), ui->gvPicture->pictureLongitude(), 0);
+        }
     }
 
     updateStatusBar();
@@ -324,17 +347,26 @@ void PhotoViewer::on_actionChange_folder_triggered()
     delete fd;
 }
 
+void PhotoViewer::on_actionFirst_picture_triggered()
+{
+    if (_currentFile > 0) {
+        _currentFile = 0;
+        showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
+        resetPlayerTimer();
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Photo Viewer"),
+                                 tr("First picture"));
+    }
+}
+
 void PhotoViewer::on_actionPrevious_picture_triggered()
 {
-
     if (_currentFile > 0) {
         _currentFile--;
         showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
-
-        if (_playerTimer->isActive()) {
-            _playerTimer->stop();
-            _playerTimer->start();
-        }
+        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
@@ -366,16 +398,38 @@ void PhotoViewer::on_actionNext_picture_triggered()
     if (_currentFile < _currentDir->count() - 1) {
         _currentFile++;
         showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
-
-        if (_playerTimer->isActive()) {
-            _playerTimer->stop();
-            _playerTimer->start();
-        }
+        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
                                  tr("Photo Viewer"),
                                  tr("Last picture"));
+    }
+}
+
+void PhotoViewer::on_actionLast_picture_triggered()
+{
+    if (_currentFile < _currentDir->count() - 1) {
+        _currentFile = _currentDir->count() - 1;
+        showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
+        resetPlayerTimer();
+    }
+    else {
+        QMessageBox::information(this,
+                                 tr("Photo Viewer"),
+                                 tr("Last picture"));
+    }
+}
+
+void PhotoViewer::on_actionFull_screen_triggered()
+{
+    toggleFullScreen();
+}
+
+void PhotoViewer::on_actionExit_full_screen_triggered()
+{
+    if (isFullScreen()) {
+        toggleFullScreen();
     }
 }
 
@@ -413,4 +467,18 @@ void PhotoViewer::updateStatusBar ()
 {
     _lblStatusFileCount->setText(QString ("[%1/%2]").arg(_currentFile + 1).arg(_currentDir->count()));
     _lblStatusPath->setText(_currentDir->absolutePath());
+}
+
+void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
+{
+    ui->dwMap->show();
+    _mapView->setPosition(latitude, longitude, altitude);
+}
+
+void PhotoViewer::resetPlayerTimer()
+{
+    if (_playerTimer->isActive()) {
+        _playerTimer->stop();
+        _playerTimer->start();
+    }
 }

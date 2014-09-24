@@ -85,6 +85,10 @@ void PictureView::loadPicture(QString fileName)
 
     _prevPicture = _currentPicture;
     _currentPicture = new AnimatedItemPicture (fileName, this);
+    connect (_currentPicture,
+             SIGNAL(requestMapWindow(double,double,double)),
+             this,
+             SLOT(on_pictureRequestMapWindow(double,double,double)));
 }
 
 void PictureView::showPicture(PictureAnimationType animType)
@@ -168,6 +172,12 @@ void PictureView::on_finishPrevPictureAnimation()
     _currentAnimation = NULL;
 }
 
+void PictureView::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
+{
+    emit requestMapWindow(latitude, longitude, altitude);
+}
+
+
 void PictureView::setPictureRating(int rating)
 {
     _currentPicture->setPictureRating (rating);
@@ -191,4 +201,14 @@ void PictureView::setFullScreenBackground()
     brush.setColor(Qt::GlobalColor::black);
 
     this->setBackgroundBrush(brush);
+}
+
+double PictureView::pictureLatitude()
+{
+    return _currentPicture->pictureLatitude();
+}
+
+double PictureView::pictureLongitude()
+{
+    return _currentPicture->pictureLongitude();
 }

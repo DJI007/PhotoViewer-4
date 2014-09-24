@@ -17,6 +17,8 @@
         <file>images/star-on-menu-3.png</file>
         <file>images/star-on-menu-4.png</file>
         <file>images/star-on-menu-5.png</file>
+        <file>images/center.png</file>
+        <file>images/view-fullscreen.svg</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>

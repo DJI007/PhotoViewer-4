@@ -1,10 +1,17 @@
-import QtQuick 2.0
+import QtQuick 2.3
+import QtQuick.Controls 1.2
+import QtQuick.Controls.Styles 1.2
 import QtPositioning 5.2
 import QtLocation 5.0
 
+
 Rectangle {
-    width: 600
-    height: 600
+    width: 700
+    height: 700
+    anchors.fill: parent
+
+    property double lastLatitude: 0
+    property double lastLongitude: 0
 
     Plugin {
         id: myPlugin
@@ -12,7 +19,7 @@ Rectangle {
     }
 
     Map {
-        id: map
+        id: mapId
         objectName: "map"
         anchors.fill: parent
         plugin: myPlugin;
@@ -24,6 +31,7 @@ Rectangle {
         gesture.enabled: true
 
         MapCircle {
+            id: mapCircle
             center {
                 latitude: -27.5
                 longitude: 153.0
@@ -34,9 +42,91 @@ Rectangle {
         }
 
         function setPosition(lat, lon) {
-            map.center.latitude = lat;
-            map.center.longitude = lon;
+            mapId.center.latitude = lat;
+            mapId.center.longitude = lon;
+
+            mapCircle.center.latitude = lat;
+            mapCircle.center.longitude = lon;
+
+            lastLatitude = lat;
+            lastLongitude = lon;
         }
+
+        Button {
+            id: btnCenter
+            iconSource: "qrc:///images/images/center.png"
+            anchors.right: parent.right
+            anchors.bottom: btnPlus.top
+            anchors.rightMargin: 10
+            anchors.bottomMargin: 3
+            style: ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 25
+                    implicitHeight: 25
+                    width: 25
+                    height: 25
+                    border.width: control.activeFocus ? 2 : 1
+                    border.color: "#888"
+                    //color: white
+                }
+            }
+            onClicked: {
+                if (lastLatitude != 0) {
+                    mapId.center.latitude = lastLatitude;
+                    mapId.center.longitude = lastLongitude;
+                }
+            }
+        }
+
+        Button {
+            id: btnPlus
+            text: "+"
+            anchors.right: parent.right
+            anchors.bottom: btnMinus.top
+            anchors.rightMargin: 10
+            anchors.bottomMargin: 3
+            style: ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 25
+                    implicitHeight: 25
+                    border.width: control.activeFocus ? 2 : 1
+                    border.color: "#888"
+                    //color: white
+                }
+            }
+            onClicked: {
+                if (mapId.zoomLevel < mapId.maximumZoomLevel) {
+                    mapId.zoomLevel += 0.3;
+                }
+            }
+        }
+
+        Button {
+            id: btnMinus
+            text: "-"
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.rightMargin: 10
+            anchors.bottomMargin: 10
+            style: ButtonStyle {
+                background: Rectangle {
+                    implicitWidth: 25
+                    implicitHeight: 25
+                    border.width: control.activeFocus ? 2 : 1
+                    border.color: "#888"
+                    //color: white
+                }
+            }
+
+            onClicked: {
+                if (mapId.zoomLevel > 0) {
+                    mapId.zoomLevel -= 0.3;
+                }
+            }
+        }
+
     }
 }
+
+
 

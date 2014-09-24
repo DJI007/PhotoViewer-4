@@ -7,12 +7,8 @@
 #include <QFileInfo>
 #include <QGeoAddress>
 
-#include <QQuickView>
-#include <QQuickItem>
-#include <QMetaObject>
-#include <QApplication>
-
 #include "animateditemtext.h"
+#include "mapview.h"
 
 AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent) :
     QObject(parent), QGraphicsPixmapItem(pixmap)
@@ -24,8 +20,6 @@ AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent)
     _rating = NULL;
     _geoProvider = NULL;
     _geoManager = NULL;
-    _mapView = NULL;
-    _mainView = NULL;
 }
 
 AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent) :
@@ -58,17 +52,6 @@ AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent
 
         _geoManager = _geoProvider->geocodingManager();
     }
-
-    // QQuickView *view = new QQuickView;
-    QQuickItem *root;
-
-    _mainView = new QQuickView();
-    _mainView->setSource(QUrl("qrc:///qml/MapViewer.qml"));
-
-    root = _mainView->rootObject();
-    // root->setProperty("width", 1800);
-
-    _mapView = root->findChild<QQuickItem *>("map");
 }
 
 AnimatedItemPicture::~AnimatedItemPicture()
@@ -78,11 +61,12 @@ AnimatedItemPicture::~AnimatedItemPicture()
 
     // if (_geoManager)
     //    delete _geoManager;
-
+/*
     if (_mainView) {
         _mainView->hide();
         delete _mainView;
     }
+*/
 }
 
 void AnimatedItemPicture::load ()
@@ -368,14 +352,9 @@ void AnimatedItemPicture::on_reverseGeocode_finished()
 
 void AnimatedItemPicture::on_geoInfo_leftMousePressed()
 {
-    if (_mainView) {
-        _mainView->show ();
-
-        QMetaObject::invokeMethod(_mapView,
-                                  "setPosition",
-                                  Q_ARG(QVariant, _pictureData.gpsLatitude()),
-                                  Q_ARG(QVariant, _pictureData.gpsLongitude()));
-    }
+    emit requestMapWindow(_pictureData.gpsLatitude(),
+                          _pictureData.gpsLongitude(),
+                          _pictureData.gpsAltitude());
 }
 
 QGraphicsItemGroup *AnimatedItemPicture::createRating()
@@ -433,12 +412,19 @@ AnimatedItemPicture *AnimatedItemPicture::createStar (bool isOn, int left, int t
 
     return item;
 }
-
+/*
 void AnimatedItemPicture::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     Q_UNUSED (event);
+}
+*/
 
-    if (_mainView->isActive()) {
-        _mainView->hide();
-    }
+double AnimatedItemPicture::pictureLatitude()
+{
+    return _pictureData.gpsAltitude();
+}
+
+double AnimatedItemPicture::pictureLongitude()
+{
+    return _pictureData.gpsLongitude();
 }

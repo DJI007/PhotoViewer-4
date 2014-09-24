@@ -7,6 +7,7 @@
 QT += core gui
 QT += positioning location
 QT += qml quick
+# QT += declarative
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,7 +27,8 @@ SOURCES += main.cpp\
     animationslide.cpp \
     animationrotate.cpp \
     animationrotatemove.cpp \
-    animationscale.cpp
+    animationscale.cpp \
+    mapview.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -41,7 +43,8 @@ HEADERS  += photoviewer.h \
     animationslide.h \
     animationrotate.h \
     animationrotatemove.h \
-    animationscale.h
+    animationscale.h \
+    mapview.h
 
 FORMS    += photoviewer.ui
 

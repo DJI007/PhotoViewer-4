@@ -7,6 +7,7 @@
 #include <QLabel>
 
 #include "pictureview.h"
+#include "mapview.h"
 
 namespace Ui {
 class PhotoViewer;
@@ -42,6 +43,16 @@ private slots:
     void on_playerTimerTimeout();
     void on_toolBarTimerTimeout();
 
+    void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
+
+    void on_actionFirst_picture_triggered();
+
+    void on_actionLast_picture_triggered();
+
+    void on_actionFull_screen_triggered();
+
+    void on_actionExit_full_screen_triggered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
@@ -61,6 +72,8 @@ private:
     QLabel *_lblStatusFileCount;
     QLabel *_lblStatusPath;
 
+    MapView *_mapView;
+
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void toggleFullScreen();
 
@@ -74,6 +87,8 @@ private:
     void setToolBarsVisibility (bool visible);
 
     void updateStatusBar ();
+
+    void resetPlayerTimer ();
 };
 
 #endif // PHOTOVIEWER_H

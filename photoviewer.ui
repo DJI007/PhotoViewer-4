@@ -95,18 +95,28 @@
      <addaction name="actionSet_5_stars"/>
     </widget>
     <addaction name="actionChange_folder"/>
+    <addaction name="separator"/>
     <addaction name="menuRating"/>
    </widget>
    <widget class="QMenu" name="menuPresentation">
     <property name="title">
      <string>Presentation</string>
     </property>
+    <addaction name="actionFirst_picture"/>
+    <addaction name="actionPrevious_picture"/>
     <addaction name="actionPlay"/>
     <addaction name="actionNext_picture"/>
-    <addaction name="actionPrevious_picture"/>
+    <addaction name="actionLast_picture"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionFull_screen"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPresentation"/>
+   <addaction name="menuWindow"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="windowTitle">
@@ -119,12 +129,35 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionChange_folder"/>
+   <addaction name="separator"/>
+   <addaction name="actionFirst_picture"/>
    <addaction name="actionPrevious_picture"/>
    <addaction name="actionPlay"/>
    <addaction name="actionNext_picture"/>
+   <addaction name="actionLast_picture"/>
+   <addaction name="separator"/>
+   <addaction name="actionFull_screen"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QDockWidget" name="dwMap">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="floating">
+    <bool>true</bool>
+   </property>
+   <property name="features">
+    <set>QDockWidget::AllDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Map</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>2</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
   <action name="actionChange_folder">
    <property name="icon">
     <iconset resource="PhotoViewer.qrc">
@@ -252,6 +285,65 @@
    </property>
    <property name="shortcut">
     <string>0</string>
+   </property>
+  </action>
+  <action name="actionFirst_picture">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-skip-backward.png</normaloff>:/images/images/media-skip-backward.png</iconset>
+   </property>
+   <property name="text">
+    <string>First picture</string>
+   </property>
+   <property name="toolTip">
+    <string>First picture</string>
+   </property>
+   <property name="shortcut">
+    <string>Home</string>
+   </property>
+  </action>
+  <action name="actionLast_picture">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-skip-forward.png</normaloff>:/images/images/media-skip-forward.png</iconset>
+   </property>
+   <property name="text">
+    <string>Last picture</string>
+   </property>
+   <property name="toolTip">
+    <string>Last picture</string>
+   </property>
+   <property name="shortcut">
+    <string>End</string>
+   </property>
+  </action>
+  <action name="actionFull_screen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/view-fullscreen.svg</normaloff>:/images/images/view-fullscreen.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Full screen</string>
+   </property>
+   <property name="toolTip">
+    <string>View in full screen mode</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionExit_full_screen">
+   <property name="text">
+    <string>Exit full screen</string>
+   </property>
+   <property name="toolTip">
+    <string>Exit full screen mode</string>
+   </property>
+   <property name="shortcut">
+    <string>Esc</string>
    </property>
   </action>
  </widget>

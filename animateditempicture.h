@@ -6,9 +6,6 @@
 #include <QGeoServiceProvider>
 #include <QGeoCodingManager>
 
-#include <QQuickView>
-#include <QQuickItem>
-
 #include "exifmetadata.h"
 #include "animateditemtext.h"
 
@@ -31,8 +28,11 @@ public:
     void load ();
     void resize ();
     void setPictureRating(int rating);
+    double pictureLatitude ();
+    double pictureLongitude ();
 
 signals:
+    void requestMapWindow (double latitude, double longitude, double altitude);
 
 public slots:
     void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
@@ -40,7 +40,7 @@ public slots:
     void on_geoInfo_leftMousePressed ();
 
 protected:
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    // virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 
 private:
@@ -51,13 +51,9 @@ private:
     QGraphicsItemGroup *_rating;
     ExifMetadata _pictureData;
 
-    QQuickView *_mainView;
-    QQuickItem *_mapView;
-
     QGeoServiceProvider *_geoProvider;
     QGeoCodingManager  *_geoManager;
     QGeoCodeReply *_reverseGeocodeReply;
-
 
     QPixmap correctOrientationPicture(QPixmap src);
     QPixmap scaledImage(QPixmap src);

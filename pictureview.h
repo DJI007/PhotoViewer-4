@@ -32,9 +32,14 @@ public:
     void setFullScreenBackground ();
     void cleanPicture ();
 
+    double pictureLatitude ();
+    double pictureLongitude ();
+
 signals:
     void mouseDoubleClick ();
     void mouseMove ();
+    void requestMapWindow (double latitude, double longitude, double altitude);
+
 
 public slots:
     void loadPicture (QString fileName);
@@ -42,6 +47,7 @@ public slots:
     void setPictureRating (int rating);
     void on_finishPrevPictureAnimation ();
     void resize ();
+    void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
