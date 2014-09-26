@@ -7,6 +7,7 @@
 QT += core gui
 QT += positioning location
 QT += qml quick
+QT += multimedia multimediawidgets
 # QT += declarative
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -21,14 +22,16 @@ SOURCES += main.cpp\
     settingshelper.cpp \
     starsaction.cpp \
     starlabel.cpp \
-    animateditemtext.cpp \
     animateditempicture.cpp \
     animationfade.cpp \
     animationslide.cpp \
     animationrotate.cpp \
     animationrotatemove.cpp \
     animationscale.cpp \
-    mapview.cpp
+    mapview.cpp \
+    animateditemvideo.cpp \
+    animateditem.cpp \
+    clickableitemtext.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -36,7 +39,6 @@ HEADERS  += photoviewer.h \
     settingshelper.h \
     starsaction.h \
     starlabel.h \
-    animateditemtext.h \
     animateditempicture.h \
     pictureanimation.h \
     animationfade.h \
@@ -44,7 +46,10 @@ HEADERS  += photoviewer.h \
     animationrotate.h \
     animationrotatemove.h \
     animationscale.h \
-    mapview.h
+    mapview.h \
+    animateditemvideo.h \
+    animateditem.h \
+    clickableitemtext.h
 
 FORMS    += photoviewer.ui
 

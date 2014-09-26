@@ -9,6 +9,8 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 
+#include "animateditempicture.h"
+#include "animateditemvideo.h"
 #include "animationfade.h"
 #include "animationrotate.h"
 #include "animationrotatemove.h"
@@ -22,9 +24,9 @@ PictureView::PictureView(QWidget *parent) :
     _pictureScene = new QGraphicsScene(this);
     _pictureScene->setObjectName("gsScene");
 
-    _currentPicture = NULL;
+    _currentItem = NULL;
     _currentAnimation = NULL;
-    _prevPicture = NULL;
+    _prevItem = NULL;
 
     this->setScene(_pictureScene);
     this->setNormalBackground();
@@ -36,6 +38,7 @@ PictureView::PictureView(QWidget *parent) :
     _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
     _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
 
+    _infoVisible = true;
 }
 
 PictureView::~PictureView ()
@@ -46,14 +49,15 @@ PictureView::~PictureView ()
 void PictureView::mouseDoubleClickEvent (QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        emit mouseDoubleClick();
+        emit mouseDoubleClick(event);
     }
 }
 
 void PictureView::mouseMoveEvent(QMouseEvent *event)
 {
     QGraphicsView::mouseMoveEvent(event);
-    emit mouseMove();
+
+    emit mouseMove(event);
 }
 
 bool PictureView::hasPicture()
@@ -71,8 +75,8 @@ void PictureView::resize()
 
     _pictureScene->setSceneRect (x, y, this->width() - 2, this->height() - 2);
 
-    if (_currentPicture != NULL) {
-        _currentPicture->resize();
+    if (_currentItem != NULL) {
+        _currentItem->resize();
     }
 }
 
@@ -80,12 +84,19 @@ void PictureView::loadPicture(QString fileName)
 {
     if (_currentAnimation) {
         _currentAnimation->stop();
-        on_finishPrevPictureAnimation();
+        on_finishPrevItemAnimation();
     }
 
-    _prevPicture = _currentPicture;
-    _currentPicture = new AnimatedItemPicture (fileName, this);
-    connect (_currentPicture,
+    _prevItem = _currentItem;
+
+    if (fileName.endsWith("mp4")) {
+        _currentItem = new AnimatedItemVideo(fileName, this);
+    }
+    else {
+        _currentItem = new AnimatedItemPicture (fileName, this);
+    }
+
+    connect (dynamic_cast<QObject *> (_currentItem),
              SIGNAL(requestMapWindow(double,double,double)),
              this,
              SLOT(on_pictureRequestMapWindow(double,double,double)));
@@ -93,9 +104,10 @@ void PictureView::loadPicture(QString fileName)
 
 void PictureView::showPicture(PictureAnimationType animType)
 {
-    if (_currentPicture != NULL) {
-        _pictureScene->addItem(_currentPicture);
-        _currentPicture->load();
+    if (_currentItem != NULL) {
+        _pictureScene->addItem(dynamic_cast<QGraphicsItem *> (_currentItem));
+        _currentItem->load();
+        _currentItem->setInfoVisible(_infoVisible);
     }
 
     if (animType != PictureAnimationType::None) {
@@ -110,22 +122,22 @@ void PictureView::showPicture(PictureAnimationType animType)
             int current;
 
             current = qrand() % _animations.count();
-            animIn = _animations.at(current)->getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = _animations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
 
             current = qrand() % _animations.count();
-            animOut = _animations.at(current)->getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = _animations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::LeftToRight:
             slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
-            animIn = slide.getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::RightToLeft:
             slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
-            animIn = slide.getAnimationIn(_prevPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_currentPicture, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::None:  // To supress compile warning
@@ -138,38 +150,51 @@ void PictureView::showPicture(PictureAnimationType animType)
             connect(animIn,
                     SIGNAL(finished()),
                     this,
-                    SLOT(on_finishPrevPictureAnimation ()));
-
+                    SLOT(on_finishCurrentItemAnimation ()));
 
             _currentAnimation->addAnimation(animIn);
-            _currentAnimation->addAnimation(animOut);
-
-            _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
         }
+
+        if (animOut != NULL) {
+            connect(animOut,
+                    SIGNAL(finished()),
+                    this,
+                    SLOT(on_finishPrevItemAnimation()));
+
+            _currentAnimation->addAnimation(animOut);
+        }
+
+        _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     }
     else {
-        delete _prevPicture;
+        _currentItem->endAnimation();
+        delete _prevItem;
         _currentAnimation = NULL;
     }
 }
 
 void PictureView::cleanPicture()
 {
-    if (_currentPicture != NULL) {
-        delete _currentPicture;
-        _currentPicture = NULL;
+    if (_currentItem != NULL) {
+        delete _currentItem;
+        _currentItem = NULL;
     }
 
-    if (_prevPicture != NULL) {
-        delete _prevPicture;
-        _prevPicture = NULL;
+    if (_prevItem != NULL) {
+        delete _prevItem;
+        _prevItem = NULL;
     }
 }
 
-void PictureView::on_finishPrevPictureAnimation()
+void PictureView::on_finishPrevItemAnimation()
 {
-    delete _prevPicture;
+    delete _prevItem;
+}
+
+void PictureView::on_finishCurrentItemAnimation()
+{
     _currentAnimation = NULL;
+    _currentItem->endAnimation();
 }
 
 void PictureView::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
@@ -180,7 +205,7 @@ void PictureView::on_pictureRequestMapWindow (double latitude, double longitude,
 
 void PictureView::setPictureRating(int rating)
 {
-    _currentPicture->setPictureRating (rating);
+    _currentItem->setRating (rating);
 }
 
 void PictureView::setNormalBackground()
@@ -205,10 +230,19 @@ void PictureView::setFullScreenBackground()
 
 double PictureView::pictureLatitude()
 {
-    return _currentPicture->pictureLatitude();
+    return _currentItem->latitude();
 }
 
 double PictureView::pictureLongitude()
 {
-    return _currentPicture->pictureLongitude();
+    return _currentItem->longitude();
+}
+
+void PictureView::setInfoVisible(bool visible)
+{
+    if ((!visible) || (visible && !_infoVisible)) {
+        _currentItem->setInfoVisible(visible);
+    }
+
+    _infoVisible = visible;
 }

@@ -81,7 +81,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     QString lastDirectory;
     QStringList filters;
 
-    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png";
+    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi";
 
     lastDirectory = SettingsHelper::instance ().lastDirectory ();
 
@@ -101,13 +101,13 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     }
 
     connect(ui->gvPicture,
-            SIGNAL(mouseDoubleClick()),
+            SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,
-            SLOT(on_pictureDoubleClick()));
+            SLOT(on_pictureDoubleClick(QMouseEvent*)));
     connect(ui->gvPicture,
-            SIGNAL(mouseMove()),
+            SIGNAL(mouseMove(QMouseEvent*)),
             this,
-            SLOT(on_pictureMouseMove()));
+            SLOT(on_pictureMouseMove(QMouseEvent*)));
 
     // Add actions to main window to preserve the shortcuts in fullscreen mode
     this->addAction(ui->actionFirst_picture);
@@ -160,15 +160,20 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
     updateStatusBar();
 }
 
-void PhotoViewer::on_pictureDoubleClick()
+void PhotoViewer::on_pictureDoubleClick(QMouseEvent *event)
 {
+    Q_UNUSED (event);
+
     toggleFullScreen();
 }
 
-void PhotoViewer::on_pictureMouseMove()
+void PhotoViewer::on_pictureMouseMove(QMouseEvent *event)
 {
-    if (isFullScreen() && !_toolBarTimer->isActive()) {
-        showToolBarFullScreen();
+    if (isFullScreen()) { // && !_toolBarTimer->isActive()) {
+        bool showToolbar;
+
+        showToolbar = (event->y() == 0);
+        showToolBarFullScreen(showToolbar);
     }
 }
 
@@ -182,6 +187,7 @@ void PhotoViewer::toggleFullScreen()
         setToolBarsVisibility(true);
 
         ui->gvPicture->setNormalBackground();
+        ui->gvPicture->setInfoVisible(true);
 
         QApplication::restoreOverrideCursor();
         if (_lastStatusMaximized) {
@@ -201,6 +207,7 @@ void PhotoViewer::toggleFullScreen()
         setToolBarsVisibility(false);
 
         ui->gvPicture->setFullScreenBackground();
+        ui->gvPicture->setInfoVisible(false);
 
         QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
         showFullScreen();
@@ -299,12 +306,18 @@ void PhotoViewer::startToolBarFullScreen ()
     _toolBarWindowFlags = ui->mainToolBar->windowFlags();
 }
 
-void PhotoViewer::showToolBarFullScreen ()
+void PhotoViewer::showToolBarFullScreen (bool showToolbar)
 {
-    QApplication::restoreOverrideCursor();
+    if (!_toolBarTimer->isActive()) {
+        QApplication::restoreOverrideCursor();
+    }
 
-    ui->mainToolBar->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
-    ui->mainToolBar->show();
+    if (showToolbar) {
+        ui->mainToolBar->setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+        ui->mainToolBar->show();
+    }
+
+    ui->gvPicture->setInfoVisible(true);
 
     _toolBarTimer->start();
 }
@@ -313,6 +326,8 @@ void PhotoViewer::hideToolBarFullScreen ()
 {
     QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
     ui->mainToolBar->hide();
+
+    ui->gvPicture->setInfoVisible(false);
     _toolBarTimer->stop();
 }
 

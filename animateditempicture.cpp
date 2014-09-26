@@ -7,11 +7,23 @@
 #include <QFileInfo>
 #include <QGeoAddress>
 
-#include "animateditemtext.h"
+#include <QAnimationGroup>
+#include <QSequentialAnimationGroup>
+#include <QParallelAnimationGroup>
+
+#include "pictureanimation.h"
+#include "animationfade.h"
+#include "animationrotate.h"
+#include "animationslide.h"
+#include "animationrotatemove.h"
+#include "animationscale.h"
+
+#include "clickableitemtext.h"
 #include "mapview.h"
 
 AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent) :
-    QObject(parent), QGraphicsPixmapItem(pixmap)
+    QGraphicsPixmapItem(pixmap),
+    AnimatedItem(parent)
 {
     setCacheMode(DeviceCoordinateCache);
 
@@ -23,7 +35,7 @@ AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent)
 }
 
 AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent) :
-    QObject(parent)
+    AnimatedItem (parent)
 {
     setCacheMode(DeviceCoordinateCache);
 
@@ -81,21 +93,22 @@ void AnimatedItemPicture::load ()
     _geoInfo->setParentItem(this);
     _rating->setParentItem(this);
 
-    this->setAcceptHoverEvents(true);
+    setAcceptHoverEvents(true);
 
-    this->centerOnScene ();
-    this->setChildrenPos();
+    centerOnScene ();
+    setChildrenPos();
 }
 
-void AnimatedItemPicture::setPictureRating(int rating)
+void AnimatedItemPicture::setRating(int rating)
 {
     _pictureData.setRating(rating);
+    setRatingVisible(true);
     refreshRating ();
 }
 
 void AnimatedItemPicture::resize()
 {
-    this->setPixmap(scaledImage(_correctImage));
+    this->setPixmap(scaledImage(_correctedImage));
     this->centerOnScene ();
     this->setChildrenPos();
 }
@@ -106,8 +119,8 @@ void AnimatedItemPicture::loadPicture()
 
     image.load (_fileName);
     if (!image.isNull()) {
-        _correctImage = correctOrientationPicture(image);
-        image = scaledImage (_correctImage);
+        _correctedImage = correctOrientationPicture(image);
+        image = scaledImage (_correctedImage);
         this->setPixmap (image);
     }
 }
@@ -259,9 +272,9 @@ void AnimatedItemPicture::setChildrenPos ()
     _rating->setPos(left, top);
 }
 
-AnimatedItemText *AnimatedItemPicture::createInfo()
+QGraphicsTextItem *AnimatedItemPicture::createInfo()
 {
-    AnimatedItemText *item;
+    QGraphicsTextItem *item;
     QString msg;
     QString date;
     QFileInfo info;
@@ -279,45 +292,50 @@ AnimatedItemText *AnimatedItemPicture::createInfo()
     msg += date;
     msg += "</span>";
 
-    item = new AnimatedItemText();
+    item = new QGraphicsTextItem();
     item->setHtml(msg);
 
     return item;
 }
 
-AnimatedItemText *AnimatedItemPicture::createGeoInfo()
+ClickableItemText *AnimatedItemPicture::createGeoInfo()
 {
-    AnimatedItemText *item;
+    ClickableItemText *item;
     QString msg;
-    QGeoCoordinate coord;
 
-    coord.setLatitude(_pictureData.gpsLatitude());
-    coord.setLongitude(_pictureData.gpsLongitude());
-    coord.setAltitude(_pictureData.gpsAltitude());
+    item = new ClickableItemText();
 
-    if (_geoManager) {
-        _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
-        connect (_reverseGeocodeReply,
-                 SIGNAL(error(QGeoCodeReply::Error,QString)),
-                 this,
-                 SLOT(on_reverseGeocode_error(QGeoCodeReply::Error,QString)));
-        connect (_reverseGeocodeReply,
-                 SIGNAL(finished()),
-                 this,
-                 SLOT(on_reverseGeocode_finished()));
+    if (_pictureData.gpsLatitude() != 0 && _pictureData.gpsLongitude() != 0) {
+        QGeoCoordinate coord;
+
+        coord.setLatitude(_pictureData.gpsLatitude());
+        coord.setLongitude(_pictureData.gpsLongitude());
+        coord.setAltitude(_pictureData.gpsAltitude());
+
+        if (_geoManager) {
+            _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
+            connect (_reverseGeocodeReply,
+                     SIGNAL(error(QGeoCodeReply::Error,QString)),
+                     this,
+                     SLOT(on_reverseGeocode_error(QGeoCodeReply::Error,QString)));
+            connect (_reverseGeocodeReply,
+                     SIGNAL(finished()),
+                     this,
+                     SLOT(on_reverseGeocode_finished()));
+        }
+
+        msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
+        msg += QString::number(_pictureData.gpsLatitude()) + " " + _pictureData.gpsLatitudeRef() + " ";
+        msg += QString::number(_pictureData.gpsLongitude()) + " " + _pictureData.gpsLongitudeRef();
+        msg += "</span>";
+
+        setAcceptHoverEvents(true);
+        item->setIsClickable(true);
+        item->setHtml(msg);
+
+        connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
     }
 
-    msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
-    msg += QString::number(_pictureData.gpsLatitude()) + " " + _pictureData.gpsLatitudeRef() + " ";
-    msg += QString::number(_pictureData.gpsLongitude()) + " " + _pictureData.gpsLongitudeRef();
-    msg += "</span>";
-
-    item = new AnimatedItemText();
-    setAcceptHoverEvents(true);
-    item->setIsClickable(true);
-    item->setHtml(msg);
-
-    connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
 
     return item;
 }
@@ -384,6 +402,31 @@ QGraphicsItemGroup *AnimatedItemPicture::createRating()
     return result;
 }
 
+void AnimatedItemPicture::setRatingVisible(bool visible)
+{
+    AbstractPictureAnimation *anim;
+    QAnimationGroup *group;
+
+    group = new QParallelAnimationGroup();
+    anim = new AnimationScale();
+
+    for (int i = 0; i < _rating->childItems().count(); i++) {
+        AnimatedItemPicture *current;
+
+        current = dynamic_cast<AnimatedItemPicture *> (_rating->childItems()[i]);
+
+        if (visible) {
+            group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
+        }
+        else {
+            group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
+        }
+    }
+
+
+    group->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
 void AnimatedItemPicture::refreshRating()
 {
     delete _rating;
@@ -419,12 +462,68 @@ void AnimatedItemPicture::mousePressEvent(QGraphicsSceneMouseEvent *event)
 }
 */
 
-double AnimatedItemPicture::pictureLatitude()
+double AnimatedItemPicture::latitude()
 {
     return _pictureData.gpsAltitude();
 }
 
-double AnimatedItemPicture::pictureLongitude()
+double AnimatedItemPicture::longitude()
 {
     return _pictureData.gpsLongitude();
+}
+
+void AnimatedItemPicture::setInfoVisible(bool visible)
+{
+    if (visible) {
+        _info->show();
+        _geoInfo->show();
+        // _rating->show();
+    }
+    else {
+        _info->hide();
+        _geoInfo->hide();
+        // _rating->hide();
+    }
+
+    setRatingVisible(visible);
+}
+
+QPointF AnimatedItemPicture::animationPos ()
+{
+    return pos();
+}
+
+qreal AnimatedItemPicture::animationOpacity ()
+{
+    return opacity();
+}
+
+qreal AnimatedItemPicture::animationRotation ()
+{
+    return rotation();
+}
+
+qreal AnimatedItemPicture::animationScale ()
+{
+    return scale ();
+}
+
+void AnimatedItemPicture::setAnimationPos (QPointF value)
+{
+    setPos(value);
+}
+
+void AnimatedItemPicture::setAnimationOpacity (qreal value)
+{
+    setOpacity(value);
+}
+
+void AnimatedItemPicture::setAnimationRotation (qreal value)
+{
+    setRotation(value);
+}
+
+void AnimatedItemPicture::setAnimationScale (qreal value)
+{
+    setScale(value);
 }

@@ -5,18 +5,15 @@
 #include <QString>
 #include <QGeoServiceProvider>
 #include <QGeoCodingManager>
+#include <QGraphicsTextItem>
 
 #include "exifmetadata.h"
-#include "animateditemtext.h"
+#include "clickableitemtext.h"
+#include "animateditem.h"
 
-class AnimatedItemPicture: public QObject, public QGraphicsPixmapItem
+class AnimatedItemPicture: public AnimatedItem, public QGraphicsPixmapItem
 {
     Q_OBJECT
-
-    Q_PROPERTY(QPointF pos READ pos WRITE setPos)
-    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
-    Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
-    Q_PROPERTY(qreal scale READ scale WRITE setScale)
 
 public:
     explicit AnimatedItemPicture(const QPixmap& pixmap, QObject* parent = 0);
@@ -27,17 +24,29 @@ public:
 
     void load ();
     void resize ();
-    void setPictureRating(int rating);
-    double pictureLatitude ();
-    double pictureLongitude ();
+    void setRating(int rating);
+    double latitude ();
+    double longitude ();
+
+    void setInfoVisible (bool visible);
+
+    QPointF animationPos ();
+    qreal animationOpacity ();
+    qreal animationRotation ();
+    qreal animationScale ();
+
+    void setAnimationPos (QPointF);
+    void setAnimationOpacity (qreal);
+    void setAnimationRotation (qreal);
+    void setAnimationScale (qreal);
 
 signals:
-    void requestMapWindow (double latitude, double longitude, double altitude);
 
 public slots:
     void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
     void on_reverseGeocode_finished();
     void on_geoInfo_leftMousePressed ();
+
 
 protected:
     // virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -45,9 +54,9 @@ protected:
 
 private:
     QString _fileName;
-    QPixmap _correctImage;
-    AnimatedItemText *_info;
-    AnimatedItemText *_geoInfo;
+    QPixmap _correctedImage;
+    QGraphicsTextItem *_info;
+    ClickableItemText *_geoInfo;
     QGraphicsItemGroup *_rating;
     ExifMetadata _pictureData;
 
@@ -59,9 +68,11 @@ private:
     QPixmap scaledImage(QPixmap src);
 
     void loadPicture ();
-    AnimatedItemText *createInfo ();
-    AnimatedItemText *createGeoInfo ();
+    QGraphicsTextItem *createInfo();
+    ClickableItemText *createGeoInfo ();
     QGraphicsItemGroup *createRating ();
+
+    void setRatingVisible (bool visible);
 
     void refreshRating ();
 

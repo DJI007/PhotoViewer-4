@@ -33,12 +33,8 @@ private slots:
     void on_actionSet_4_stars_triggered();
     void on_actionSet_5_stars_triggered();
 
-    void on_pictureDoubleClick();
-    void on_pictureMouseMove();
-/*
-    void on_actionSet_1_star_hovered();
-    void on_actionSet_2_stars_hovered();
-*/
+    void on_pictureDoubleClick(QMouseEvent *event);
+    void on_pictureMouseMove(QMouseEvent *event);
 
     void on_playerTimerTimeout();
     void on_toolBarTimerTimeout();
@@ -46,11 +42,8 @@ private slots:
     void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
 
     void on_actionFirst_picture_triggered();
-
     void on_actionLast_picture_triggered();
-
     void on_actionFull_screen_triggered();
-
     void on_actionExit_full_screen_triggered();
 
 protected:
@@ -78,7 +71,7 @@ private:
     void toggleFullScreen();
 
     void startToolBarFullScreen ();
-    void showToolBarFullScreen ();
+    void showToolBarFullScreen (bool showToolbar);
     void hideToolBarFullScreen ();
     void endToolBarFullScreen ();
 

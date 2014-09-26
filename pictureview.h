@@ -9,9 +9,9 @@
 #include <QGraphicsItem>
 
 #include "exifmetadata.h"
-#include "animateditempicture.h"
-#include "animateditemtext.h"
+#include "clickableitemtext.h"
 #include "pictureanimation.h"
+#include "animateditem.h"
 
 class PictureView : public QGraphicsView
 {
@@ -35,9 +35,11 @@ public:
     double pictureLatitude ();
     double pictureLongitude ();
 
+    void setInfoVisible (bool visible);
+
 signals:
-    void mouseDoubleClick ();
-    void mouseMove ();
+    void mouseDoubleClick (QMouseEvent *event);
+    void mouseMove (QMouseEvent *event);
     void requestMapWindow (double latitude, double longitude, double altitude);
 
 
@@ -45,7 +47,8 @@ public slots:
     void loadPicture (QString fileName);
     void showPicture (PictureAnimationType animType /* = PictureAnimationType::None */);
     void setPictureRating (int rating);
-    void on_finishPrevPictureAnimation ();
+    void on_finishPrevItemAnimation ();
+    void on_finishCurrentItemAnimation ();
     void resize ();
     void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
 
@@ -57,9 +60,10 @@ private:
     const int ANIMATION_DURATION_MILLISECONDS = 3000;
 
     QGraphicsScene *_pictureScene;
-    AnimatedItemPicture *_currentPicture;
-    AnimatedItemPicture *_prevPicture;
+    AnimatedItem *_currentItem;
+    AnimatedItem *_prevItem;
     QAnimationGroup *_currentAnimation;
+    bool _infoVisible;
 
     QList<AbstractPictureAnimation *> _animations;
 };

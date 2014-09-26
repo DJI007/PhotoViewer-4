@@ -1,9 +1,9 @@
-#ifndef ANIMATEDITEMTEXT_H
-#define ANIMATEDITEMTEXT_H
+#ifndef CLICKABLEITEMTEXT_H
+#define CLICKABLEITEMTEXT_H
 
 #include <QGraphicsTextItem>
 
-class AnimatedItemText : public QGraphicsTextItem
+class ClickableItemText : public QGraphicsTextItem
 {
     Q_OBJECT
 
@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif // ANIMATEDITEMTEXT_H
+#endif // CLICKABLEITEMTEXT_H

@@ -3,15 +3,14 @@
 
 #include <QAbstractAnimation>
 
-#include "animateditempicture.h"
+#include "animateditem.h"
 
 class AbstractPictureAnimation
 {
 public:
-    virtual QAbstractAnimation *getAnimationIn (AnimatedItemPicture *target, int duration, int parentWidth) = 0;
-    virtual QAbstractAnimation *getAnimationOut (AnimatedItemPicture *target, int duration, int parentWidth) = 0;
+    virtual QAbstractAnimation *getAnimationIn (AnimatedItem *target, int duration, int parentWidth) = 0;
+    virtual QAbstractAnimation *getAnimationOut (AnimatedItem *target, int duration, int parentWidth) = 0;
 };
-
 
 
 #endif // PICTUREANIMATION_H

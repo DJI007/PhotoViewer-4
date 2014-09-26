@@ -1,10 +1,10 @@
-#include "animateditemtext.h"
+#include "clickableitemtext.h"
 
 #include <QGraphicsSceneMouseEvent>
 #include <QDebug>
 #include <QApplication>
 
-void AnimatedItemText::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void ClickableItemText::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_isClickable) {
         if (event->button() == Qt::LeftButton) {
@@ -13,7 +13,7 @@ void AnimatedItemText::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void AnimatedItemText::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+void ClickableItemText::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
 
@@ -21,7 +21,7 @@ void AnimatedItemText::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
         QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor));
 }
 
-void AnimatedItemText::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+void ClickableItemText::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event);
 
@@ -29,12 +29,12 @@ void AnimatedItemText::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
         QApplication::restoreOverrideCursor();
 }
 
-bool AnimatedItemText::isClickable()
+bool ClickableItemText::isClickable()
 {
     return _isClickable;
 }
 
-void AnimatedItemText::setIsClickable(bool value)
+void ClickableItemText::setIsClickable(bool value)
 {
     _isClickable = value;
     setAcceptHoverEvents(value);
