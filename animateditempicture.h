@@ -11,7 +11,7 @@
 #include "clickableitemtext.h"
 #include "animateditem.h"
 
-class AnimatedItemPicture: public AnimatedItem, public QGraphicsPixmapItem
+class AnimatedItemPicture: public QGraphicsPixmapItem
 {
     Q_OBJECT
 

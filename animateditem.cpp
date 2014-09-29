@@ -1,7 +1,8 @@
 
 #include "animateditem.h"
 
-AnimatedItem::AnimatedItem(QObject *parent)
+AnimatedItem::AnimatedItem(QString fileName, QObject *parent) :
+    QObject (parent)
 {
 
 }

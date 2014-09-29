@@ -14,32 +14,38 @@ class AnimatedItem : public QObject
     Q_PROPERTY(qreal scale READ animationScale WRITE setAnimationScale)
 
 public:
-    explicit AnimatedItem (QObject *parent = 0);
+    explicit AnimatedItem (QString fileName, QObject *parent = 0);
+    ~AnimatedItem ();
 
-    virtual void load () = 0;
-    virtual void resize () = 0;
-    virtual void setRating(int rating) = 0;
-    virtual double latitude () = 0;
-    virtual double longitude () = 0;
+    void load ();
+    void resize ();
+    void setRating(int rating);
+    double latitude ();
+    double longitude ();
 
-    virtual void setInfoVisible (bool visible) = 0;
+    void setInfoVisible (bool visible);
 
-    virtual QPointF animationPos () = 0;
-    virtual qreal animationOpacity () = 0;
-    virtual qreal animationRotation () = 0;
-    virtual qreal animationScale () = 0;
+    QPointF animationPos ();
+    qreal animationOpacity ();
+    qreal animationRotation ();
+    qreal animationScale ();
 
-    virtual void setAnimationPos (QPointF) = 0;
-    virtual void setAnimationOpacity (qreal) = 0;
-    virtual void setAnimationRotation (qreal) = 0;
-    virtual void setAnimationScale (qreal) = 0;
+    void setAnimationPos (QPointF);
+    void setAnimationOpacity (qreal);
+    void setAnimationRotation (qreal);
+    void setAnimationScale (qreal);
 
-    virtual void endAnimation ();
+    void endAnimation ();
+
+    QGraphicsItem *item ();
 
 signals:
     void requestMapWindow (double latitude, double longitude, double altitude);
 
 public slots:
+
+private:
+    QGraphicsItem *_item;
 
 };
 

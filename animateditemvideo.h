@@ -7,7 +7,7 @@
 
 #include "animateditem.h"
 
-class AnimatedItemVideo : public AnimatedItem, public QGraphicsVideoItem
+class AnimatedItemVideo : public QGraphicsVideoItem
 {
 public:
     explicit AnimatedItemVideo(QString fileName, QObject *parent = 0);
