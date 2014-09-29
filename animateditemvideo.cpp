@@ -12,7 +12,6 @@ AnimatedItemVideo::AnimatedItemVideo(QString fileName, QObject *parent) :
 
     _player = new QMediaPlayer (parent);
     _player->setVideoOutput(this);
-    _player->setMedia(QUrl::fromLocalFile(_fileName));
 
     _info = NULL;
 }
@@ -24,13 +23,11 @@ AnimatedItemVideo::~AnimatedItemVideo()
 
 void AnimatedItemVideo::load()
 {
-    resize();
-    _player->play();
-
-    _info = createInfo ();
-    _info->setParentItem(this);
-
-    setChildrenPos();
+    _player->setMedia(QUrl::fromLocalFile(_fileName));
+    QGraphicsVideoItem::connect (_player,
+             SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
+             this,
+             SLOT(on_mediaStatusChanged(QMediaPlayer::MediaStatus)));
 }
 
 void AnimatedItemVideo::endAnimation()
@@ -58,7 +55,8 @@ void AnimatedItemVideo::setChildrenPos ()
         videoHeight = ((size().height() * percent) / 100);
         vPos = (size().height() / 2) + (videoHeight / 2);
 
-        _info->setPos(0, vPos - 40);
+        // _info->setPos(0, size().height() - 40);
+        _info->setPos(5, 5);
         qDebug () << "setChildrenPos: " << nativeSize().height() << "-.-" << size().height() << "-.-" << vPos;
         qDebug () << "setChildrenPos: " << nativeSize().width() << "-.-" << size().width();
     }
@@ -104,10 +102,10 @@ double AnimatedItemVideo::longitude()
 void AnimatedItemVideo::setInfoVisible(bool visible)
 {
     if (visible) {
-        _info->hide();
+        _info->show();
     }
     else {
-        _info->show();
+        _info->hide();
     }
 }
 
@@ -151,4 +149,15 @@ void AnimatedItemVideo::setAnimationScale (qreal value)
     setScale(value);
 }
 
+void AnimatedItemVideo::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
+{
+    if (status == QMediaPlayer::MediaStatus::LoadedMedia) {
+        resize();
+        _player->play();
 
+        _info = createInfo ();
+        _info->setParentItem(this);
+
+        setChildrenPos();
+    }
+}

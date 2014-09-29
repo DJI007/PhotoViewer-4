@@ -89,7 +89,7 @@ void PictureView::loadPicture(QString fileName)
 
     _prevItem = _currentItem;
 
-    if (fileName.endsWith("mp4")) {
+    if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
         _currentItem = new AnimatedItemVideo(fileName, this);
     }
     else {

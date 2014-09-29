@@ -29,18 +29,19 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->setupUi(this);
 
     // dock map window
-    ui->dwMap->hide();
+    //ui->dwMap->hide();
 
     connect(ui->gvPicture,
             SIGNAL(requestMapWindow(double,double,double)),
             this,
             SLOT(on_pictureRequestMapWindow(double,double,double)));
 
-    QWidget *container;
+    // QWidget *container;
 
     _mapView = new MapView();
-    container = QWidget::createWindowContainer(_mapView, this);
-    ui->dwMap->setWidget(container);
+    // container = QWidget::createWindowContainer(_mapView, this);
+    // ui->dwMap->setWidget(container);
+    // _mapView->show();
 
 
     _lblStatusFileCount = new QLabel (this);
@@ -81,7 +82,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     QString lastDirectory;
     QStringList filters;
 
-    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi";
+    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi" << "*.mts";
 
     lastDirectory = SettingsHelper::instance ().lastDirectory ();
 
@@ -129,6 +130,7 @@ PhotoViewer::~PhotoViewer()
 {
     delete ui;
     delete _currentDir;
+    delete _mapView;
 }
 
 void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
@@ -152,7 +154,8 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
         ui->gvPicture->loadPicture (fileName);
         ui->gvPicture->showPicture (anim);
 
-        if (ui->dwMap->isVisible()) {
+        // if (ui->dwMap->isVisible()) {
+        if (_mapView->isVisible()) {
             _mapView->setPosition(ui->gvPicture->pictureLatitude(), ui->gvPicture->pictureLongitude(), 0);
         }
     }
@@ -486,7 +489,8 @@ void PhotoViewer::updateStatusBar ()
 
 void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
 {
-    ui->dwMap->show();
+    // ui->dwMap->show();
+    _mapView->show();
     _mapView->setPosition(latitude, longitude, altitude);
 }
 

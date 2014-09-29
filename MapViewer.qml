@@ -1,8 +1,8 @@
 import QtQuick 2.3
 import QtQuick.Controls 1.2
 import QtQuick.Controls.Styles 1.2
-import QtPositioning 5.2
-import QtLocation 5.0
+import QtPositioning 5.3
+import QtLocation 5.2
 
 
 Rectangle {
@@ -124,9 +124,7 @@ Rectangle {
                 }
             }
         }
-
     }
 }
-
 
 

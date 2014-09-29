@@ -36,6 +36,7 @@ public:
 signals:
 
 public slots:
+    void on_mediaStatusChanged(QMediaPlayer::MediaStatus status);
 
 private:
     QMediaPlayer *_player;
