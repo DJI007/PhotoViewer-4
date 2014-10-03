@@ -1,6 +1,7 @@
 #include "animationscale.h"
 
 #include <QPropertyAnimation>
+#include <QGraphicsItem>
 
 QAbstractAnimation *AnimationScale::getAnimationIn(AnimatedItem *target, int duration, int parentWidth)
 {
@@ -20,7 +21,7 @@ QAbstractAnimation *AnimationScale::getAnimationIn(AnimatedItem *target, int dur
 
     anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
     anim->setDuration(duration);
-    anim->setStartValue(0);
+    anim->setStartValue(0.1);
     anim->setEndValue(1);
     anim->setEasingCurve(QEasingCurve::OutExpo);
 
@@ -46,9 +47,29 @@ QAbstractAnimation *AnimationScale::getAnimationOut(AnimatedItem *target, int du
     anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
     anim->setDuration(duration);
     anim->setStartValue(1);
-    anim->setEndValue(0);
+    anim->setEndValue(0.1);
     anim->setEasingCurve(QEasingCurve::OutExpo);
-
+/*
+    QObject::connect (anim,
+             SIGNAL(finished()),
+             this,
+             SLOT(on_animationOutFinished()));
+*/
     return anim;
 }
+/*
+void AnimationScale::on_animationOutFinished()
+{
+    QPropertyAnimation *anim;
 
+    anim = dynamic_cast<QPropertyAnimation *> (QObject::sender ());
+    if (anim != NULL) {
+        AnimatedItem *target;
+        QGraphicsItem *targetObject;
+
+        target = dynamic_cast<AnimatedItem *> (anim->targetObject());
+        targetObject = dynamic_cast<QGraphicsItem *> (target);
+        targetObject->hide();
+    }
+}
+*/

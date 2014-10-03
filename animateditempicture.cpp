@@ -22,8 +22,7 @@
 #include "mapview.h"
 
 AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent) :
-    QGraphicsPixmapItem(pixmap),
-    AnimatedItem(parent)
+    QGraphicsPixmapItem(pixmap)
 {
     setCacheMode(DeviceCoordinateCache);
 
@@ -32,15 +31,15 @@ AnimatedItemPicture::AnimatedItemPicture(const QPixmap& pixmap, QObject* parent)
     _rating = NULL;
     _geoProvider = NULL;
     _geoManager = NULL;
+    _pictureData = NULL;
 }
 
-AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent) :
-    AnimatedItem (parent)
+AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent)
 {
     setCacheMode(DeviceCoordinateCache);
 
     _fileName = fileName;
-    _pictureData.loadData(fileName);
+    _pictureData = new ExifMetadata(fileName);
 
     _info = NULL;
     _geoInfo = NULL;
@@ -68,17 +67,9 @@ AnimatedItemPicture::AnimatedItemPicture(const QString fileName, QObject* parent
 
 AnimatedItemPicture::~AnimatedItemPicture()
 {
-    // if (_geoProvider)
-    //     delete _geoProvider;
-
-    // if (_geoManager)
-    //    delete _geoManager;
-/*
-    if (_mainView) {
-        _mainView->hide();
-        delete _mainView;
+    if (_pictureData != NULL) {
+        delete _pictureData;
     }
-*/
 }
 
 void AnimatedItemPicture::load ()
@@ -101,7 +92,7 @@ void AnimatedItemPicture::load ()
 
 void AnimatedItemPicture::setRating(int rating)
 {
-    _pictureData.setRating(rating);
+    _pictureData->setRating(rating);
     setRatingVisible(true);
     refreshRating ();
 }
@@ -162,7 +153,7 @@ QPixmap AnimatedItemPicture::correctOrientationPicture(QPixmap image)
     QTransform trans;
 
     // Set the correct orientation
-    switch (_pictureData.orientation())
+    switch (_pictureData->orientation())
     {
     case 1:
         // Nothing to do
@@ -255,7 +246,7 @@ void AnimatedItemPicture::centerOnScene()
     this->setTransform(transform);
 }
 
-void AnimatedItemPicture::setChildrenPos ()
+void AnimatedItemPicture::setChildrenPos()
 {
     QRectF rect;
 
@@ -281,7 +272,7 @@ QGraphicsTextItem *AnimatedItemPicture::createInfo()
 
     info.setFile(_fileName);
 
-    date = _pictureData.pictureDate().toString(Qt::SystemLocaleLongDate);
+    date = _pictureData->pictureDate().toString(Qt::SystemLocaleLongDate);
     if (date == "") {
         date = info.created().toString(Qt::SystemLocaleLongDate);
     }
@@ -305,15 +296,16 @@ ClickableItemText *AnimatedItemPicture::createGeoInfo()
 
     item = new ClickableItemText();
 
-    if (_pictureData.gpsLatitude() != 0 && _pictureData.gpsLongitude() != 0) {
+    if (_pictureData->gpsLatitude() != 0 && _pictureData->gpsLongitude() != 0) {
         QGeoCoordinate coord;
 
-        coord.setLatitude(_pictureData.gpsLatitude());
-        coord.setLongitude(_pictureData.gpsLongitude());
-        coord.setAltitude(_pictureData.gpsAltitude());
+        coord.setLatitude(_pictureData->gpsLatitude());
+        coord.setLongitude(_pictureData->gpsLongitude());
+        coord.setAltitude(_pictureData->gpsAltitude());
 
         if (_geoManager) {
             _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
+/*
             connect (_reverseGeocodeReply,
                      SIGNAL(error(QGeoCodeReply::Error,QString)),
                      this,
@@ -322,18 +314,19 @@ ClickableItemText *AnimatedItemPicture::createGeoInfo()
                      SIGNAL(finished()),
                      this,
                      SLOT(on_reverseGeocode_finished()));
+*/
         }
 
         msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
-        msg += QString::number(_pictureData.gpsLatitude()) + " " + _pictureData.gpsLatitudeRef() + " ";
-        msg += QString::number(_pictureData.gpsLongitude()) + " " + _pictureData.gpsLongitudeRef();
+        msg += QString::number(_pictureData->gpsLatitude()) + " " + _pictureData->gpsLatitudeRef() + " ";
+        msg += QString::number(_pictureData->gpsLongitude()) + " " + _pictureData->gpsLongitudeRef();
         msg += "</span>";
 
         setAcceptHoverEvents(true);
         item->setIsClickable(true);
         item->setHtml(msg);
 
-        connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
+        // connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
     }
 
 
@@ -370,9 +363,11 @@ void AnimatedItemPicture::on_reverseGeocode_finished()
 
 void AnimatedItemPicture::on_geoInfo_leftMousePressed()
 {
+/*
     emit requestMapWindow(_pictureData.gpsLatitude(),
                           _pictureData.gpsLongitude(),
                           _pictureData.gpsAltitude());
+*/
 }
 
 QGraphicsItemGroup *AnimatedItemPicture::createRating()
@@ -386,7 +381,7 @@ QGraphicsItemGroup *AnimatedItemPicture::createRating()
 
     rect = this->boundingRect();
 
-    rating = _pictureData.rating();
+    rating = _pictureData->rating();
     left = 0;
 
     for (int i = 0; i < rating; i++) {
@@ -409,7 +404,7 @@ void AnimatedItemPicture::setRatingVisible(bool visible)
 
     group = new QParallelAnimationGroup();
     anim = new AnimationScale();
-
+/*
     for (int i = 0; i < _rating->childItems().count(); i++) {
         AnimatedItemPicture *current;
 
@@ -422,7 +417,7 @@ void AnimatedItemPicture::setRatingVisible(bool visible)
             group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
         }
     }
-
+*/
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
@@ -464,12 +459,12 @@ void AnimatedItemPicture::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 double AnimatedItemPicture::latitude()
 {
-    return _pictureData.gpsAltitude();
+    return _pictureData->gpsAltitude();
 }
 
 double AnimatedItemPicture::longitude()
 {
-    return _pictureData.gpsLongitude();
+    return _pictureData->gpsLongitude();
 }
 
 void AnimatedItemPicture::setInfoVisible(bool visible)

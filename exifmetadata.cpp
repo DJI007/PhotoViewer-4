@@ -3,11 +3,7 @@
 #include <QDebug>
 #include <exiv2/exiv2.hpp>
 
-ExifMetadata::ExifMetadata()
-{
-}
-
-void ExifMetadata::loadData(QString fileName)
+ExifMetadata::ExifMetadata(QString fileName)
 {
     try {
         _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
@@ -17,6 +13,7 @@ void ExifMetadata::loadData(QString fileName)
         qDebug () << "Caught Exiv2 exception " << QString::fromUtf8 (e.what());
     }
 }
+
 
 QString ExifMetadata::getString(const char *tagName)
 {
@@ -144,9 +141,13 @@ int ExifMetadata::orientation()
     return result;
 }
 
-QString ExifMetadata::gpsTag()
+bool ExifMetadata::hasGpsInfo()
 {
-    return getString ("Exif.Image.GPSTag");
+    QString gpsVersionID;
+
+    gpsVersionID = getString("Exif.GPSInfo.GPSVersionID");
+
+    return (gpsVersionID != "");
 }
 
 double ExifMetadata::gpsLatitude()

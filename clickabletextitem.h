@@ -1,13 +1,14 @@
-#ifndef CLICKABLEITEMTEXT_H
-#define CLICKABLEITEMTEXT_H
+#ifndef CLICKABLETEXTITEM_H
+#define CLICKABLETEXTITEM_H
 
 #include <QGraphicsTextItem>
 
-class ClickableItemText : public QGraphicsTextItem
+#include "animatedtextitem.h"
+
+class ClickableTextItem : public AnimatedTextItem
 {
     Q_OBJECT
 
-    // Change picture position property for QPropertyAnimation
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 
 public:
@@ -29,4 +30,4 @@ private:
 
 };
 
-#endif // CLICKABLEITEMTEXT_H
+#endif // CLICKABLETEXTITEM_H

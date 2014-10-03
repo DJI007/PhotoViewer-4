@@ -9,8 +9,6 @@
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 
-#include "animateditempicture.h"
-#include "animateditemvideo.h"
 #include "animationfade.h"
 #include "animationrotate.h"
 #include "animationrotatemove.h"
@@ -88,56 +86,68 @@ void PictureView::loadPicture(QString fileName)
     }
 
     _prevItem = _currentItem;
-
-    if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
-        _currentItem = new AnimatedItemVideo(fileName, this);
-    }
-    else {
-        _currentItem = new AnimatedItemPicture (fileName, this);
-    }
+    _currentItem = new PictureViewItemContainer(fileName, this);
 
     connect (dynamic_cast<QObject *> (_currentItem),
              SIGNAL(requestMapWindow(double,double,double)),
              this,
-             SLOT(on_pictureRequestMapWindow(double,double,double)));
+             SLOT(on_itemRequestMapWindow(double,double,double)));
 }
 
 void PictureView::showPicture(PictureAnimationType animType)
 {
     if (_currentItem != NULL) {
-        _pictureScene->addItem(dynamic_cast<QGraphicsItem *> (_currentItem));
-        _currentItem->load();
-        _currentItem->setInfoVisible(_infoVisible);
-    }
+        _currentAnimationType = animType;
+        connect (_currentItem,
+                 SIGNAL(itemLoaded()),
+                 this,
+                 SLOT(on_itemLoaded ()));
+        connect (this,
+                 SIGNAL(beginItemAnimation()),
+                 _currentItem,
+                 SLOT(on_beginItemAnimation()));
+        connect (this,
+                 SIGNAL(endItemAnimation()),
+                 _currentItem,
+                 SLOT(on_endItemAnimation()));
 
-    if (animType != PictureAnimationType::None) {
+        _pictureScene->addItem(_currentItem->graphicsItem());
+        _currentItem->load();
+
+        // _currentItem->setInfoVisible(_infoVisible);
+    }
+}
+
+void PictureView::on_itemLoaded()
+{
+    if (_currentAnimationType != PictureAnimationType::None) {
         QAbstractAnimation *animIn = NULL;
         QAbstractAnimation *animOut = NULL;
         AnimationSlide slide;
 
         _currentAnimation = new QParallelAnimationGroup();
 
-        switch (animType) {
+        switch (_currentAnimationType) {
         case PictureAnimationType::Random:
             int current;
 
             current = qrand() % _animations.count();
-            animIn = _animations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = _animations.at(current)->getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
 
             current = qrand() % _animations.count();
-            animOut = _animations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = _animations.at(current)->getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::LeftToRight:
             slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
-            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::RightToLeft:
             slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
-            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::None:  // To supress compile warning
@@ -164,10 +174,11 @@ void PictureView::showPicture(PictureAnimationType animType)
             _currentAnimation->addAnimation(animOut);
         }
 
+        emit beginItemAnimation();
         _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     }
     else {
-        _currentItem->endAnimation();
+        emit endItemAnimation();
         delete _prevItem;
         _currentAnimation = NULL;
     }
@@ -188,20 +199,20 @@ void PictureView::cleanPicture()
 
 void PictureView::on_finishPrevItemAnimation()
 {
+    emit endItemAnimation();
     delete _prevItem;
 }
 
 void PictureView::on_finishCurrentItemAnimation()
 {
+    emit endItemAnimation();
     _currentAnimation = NULL;
-    _currentItem->endAnimation();
 }
 
-void PictureView::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
+void PictureView::on_itemRequestMapWindow (double latitude, double longitude, double altitude)
 {
     emit requestMapWindow(latitude, longitude, altitude);
 }
-
 
 void PictureView::setPictureRating(int rating)
 {

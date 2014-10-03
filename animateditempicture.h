@@ -13,7 +13,7 @@
 
 class AnimatedItemPicture: public QGraphicsPixmapItem
 {
-    Q_OBJECT
+    // Q_OBJECT
 
 public:
     explicit AnimatedItemPicture(const QPixmap& pixmap, QObject* parent = 0);
@@ -58,7 +58,7 @@ private:
     QGraphicsTextItem *_info;
     ClickableItemText *_geoInfo;
     QGraphicsItemGroup *_rating;
-    ExifMetadata _pictureData;
+    ExifMetadata *_pictureData;
 
     QGeoServiceProvider *_geoProvider;
     QGeoCodingManager  *_geoManager;

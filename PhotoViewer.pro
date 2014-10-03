@@ -9,6 +9,7 @@ QT += positioning location
 QT += qml quick
 QT += multimedia multimediawidgets
 # QT += declarative
+# QT += testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -22,16 +23,20 @@ SOURCES += main.cpp\
     settingshelper.cpp \
     starsaction.cpp \
     starlabel.cpp \
-    animateditempicture.cpp \
+#    animateditempicture.cpp \
     animationfade.cpp \
     animationslide.cpp \
     animationrotate.cpp \
     animationrotatemove.cpp \
     animationscale.cpp \
     mapview.cpp \
-    animateditemvideo.cpp \
-    animateditem.cpp \
-    clickableitemtext.cpp
+#    animateditemvideo.cpp \
+    objectpixmapitem.cpp \
+    videoitem.cpp \
+    pictureviewitem.cpp \
+    pictureviewitemcontainer.cpp \
+    clickabletextitem.cpp \
+    animatedtextitem.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -39,7 +44,7 @@ HEADERS  += photoviewer.h \
     settingshelper.h \
     starsaction.h \
     starlabel.h \
-    animateditempicture.h \
+#    animateditempicture.h \
     pictureanimation.h \
     animationfade.h \
     animationslide.h \
@@ -47,9 +52,15 @@ HEADERS  += photoviewer.h \
     animationrotatemove.h \
     animationscale.h \
     mapview.h \
-    animateditemvideo.h \
+#    animateditemvideo.h \
     animateditem.h \
-    clickableitemtext.h
+    objectpixmapitem.h \
+    videoitem.h \
+    pictureviewitem.h \
+    pictureviewitemcontainer.h \
+    abstractmetadata.h \
+    clickabletextitem.h \
+    animatedtextitem.h
 
 FORMS    += photoviewer.ui
 
@@ -94,5 +105,6 @@ unix {
 }
 
 OTHER_FILES += \
-    MapViewer.qml
+    MapViewer.qml \
+    photoviewerUML.class.violet.html
 

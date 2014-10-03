@@ -79,28 +79,6 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
             ui->gvPicture,
             SLOT(setPictureRating(int)));
 
-    QString lastDirectory;
-    QStringList filters;
-
-    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi" << "*.mts";
-
-    lastDirectory = SettingsHelper::instance ().lastDirectory ();
-
-    _currentDir = new QDir ();
-    _currentDir->setFilter (QDir::Files | QDir::Readable);
-    _currentDir->setSorting (QDir::Name);
-    _currentDir->setPath(lastDirectory);
-    _currentDir->setNameFilters(filters);
-
-    _currentFile = SettingsHelper::instance().lastFileIndex();
-    if (_currentFile >= _currentDir->count()) {
-        _currentFile = 0;
-    }
-
-    if (lastDirectory.compare("~") != 0) {
-        showCurrentPicture();
-    }
-
     connect(ui->gvPicture,
             SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this,
@@ -124,6 +102,29 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     this->addAction(ui->actionSet_5_stars);
     this->addAction(ui->actionFull_screen);
     this->addAction(ui->actionExit_full_screen);
+
+    QString lastDirectory;
+    QStringList filters;
+
+    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi" << "*.mts";
+
+    lastDirectory = SettingsHelper::instance ().lastDirectory ();
+
+    _currentDir = new QDir ();
+    _currentDir->setFilter (QDir::Files | QDir::Readable);
+    _currentDir->setSorting (QDir::Name);
+    _currentDir->setPath(lastDirectory);
+    _currentDir->setNameFilters(filters);
+
+    _currentFile = SettingsHelper::instance().lastFileIndex();
+    if (_currentFile >= _currentDir->count()) {
+        _currentFile = 0;
+    }
+
+    if (lastDirectory.compare("~") != 0) {
+        showCurrentPicture();
+    }
+
 }
 
 PhotoViewer::~PhotoViewer()

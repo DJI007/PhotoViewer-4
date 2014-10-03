@@ -5,18 +5,20 @@
 #include <QString>
 #include <QDateTime>
 
-class ExifMetadata
+#include "abstractmetadata.h"
+
+class ExifMetadata : public AbstractMetadata
 {
 public:
-    explicit ExifMetadata();
-
-    void loadData (QString);
+    explicit ExifMetadata(QString fileName);
 
     QString manufacturer ();
+
     QDateTime pictureDate ();
     int rating ();
     int orientation ();
-    QString gpsTag ();
+
+    bool hasGpsInfo();
     double gpsLatitude ();
     QString gpsLatitudeRef();
     double gpsLongitude();

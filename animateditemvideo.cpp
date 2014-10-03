@@ -5,8 +5,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 
-AnimatedItemVideo::AnimatedItemVideo(QString fileName, QObject *parent) :
-    AnimatedItem(parent)
+AnimatedItemVideo::AnimatedItemVideo(QString fileName, QObject *parent)
 {
     _fileName = fileName;
 
