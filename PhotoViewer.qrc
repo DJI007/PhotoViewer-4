@@ -23,4 +23,7 @@
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>
     </qresource>
+    <qresource prefix="/qss">
+        <file>qss/video_slider.qss</file>
+    </qresource>
 </RCC>

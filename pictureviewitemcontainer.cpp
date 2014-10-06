@@ -16,6 +16,8 @@
 #include "animationrotate.h"
 #include "animationslide.h"
 #include "animationrotatemove.h"
+#include "animationrotatefade.h"
+#include "animationrotatescale.h"
 #include "animationscale.h"
 
 

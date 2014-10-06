@@ -5,6 +5,8 @@ MapView::MapView() :
 {
     setSource(QUrl("qrc:///qml/MapViewer.qml"));
     _mapItem = rootObject()->findChild<QQuickItem *>("map");
+
+    setModality(Qt::ApplicationModal);
 }
 
 MapView::~MapView()

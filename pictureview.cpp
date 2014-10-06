@@ -12,6 +12,8 @@
 #include "animationfade.h"
 #include "animationrotate.h"
 #include "animationrotatemove.h"
+#include "animationrotatescale.h"
+#include "animationrotatefade.h"
 #include "animationscale.h"
 #include "animationslide.h"
 
@@ -32,6 +34,8 @@ PictureView::PictureView(QWidget *parent) :
     _animations.append(new AnimationFade());
     _animations.append(new AnimationRotate());
     _animations.append(new AnimationRotateMove());
+    _animations.append(new AnimationRotateFade());
+    _animations.append(new AnimationRotateScale());
     _animations.append(new AnimationScale());
     _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
     _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
@@ -114,7 +118,7 @@ void PictureView::showPicture(PictureAnimationType animType)
         _pictureScene->addItem(_currentItem->graphicsItem());
         _currentItem->load();
 
-        // _currentItem->setInfoVisible(_infoVisible);
+        _currentItem->setInfoVisible(_infoVisible);
     }
 }
 

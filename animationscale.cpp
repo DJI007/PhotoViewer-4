@@ -21,7 +21,7 @@ QAbstractAnimation *AnimationScale::getAnimationIn(AnimatedItem *target, int dur
 
     anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
     anim->setDuration(duration);
-    anim->setStartValue(0.1);
+    anim->setStartValue(0);
     anim->setEndValue(1);
     anim->setEasingCurve(QEasingCurve::OutExpo);
 
@@ -47,7 +47,7 @@ QAbstractAnimation *AnimationScale::getAnimationOut(AnimatedItem *target, int du
     anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
     anim->setDuration(duration);
     anim->setStartValue(1);
-    anim->setEndValue(0.1);
+    anim->setEndValue(0);
     anim->setEasingCurve(QEasingCurve::OutExpo);
 /*
     QObject::connect (anim,

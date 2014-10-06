@@ -3,6 +3,8 @@
 
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
+#include <QGraphicsRectItem>
+#include <QGraphicsProxyWidget>
 
 #include "pictureviewitem.h"
 #include "exifmetadata.h"
@@ -39,11 +41,20 @@ public slots:
     void on_beginItemAnimation();
     void on_endItemAnimation();
 
+    void on_positionChanged (qint64 value);
+
 private:
     QMediaPlayer *_player;
     QString _fileName;
 
+    QGraphicsRectItem *_panel;
+    QGraphicsProxyWidget *_sliderPosition;
+    QGraphicsProxyWidget *_buttonPlay;
+
+
     ExifMetadata *_videoData;
+
+    void createControls ();
 
 };
 

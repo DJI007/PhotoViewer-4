@@ -1,19 +1,14 @@
-#ifndef ANIMATIONSCALE_H
-#define ANIMATIONSCALE_H
+#ifndef ANIMATIONROTATEFADE_H
+#define ANIMATIONROTATEFADE_H
 
-#include <QGraphicsItem>
 #include "pictureanimation.h"
 
-class AnimationScale : public AbstractPictureAnimation
+
+class AnimationRotateFade : public AbstractPictureAnimation
 {
 public:
     QAbstractAnimation *getAnimationIn (AnimatedItem *target, int duration, int parentWidth);
     QAbstractAnimation *getAnimationOut (AnimatedItem *target, int duration, int parentWidth);
-
-/*
-private slots:
-    void on_animationOutFinished ();
-*/
 };
 
-#endif // ANIMATIONSCALE_H
+#endif // ANIMATIONROTATEFADE_H
