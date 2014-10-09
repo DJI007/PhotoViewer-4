@@ -19,11 +19,12 @@
         <file>images/star-on-menu-5.png</file>
         <file>images/center.png</file>
         <file>images/view-fullscreen.svg</file>
+        <file>images/audio-volume-high.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>
     </qresource>
     <qresource prefix="/qss">
-        <file>qss/video_slider.qss</file>
+        <file>qss/video_slider.css</file>
     </qresource>
 </RCC>

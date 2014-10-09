@@ -1,6 +1,7 @@
 #include "videoitem.h"
 
 #include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QPushButton>
 #include <QSlider>
 
@@ -33,43 +34,22 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
              this,
              SLOT(on_videoAvailableChanged (bool)));
 */
+    _panel = new VideoControlPanel(this);
+    connect (_player, SIGNAL(positionChanged(qint64)),
+             _panel, SLOT(on_positionChanged(qint64)));
 
-    _panel = new QGraphicsRectItem(0,
-                                   0,
-                                   300,
-                                   40,
-                                   this);
-
-    _panel->setBrush(QColor(150, 150, 150, 127));
-    _panel->setParentItem(this);
-
-    QSlider *slider;
-
-    slider = new QSlider (Qt::Horizontal);
-    _sliderPosition = new QGraphicsProxyWidget();
-    _sliderPosition->setWidget(slider);
-    _sliderPosition->setParentItem(_panel);
-    connect (_player,
-             SIGNAL(positionChanged(qint64)),
-             this,
-             SLOT(on_positionChanged(qint64)));
-
-
-    QFile file(":/qss/qss/video_slider.qss");
-    file.open(QFile::ReadOnly);
-    QString styleSheet = QLatin1String(file.readAll());
-    slider->setStyleSheet(styleSheet);
-
-/*
-    QPushButton *button;
-
-     button = new QPushButton();
-     button->setIcon(QIcon(":/images/images/media-playback-start.png"));
-
-     _buttonPlay = new QGraphicsProxyWidget();
-     _buttonPlay->setWidget(button);
-     _buttonPlay->setParentItem(_panel);
-*/
+    connect (_panel, SIGNAL(positionChanged(int)),
+             _player, SLOT(setPosition(qint64)));
+    connect (_panel, SIGNAL(rewindClicked()),
+             this, SLOT(on_rewindClicked ()));
+    connect (_panel, SIGNAL(stopClicked()),
+             _player, SLOT(stop()));
+    connect (_panel, SIGNAL(playToggled(bool)),
+             this, SLOT(on_playToggled(bool)));
+    connect (_panel, SIGNAL(fastForwardClicked()),
+             this, SLOT(on_fastForwardClicked ()));
+    connect (_panel, SIGNAL(volumeChanged(int)),
+             _player, SLOT(setVolume(int)));
 }
 
 VideoItem::~VideoItem()
@@ -105,11 +85,8 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
         resize();
         emit itemLoaded();
 
-        QSlider *position;
-
-        position = (QSlider *) _sliderPosition->widget();
-        position->setMinimum(0);
-        position->setMaximum(_player->duration() / 1000);
+        _panel->setMinimum(0);
+        _panel->setMaximum(_player->duration() / 1000);
     }
     else if (status == QMediaPlayer::EndOfMedia) {
 //        _player->setPosition(_player->duration() / 2);
@@ -158,12 +135,40 @@ void VideoItem::on_endItemAnimation()
     _player->play();
 }
 
-void VideoItem::on_positionChanged(qint64 value)
+void VideoItem::on_rewindClicked()
 {
-    QSlider *position;
+    if (_player->playbackRate() > 1) {
+        _player->setPlaybackRate(-1);
+    }
+    else {
+        _player->setPlaybackRate(_player->playbackRate() - 1);
+    }
+}
 
-    position = (QSlider *) _sliderPosition->widget();
-    position->setValue(value / 1000);
+void VideoItem::on_fastForwardClicked()
+{
+    if (_player->playbackRate() < 1) {
+        _player->setPlaybackRate(2);
+    }
+    else {
+        _player->setPlaybackRate(_player->playbackRate() + 1);
+    }
+}
+
+void VideoItem::on_playToggled(bool)
+{
+    qDebug () << "On playToggled: " << _player->state() << "-.-" << _player->playbackRate();
+    if (_player->state() == QMediaPlayer::PlayingState) {
+        if (_player->playbackRate() != 1) {
+            _player->setPlaybackRate(1);
+        }
+        else {
+            _player->pause();
+        }
+    }
+    else {
+        _player->play();
+    }
 }
 
 AbstractMetadata *VideoItem::metadata()
@@ -176,3 +181,4 @@ void VideoItem::createControls()
     _panel->setPos (this->boundingRect().right() - (_panel->rect().width() + 10),
                     this->boundingRect().bottom() - (_panel->rect().height() + 10));
 }
+

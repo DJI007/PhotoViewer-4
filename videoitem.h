@@ -4,10 +4,11 @@
 #include <QGraphicsVideoItem>
 #include <QMediaPlayer>
 #include <QGraphicsRectItem>
-#include <QGraphicsProxyWidget>
+#include <QPushButton>
 
 #include "pictureviewitem.h"
 #include "exifmetadata.h"
+#include "videocontrolpanel.h"
 
 class VideoItem : public QGraphicsVideoItem,
         public PictureViewItem
@@ -32,6 +33,11 @@ public:
 signals:
     void itemLoaded ();
 
+private slots:
+    void on_playToggled (bool);
+    void on_rewindClicked();
+    void on_fastForwardClicked();
+
 public slots:
     void on_mediaStatusChanged(QMediaPlayer::MediaStatus status);
     void on_videoAvailableChanged(bool available);
@@ -41,16 +47,11 @@ public slots:
     void on_beginItemAnimation();
     void on_endItemAnimation();
 
-    void on_positionChanged (qint64 value);
-
 private:
     QMediaPlayer *_player;
     QString _fileName;
 
-    QGraphicsRectItem *_panel;
-    QGraphicsProxyWidget *_sliderPosition;
-    QGraphicsProxyWidget *_buttonPlay;
-
+    VideoControlPanel *_panel;
 
     ExifMetadata *_videoData;
 

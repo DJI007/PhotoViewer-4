@@ -38,7 +38,8 @@ SOURCES += main.cpp\
     clickabletextitem.cpp \
     animatedtextitem.cpp \
     animationrotatefade.cpp \
-    animationrotatescale.cpp
+    animationrotatescale.cpp \
+    videocontrolpanel.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -64,7 +65,8 @@ HEADERS  += photoviewer.h \
     clickabletextitem.h \
     animatedtextitem.h \
     animationrotatefade.h \
-    animationrotatescale.h
+    animationrotatescale.h \
+    videocontrolpanel.h
 
 FORMS    += photoviewer.ui
 
