@@ -36,6 +36,9 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
             this,
             SLOT(on_pictureRequestMapWindow(double,double,double)));
 
+    connect(ui->gvPicture, SIGNAL(showTimeEnded()),
+            this, SLOT(on_pictureShowTimeEnded()));
+
     // QWidget *container;
 
     _mapView = new MapView();
@@ -54,13 +57,6 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 
     ui->statusBar->addWidget(_lblStatusPath, 1);
     ui->statusBar->addWidget(_lblStatusFileCount);
-
-    _playerTimer = new QTimer (this);
-    _playerTimer->setInterval(PLAYER_TIMER_MILLISECONDS);
-    connect (_playerTimer,
-             SIGNAL(timeout()),
-             this,
-             SLOT(on_playerTimerTimeout()));
 
     _toolBarTimer = new QTimer (this);
     _toolBarTimer->setInterval(2000);
@@ -139,6 +135,8 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
     QString fileName;
     QFileInfo info;
 
+    qDebug () << "showCurrentPicture: " << _currentFile;
+
     if (_currentDir->count() == 0) {
         QMessageBox::information(this,
                                  tr("Photo Viewer"),
@@ -152,8 +150,8 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 
         fileName = info.absoluteFilePath();
 
-        ui->gvPicture->loadPicture (fileName);
-        ui->gvPicture->showPicture (anim);
+        ui->gvPicture->loadPicture(fileName);
+        ui->gvPicture->showPicture(anim);
 
         // if (ui->dwMap->isVisible()) {
         if (_mapView->isVisible()) {
@@ -272,7 +270,7 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     }
 }
 
-void PhotoViewer::on_playerTimerTimeout ()
+void PhotoViewer::on_pictureShowTimeEnded()
 {
     if (_currentFile < _currentDir->count() - 1) {
         _currentFile++;
@@ -291,7 +289,7 @@ void PhotoViewer::on_playerTimerTimeout ()
         QMessageBox::information(this,
                                  tr("Photo Viewer"),
                                  tr("End of slide show!"));
-        _playerTimer->stop();
+
         ui->actionPlay->setChecked(false);
 
         if (isFullScreen()) {
@@ -371,7 +369,6 @@ void PhotoViewer::on_actionFirst_picture_triggered()
     if (_currentFile > 0) {
         _currentFile = 0;
         showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
-        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
@@ -385,7 +382,6 @@ void PhotoViewer::on_actionPrevious_picture_triggered()
     if (_currentFile > 0) {
         _currentFile--;
         showCurrentPicture(PictureView::PictureAnimationType::LeftToRight);
-        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
@@ -403,11 +399,11 @@ void PhotoViewer::on_actionPlay_triggered()
         ui->actionPlay->setChecked(false);
     }
     else {
-        if (_playerTimer->isActive()) {
-            _playerTimer->stop();
+        if (ui->actionPlay->isChecked()) {
+            ui->gvPicture->setShowTime(PLAYER_TIMER_MILLISECONDS);
         }
         else {
-            _playerTimer->start();
+            ui->gvPicture->setShowTime(0);
         }
     }
 }
@@ -417,7 +413,6 @@ void PhotoViewer::on_actionNext_picture_triggered()
     if (_currentFile < _currentDir->count() - 1) {
         _currentFile++;
         showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
-        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
@@ -431,7 +426,6 @@ void PhotoViewer::on_actionLast_picture_triggered()
     if (_currentFile < _currentDir->count() - 1) {
         _currentFile = _currentDir->count() - 1;
         showCurrentPicture(PictureView::PictureAnimationType::RightToLeft);
-        resetPlayerTimer();
     }
     else {
         QMessageBox::information(this,
@@ -495,10 +489,3 @@ void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude,
     _mapView->setPosition(latitude, longitude, altitude);
 }
 
-void PhotoViewer::resetPlayerTimer()
-{
-    if (_playerTimer->isActive()) {
-        _playerTimer->stop();
-        _playerTimer->start();
-    }
-}

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QGraphicsItem>
 #include <QDateTime>
+#include <QTimer>
 
 #include "animateditem.h"
 #include "abstractmetadata.h"
@@ -11,8 +12,6 @@
 class PictureViewItem : public AnimatedItem
 {
 public:
-    explicit PictureViewItem(QObject *parent = 0);
-
     // operator QGraphicsItem* () { return dynamic_cast<QGraphicsItem *> (this); }
     // operator QObject* () { return dynamic_cast<QObject *> (this); }
 
@@ -22,12 +21,17 @@ public:
 
     virtual AbstractMetadata *metadata () = 0;
 
+    virtual void setShowTime (int time) = 0;
+
 signals:
     void itemLoaded ();
+    void showTimeEnded ();
 
 public slots:
     virtual void on_beginItemAnimation () {}
     virtual void on_endItemAnimation () {}
+
+private:
 
 };
 

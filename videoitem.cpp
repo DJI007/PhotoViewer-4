@@ -12,6 +12,8 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
     _fileName = fileName;
     _videoData = new ExifMetadata(fileName);
 
+    _emitShowTimeEnded = false;
+
     _player = new QMediaPlayer (parent);
     _player->setVideoOutput(this);
     _panel = new VideoControlPanel(this);
@@ -89,6 +91,10 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
         _panel->setDuration (_player->duration());
     }
     else if (status == QMediaPlayer::EndOfMedia) {
+        if (_emitShowTimeEnded) {
+            qDebug () << "VideoItem: emitting showTimeEnded";
+            emit showTimeEnded();
+        }
 //        _player->setPosition(_player->duration() / 2);
 //        _player->pause();
     }
@@ -144,5 +150,10 @@ void VideoItem::createControls()
 {
     _panel->setPos (this->boundingRect().right() - (_panel->rect().width() + 10),
                     this->boundingRect().bottom() - (_panel->rect().height() + 10));
+}
+
+void VideoItem::setShowTime(int time)
+{
+    _emitShowTimeEnded = (time > 0);
 }
 

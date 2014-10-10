@@ -39,6 +39,8 @@ public:
 
     void setInfoVisible (bool visible);
 
+    void setShowTime (int time);
+
 signals:
     void mouseDoubleClick (QMouseEvent *event);
     void mouseMove (QMouseEvent *event);
@@ -46,6 +48,7 @@ signals:
 
     void beginItemAnimation ();
     void endItemAnimation ();
+    void showTimeEnded ();
 
 public slots:
     void loadPicture (QString fileName);
@@ -56,6 +59,8 @@ public slots:
     void on_itemRequestMapWindow (double latitude, double longitude, double altitude);
     void on_itemLoaded ();
     void resize ();
+
+    void on_showTimeEnded ();
 
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
@@ -70,6 +75,7 @@ private:
     QAnimationGroup *_currentAnimation;
     PictureAnimationType _currentAnimationType;
     bool _infoVisible;
+    int _showTime;
 
     QList<AbstractPictureAnimation *> _animations;
 };

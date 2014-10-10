@@ -32,8 +32,11 @@ public:
     double latitude ();
     double longitude ();
 
+    void setShowTime(int time);
+
 signals:
     void itemLoaded ();
+    void showTimeEnded ();
     void requestMapWindow (double latitude, double longitude, double altitude);
 
 public slots:
@@ -46,6 +49,8 @@ public slots:
     void on_reverseGeocode_finished();
 
     void on_geoInfo_leftMousePressed ();
+
+    void on_showTimeEnded();
 
 private:
     QString _fileName;

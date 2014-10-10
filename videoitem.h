@@ -30,12 +30,16 @@ public:
 
     AbstractMetadata *metadata ();
 
+    void setShowTime (int time);
+
 signals:
     void itemLoaded ();
     void playMedia();
     void pauseMedia();
     void stopMedia();
     void volumeChanged(int volume);
+
+    void showTimeEnded ();
 
 private slots:
 
@@ -52,6 +56,8 @@ public slots:
 private:
     QMediaPlayer *_player;
     QString _fileName;
+
+    bool _emitShowTimeEnded;
 
     VideoControlPanel *_panel;
 

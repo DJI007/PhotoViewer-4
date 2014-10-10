@@ -17,6 +17,7 @@ public slots:
     virtual void on_beginItemAnimation () = 0;
     virtual void on_endItemAnimation () = 0;
 
+
 private:
 
 };

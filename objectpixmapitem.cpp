@@ -4,11 +4,13 @@
 #include <QGraphicsScene>
 #include <QApplication>
 #include <QErrorMessage>
+#include <QTimer>
 
 ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
     QObject(parent)
 {
     _fileName = fileName;
+    _showTimer = NULL;
 
     _pictureData = new ExifMetadata(fileName);
 }
@@ -18,6 +20,7 @@ ObjectPixmapItem::ObjectPixmapItem(const QPixmap& pixmap, QObject* parent) :
     QGraphicsPixmapItem(pixmap)
 {
     _pictureData = NULL;
+    _showTimer = NULL;
 
     setCacheMode(DeviceCoordinateCache);
 }
@@ -189,4 +192,38 @@ void ObjectPixmapItem::centerOnScene()
 void ObjectPixmapItem::connectNotify ( const char * signal )
 {
     qDebug () << "connection stablished: " << signal;
+}
+
+void ObjectPixmapItem::setShowTime(int time)
+{
+    qDebug () << "ObjectPixmapItem::setShowTime: " << time;
+    if (time > 0) {
+        qDebug () << "ObjectPixmapItem::setShowTime: registering timer";
+        _showTimer = new QTimer(this);
+        _showTimer ->setInterval(time);
+        this->connect(_showTimer, SIGNAL(timeout()),
+                      this, SLOT(on_showTimeEnded()));
+
+        _showTimer->setSingleShot(true);
+        _showTimer->start();
+    }
+    else {
+        if (_showTimer) {
+            qDebug () << "ObjectPixmapItem::setShowTime: stopping timer";
+//            this->disconnect(_showTimer, SIGNAL(timeout()),
+//                             0, 0);
+            if (_showTimer->isActive()) {
+                _showTimer->stop();
+            }
+
+            delete _showTimer;
+            _showTimer = NULL;
+        }
+    }
+}
+
+void ObjectPixmapItem::on_showTimeEnded()
+{
+    qDebug () << "ObjectPixmapItem::on_showTimeEnded()";
+    emit showTimeEnded();
 }

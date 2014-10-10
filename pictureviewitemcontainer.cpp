@@ -50,7 +50,7 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
 
 PictureViewItemContainer::~PictureViewItemContainer()
 {
-    delete _geoProvider;
+    //delete _geoProvider;
 }
 
 PictureViewItem *PictureViewItemContainer::item()
@@ -72,6 +72,22 @@ void PictureViewItemContainer::load()
     _item->load ();
 
     graphicsItem()->setAcceptHoverEvents(true);
+}
+
+void PictureViewItemContainer::setShowTime(int time)
+{
+    qDebug () << "PictureViewItemContainer::setShowTime: " << time;
+    _item->setShowTime (time);
+    if (time > 0) {
+        connect(dynamic_cast<QObject *> (_item), SIGNAL(showTimeEnded()),
+                this, SLOT(on_showTimeEnded()));
+    }
+}
+
+void PictureViewItemContainer::on_showTimeEnded()
+{
+    qDebug () << "PictureViewItemContainer::on_showTimeEnded()";
+    emit showTimeEnded ();
 }
 
 void PictureViewItemContainer::on_itemLoaded()

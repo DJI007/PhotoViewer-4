@@ -36,7 +36,8 @@ private slots:
     void on_pictureDoubleClick(QMouseEvent *event);
     void on_pictureMouseMove(QMouseEvent *event);
 
-    void on_playerTimerTimeout();
+    void on_pictureShowTimeEnded ();
+
     void on_toolBarTimerTimeout();
 
     void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
@@ -59,7 +60,6 @@ private:
     bool _lastStatusMaximized;
     Qt::WindowFlags _toolBarWindowFlags;
 
-    QTimer *_playerTimer;
     QTimer *_toolBarTimer;
 
     QLabel *_lblStatusFileCount;
@@ -80,8 +80,6 @@ private:
     void setToolBarsVisibility (bool visible);
 
     void updateStatusBar ();
-
-    void resetPlayerTimer ();
 };
 
 #endif // PHOTOVIEWER_H

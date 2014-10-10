@@ -41,6 +41,7 @@ PictureView::PictureView(QWidget *parent) :
     _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
 
     _infoVisible = true;
+    _showTime = 0;
 }
 
 PictureView::~PictureView ()
@@ -91,6 +92,9 @@ void PictureView::loadPicture(QString fileName)
 
     _prevItem = _currentItem;
     _currentItem = new PictureViewItemContainer(fileName, this);
+    connect(dynamic_cast<QObject *> (_currentItem), SIGNAL(showTimeEnded()),
+            this, SLOT(on_showTimeEnded()));
+
 
     connect (dynamic_cast<QObject *> (_currentItem),
              SIGNAL(requestMapWindow(double,double,double)),
@@ -209,6 +213,8 @@ void PictureView::on_finishPrevItemAnimation()
 
 void PictureView::on_finishCurrentItemAnimation()
 {
+    _currentItem->setShowTime(_showTime);
+
     emit endItemAnimation();
     _currentAnimation = NULL;
 }
@@ -260,4 +266,16 @@ void PictureView::setInfoVisible(bool visible)
     }
 
     _infoVisible = visible;
+}
+
+void PictureView::setShowTime(int time)
+{
+    _showTime = time;
+    _currentItem->setShowTime (time);
+}
+
+void PictureView::on_showTimeEnded()
+{
+    qDebug () << "PictureView::on_showTimeEnded()";
+    emit showTimeEnded ();
 }

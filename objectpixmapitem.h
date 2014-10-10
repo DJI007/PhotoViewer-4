@@ -29,10 +29,14 @@ public:
 
     AbstractMetadata *metadata ();
 
+    void setShowTime (int time);
+
 signals:
     void itemLoaded ();
+    void showTimeEnded ();
 
 public slots:
+    void on_showTimeEnded ();
 
 protected:
     void connectNotify ( const char * signal );
@@ -41,6 +45,8 @@ private:
     QString _fileName;
     ExifMetadata *_pictureData;
     QPixmap _correctedImage;
+
+    QTimer *_showTimer;
 
     QPixmap correctOrientationPicture(QPixmap src);
     QPixmap scaledImage(QPixmap src);

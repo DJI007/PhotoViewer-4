@@ -1,5 +1,5 @@
 #include "pictureviewitem.h"
 
-PictureViewItem::PictureViewItem(QObject *parent)
-{
-}
+#include <QDebug>
+
+

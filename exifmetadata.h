@@ -29,7 +29,6 @@ public:
 
 private:
     Exiv2::Image::AutoPtr _imageData;
-    bool _hasData;
 
     QString getString (const char *tagName);
     long getLong (const char *tagName);
