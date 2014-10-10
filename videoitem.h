@@ -32,16 +32,18 @@ public:
 
 signals:
     void itemLoaded ();
+    void playMedia();
+    void pauseMedia();
+    void stopMedia();
+    void volumeChanged(int volume);
 
 private slots:
-    void on_playToggled (bool);
-    void on_rewindClicked();
-    void on_fastForwardClicked();
 
 public slots:
     void on_mediaStatusChanged(QMediaPlayer::MediaStatus status);
     void on_videoAvailableChanged(bool available);
     void on_stateChanged(QMediaPlayer::State state);
+    void on_volumeChanged(int volume);
     void on_nativeSizeChanged(const QSizeF & size);
 
     void on_beginItemAnimation();
@@ -56,7 +58,6 @@ private:
     ExifMetadata *_videoData;
 
     void createControls ();
-
 };
 
 #endif // VIDEOITEM_H

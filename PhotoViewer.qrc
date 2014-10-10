@@ -20,6 +20,8 @@
         <file>images/center.png</file>
         <file>images/view-fullscreen.svg</file>
         <file>images/audio-volume-high.png</file>
+        <file>images/media-playback-pause-small.png</file>
+        <file>images/media-playback-start-small.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>

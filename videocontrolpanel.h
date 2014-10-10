@@ -3,6 +3,8 @@
 
 #include <QGraphicsRectItem>
 #include <QGraphicsProxyWidget>
+#include <QGraphicsTextItem>
+#include <QTime>
 
 class VideoControlPanel : public QObject, public QGraphicsRectItem
 {
@@ -12,33 +14,35 @@ public:
     explicit VideoControlPanel(QGraphicsItem *parent = 0);
 
 signals:
-    void rewindClicked ();
-    void stopClicked ();
-    void playToggled (bool);
-    void fastForwardClicked ();
+    void playClicked();
+    void pauseClicked ();
 
     void positionChanged (qint64);
     void volumeChanged (int);
 
 public slots:
     void on_positionChanged (qint64 value);
+    void on_sliderPositionChanged (int value);
+    void on_playClicked(bool value);
+    void on_play();
+    void on_pause();
+    void on_stop();
 
-    void setMaximum (int value);
-    void setMinimum (int value);
+    void setDuration (qint64 value);
     void setVolume (int value);
 
 private:
     QGraphicsProxyWidget *_sliderPosition;
-    QGraphicsProxyWidget *_buttonRew;
-    QGraphicsProxyWidget *_buttonStop;
     QGraphicsProxyWidget *_buttonPlay;
-    QGraphicsProxyWidget *_buttonFF;
     QGraphicsProxyWidget *_sliderVolume;
+    QGraphicsTextItem *_textInfo;
 
-    QGraphicsProxyWidget *addButtonToPanel(QString iconPathOn,
-                                           QString iconPathOff,
-                                           int posX,
-                                           bool checkable);
+    QTime _duration;
+
+    QGraphicsProxyWidget *createButton(QString iconPathOn, QString iconPathOff);
+    QGraphicsProxyWidget *createSlider(int x, int y, int width);
+    void createIcon (QString file, int x, int y, int width, int height);
+    QGraphicsTextItem *createText (int x, int y, QString text);
 
     QString readCSS (QString path);
 };
