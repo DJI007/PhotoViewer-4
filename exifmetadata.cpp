@@ -8,9 +8,11 @@ ExifMetadata::ExifMetadata(QString fileName)
     try {
         _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
         _imageData->readMetadata ();
+        _hasData = true;
     }
     catch (Exiv2::AnyError& e) {
         qDebug () << "Caught Exiv2 exception " << QString::fromUtf8 (e.what());
+        _hasData = false;
     }
 }
 
@@ -18,7 +20,12 @@ ExifMetadata::ExifMetadata(QString fileName)
 QString ExifMetadata::getString(const char *tagName)
 {
     try {
-        return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+        if (_hasData) {
+            return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+        }
+        else {
+            return "";
+        }
     }
     catch (Exiv2::AnyError& e) {
         qDebug () << "Error reading string data: " << QString::fromUtf8(e.what());
@@ -30,7 +37,12 @@ QString ExifMetadata::getString(const char *tagName)
 long ExifMetadata::getLong(const char *tagName)
 {
     try {
-        return _imageData->exifData() [tagName].toLong();
+        if (_hasData) {
+            return _imageData->exifData() [tagName].toLong();
+        }
+        else {
+            return 0;
+        }
     }
     catch (Exiv2::AnyError& e) {
         qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
@@ -47,19 +59,24 @@ double ExifMetadata::getDoubleFromDegrees(const char *tagName)
         Exiv2::Rational r3;
         double result;
 
-        if (_imageData->exifData() [tagName].count() == 3) {
-            r1 = _imageData->exifData() [tagName].toRational(0);
-            r2 = _imageData->exifData() [tagName].toRational(1);
-            r3 = _imageData->exifData() [tagName].toRational(2);
+        if (_hasData) {
+            if (_imageData->exifData() [tagName].count() == 3) {
+                r1 = _imageData->exifData() [tagName].toRational(0);
+                r2 = _imageData->exifData() [tagName].toRational(1);
+                r3 = _imageData->exifData() [tagName].toRational(2);
 
-            result = ((double) r1.first) / ((double) r1.second);
-            result += (((double) r2.first) / ((double) r2.second) / 60);
-            result += (((double) r3.first) / ((double) r3.second)) / 3600;
+                result = ((double) r1.first) / ((double) r1.second);
+                result += (((double) r2.first) / ((double) r2.second) / 60);
+                result += (((double) r3.first) / ((double) r3.second)) / 3600;
 
-            return result;
+                return result;
+            }
+            else {
+                return 0;
+            }
         }
         else {
-            return 0;
+            return -1;
         }
     }
     catch (Exiv2::AnyError& e) {
@@ -74,9 +91,14 @@ double ExifMetadata::getDoubleFromRational(const char *tagName)
     try {
         Exiv2::Rational r;
 
-        r = _imageData->exifData() [tagName].toRational(0);
+        if (_hasData) {
+            r = _imageData->exifData() [tagName].toRational(0);
 
-        return ((double) r.first) / ((double) r.second);
+            return ((double) r.first) / ((double) r.second);
+        }
+        else {
+            return 0;
+        }
     }
     catch (Exiv2::AnyError& e) {
         qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
