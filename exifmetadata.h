@@ -26,14 +26,18 @@ public:
     double gpsAltitude ();
 
     void setRating (int value);
+    void setOrientation (int value);
 
 private:
     Exiv2::Image::AutoPtr _imageData;
+    bool _hasData;
 
-    QString getString (const char *tagName);
-    long getLong (const char *tagName);
-    double getDoubleFromDegrees(const char *tagName);
-    double getDoubleFromRational(const char *tagName);
+    QString getString (const char *keyName);
+    long getLong (const char *keyName);
+    double getDoubleFromDegrees(const char *keyName);
+    double getDoubleFromRational(const char *keyName);
+
+    bool hasKey (const char *keyName);
 };
 
 #endif // EXIFMETADATA_H

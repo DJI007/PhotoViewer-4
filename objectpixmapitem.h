@@ -23,13 +23,16 @@ public:
     explicit ObjectPixmapItem(const QPixmap& pixmap, QObject *parent = 0);
     ~ObjectPixmapItem();
 
-    void load ();
+    void load (bool fireEvent);
     void resize ();
     QDateTime getDate ();
 
     AbstractMetadata *metadata ();
 
     void setShowTime (int time);
+
+    bool rotateLeft();
+    bool rotateRight();
 
 signals:
     void itemLoaded ();

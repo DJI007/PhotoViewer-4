@@ -6,6 +6,8 @@
 #include <QErrorMessage>
 #include <QTimer>
 
+#include <QPropertyAnimation>
+
 ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
     QObject(parent)
 {
@@ -31,7 +33,7 @@ ObjectPixmapItem::~ObjectPixmapItem()
         delete _pictureData;
 }
 
-void ObjectPixmapItem::load()
+void ObjectPixmapItem::load(bool fireEvent)
 {
     QPixmap image;
 
@@ -44,8 +46,11 @@ void ObjectPixmapItem::load()
 
     centerOnScene ();
 
-    emit itemLoaded();
+    if (fireEvent) {
+        emit itemLoaded();
+    }
 }
+
 
 void ObjectPixmapItem::resize()
 {
@@ -227,3 +232,82 @@ void ObjectPixmapItem::on_showTimeEnded()
     qDebug () << "ObjectPixmapItem::on_showTimeEnded()";
     emit showTimeEnded();
 }
+
+bool ObjectPixmapItem::rotateLeft()
+{
+    qDebug () << _pictureData->orientation();
+    switch (_pictureData->orientation())
+    {
+    case 1:
+        _pictureData->setOrientation (8);
+        break;
+
+    case 2:
+        break;
+
+    case 3:
+        _pictureData->setOrientation (6);
+        break;
+
+    case 4:
+        break;
+
+    case 5:
+        break;
+
+    case 6:
+        _pictureData->setOrientation (1);
+        break;
+
+    case 7:
+        break;
+
+    case 8:
+        _pictureData->setOrientation (3);
+        break;
+    }
+
+    return true;
+}
+
+bool ObjectPixmapItem::rotateRight()
+{
+    qDebug () << _pictureData->orientation();
+    switch (_pictureData->orientation())
+    {
+    case 1:
+        _pictureData->setOrientation (6);
+        break;
+
+    case 2:
+        break;
+
+    case 3:
+        _pictureData->setOrientation (8);
+        break;
+
+    case 4:
+        break;
+
+    case 5:
+        break;
+
+    case 6:
+        _pictureData->setOrientation (3);
+        break;
+
+    case 7:
+        break;
+
+    case 8:
+        _pictureData->setOrientation (1);
+        break;
+    }
+
+    return true;
+}
+
+
+
+
+

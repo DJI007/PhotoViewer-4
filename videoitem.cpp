@@ -13,6 +13,7 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
     _videoData = new ExifMetadata(fileName);
 
     _emitShowTimeEnded = false;
+    _emitItemLoaded = false;
 
     _player = new QMediaPlayer (parent);
     _player->setVideoOutput(this);
@@ -60,8 +61,9 @@ VideoItem::~VideoItem()
         delete _videoData;
 }
 
-void VideoItem::load()
+void VideoItem::load(bool fireEvent)
 {
+    _emitItemLoaded = fireEvent;
     _player->setMedia(QUrl::fromLocalFile(_fileName));
 }
 
@@ -85,7 +87,10 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
         _player->pause();
 
         resize();
-        emit itemLoaded();
+
+        if (_emitItemLoaded) {
+            emit itemLoaded();
+        }
 
         _panel->setVolume(_player->volume());
         _panel->setDuration (_player->duration());
@@ -122,7 +127,9 @@ void VideoItem::on_nativeSizeChanged(const QSizeF &size)
 {
     if (size.width() > 0) {
         resize();
-        emit itemLoaded();
+        if (_emitItemLoaded) {
+            emit itemLoaded();
+        }
     }
 }
 
@@ -157,3 +164,14 @@ void VideoItem::setShowTime(int time)
     _emitShowTimeEnded = (time > 0);
 }
 
+bool VideoItem::rotateLeft()
+{
+    // TODO: Rotate video
+    return false;
+}
+
+bool VideoItem::rotateRight()
+{
+    // TODO: Rotate video
+    return false;
+}

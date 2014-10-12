@@ -108,6 +108,9 @@ unix {
     # Qt 5.3.2
     # LIBS += -L/opt/Qt5.3.2/5.3/gcc_64/lib/
     # INCLUDEPATH  += /opt/Qt5.3.2/5.3/gcc_64/include
+
+    # lib vlc-qt
+    # LIBS += -lvlc-qt -lvlc-qt-widgets
 }
 
 OTHER_FILES += \

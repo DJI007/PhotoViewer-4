@@ -90,6 +90,10 @@ void PictureView::loadPicture(QString fileName)
         on_finishPrevItemAnimation();
     }
 
+    if (_currentItem != NULL) {
+        _currentItem->setShowTime(0);
+    }
+
     _prevItem = _currentItem;
     _currentItem = new PictureViewItemContainer(fileName, this);
     connect(dynamic_cast<QObject *> (_currentItem), SIGNAL(showTimeEnded()),
@@ -276,6 +280,19 @@ void PictureView::setShowTime(int time)
 
 void PictureView::on_showTimeEnded()
 {
-    qDebug () << "PictureView::on_showTimeEnded()";
     emit showTimeEnded ();
+}
+
+void PictureView::rotatePictureLeft()
+{
+    if (_currentItem) {
+        _currentItem->rotatePictureLeft();
+    }
+}
+
+void PictureView::rotatePictureRight()
+{
+    if (_currentItem) {
+        _currentItem->rotatePictureRight();
+    }
 }

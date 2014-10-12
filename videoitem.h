@@ -24,13 +24,16 @@ public:
     explicit VideoItem(QString fileName, QObject *parent = 0);
     ~VideoItem();
 
-    void load ();
+    void load (bool fireEvent);
     void resize ();
     QDateTime getDate ();
 
     AbstractMetadata *metadata ();
 
     void setShowTime (int time);
+
+    bool rotateLeft();
+    bool rotateRight();
 
 signals:
     void itemLoaded ();
@@ -58,6 +61,7 @@ private:
     QString _fileName;
 
     bool _emitShowTimeEnded;
+    bool _emitItemLoaded;
 
     VideoControlPanel *_panel;
 

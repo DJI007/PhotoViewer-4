@@ -135,8 +135,6 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
     QString fileName;
     QFileInfo info;
 
-    qDebug () << "showCurrentPicture: " << _currentFile;
-
     if (_currentDir->count() == 0) {
         QMessageBox::information(this,
                                  tr("Photo Viewer"),
@@ -153,7 +151,6 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
         ui->gvPicture->loadPicture(fileName);
         ui->gvPicture->showPicture(anim);
 
-        // if (ui->dwMap->isVisible()) {
         if (_mapView->isVisible()) {
             _mapView->setPosition(ui->gvPicture->pictureLatitude(), ui->gvPicture->pictureLongitude(), 0);
         }
@@ -171,7 +168,7 @@ void PhotoViewer::on_pictureDoubleClick(QMouseEvent *event)
 
 void PhotoViewer::on_pictureMouseMove(QMouseEvent *event)
 {
-    if (isFullScreen()) { // && !_toolBarTimer->isActive()) {
+    if (isFullScreen()) {
         bool showToolbar;
 
         showToolbar = (event->y() == 0);
@@ -489,3 +486,13 @@ void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude,
     _mapView->setPosition(latitude, longitude, altitude);
 }
 
+
+void PhotoViewer::on_actionRotate_Left_triggered()
+{
+    ui->gvPicture->rotatePictureLeft ();
+}
+
+void PhotoViewer::on_actionRotate_Right_triggered()
+{
+    ui->gvPicture->rotatePictureRight ();
+}

@@ -8,18 +8,37 @@ ExifMetadata::ExifMetadata(QString fileName)
     try {
         _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
         _imageData->readMetadata ();
+
+        _hasData = true;
     }
     catch (Exiv2::AnyError& e) {
         qDebug () << "Caught Exiv2 exception " << QString::fromUtf8 (e.what());
+
+        _hasData = false;
+    }
+}
+
+bool ExifMetadata::hasKey(const char *keyName)
+{
+    if (_hasData) {
+        Exiv2::ExifKey key(keyName);
+        Exiv2::ExifData::iterator pos;
+
+        pos = _imageData->exifData ().findKey(key);
+
+        return (pos != _imageData->exifData().end());
+    }
+    else {
+        return false;
     }
 }
 
 
-QString ExifMetadata::getString(const char *tagName)
+QString ExifMetadata::getString(const char *keyName)
 {
     try {
-        if (_imageData->good()) {
-            return QString::fromUtf8 (_imageData->exifData() [tagName].toString().c_str());
+        if (hasKey(keyName)) {
+            return QString::fromUtf8 (_imageData->exifData() [keyName].toString().c_str());
         }
         else {
             return "";
@@ -32,11 +51,11 @@ QString ExifMetadata::getString(const char *tagName)
     }
 }
 
-long ExifMetadata::getLong(const char *tagName)
+long ExifMetadata::getLong(const char *keyName)
 {
     try {
-        if (_imageData->good()) {
-            return _imageData->exifData() [tagName].toLong();
+        if (hasKey(keyName)) {
+            return _imageData->exifData() [keyName].toLong();
         }
         else {
             return 0;
@@ -49,7 +68,7 @@ long ExifMetadata::getLong(const char *tagName)
     }
 }
 
-double ExifMetadata::getDoubleFromDegrees(const char *tagName)
+double ExifMetadata::getDoubleFromDegrees(const char *keyName)
 {
     try {
         Exiv2::Rational r1;
@@ -57,11 +76,11 @@ double ExifMetadata::getDoubleFromDegrees(const char *tagName)
         Exiv2::Rational r3;
         double result;
 
-        if (_imageData->good()) {
-            if (_imageData->exifData() [tagName].count() == 3) {
-                r1 = _imageData->exifData() [tagName].toRational(0);
-                r2 = _imageData->exifData() [tagName].toRational(1);
-                r3 = _imageData->exifData() [tagName].toRational(2);
+        if (hasKey(keyName)) {
+            if (_imageData->exifData() [keyName].count() == 3) {
+                r1 = _imageData->exifData() [keyName].toRational(0);
+                r2 = _imageData->exifData() [keyName].toRational(1);
+                r3 = _imageData->exifData() [keyName].toRational(2);
 
                 result = ((double) r1.first) / ((double) r1.second);
                 result += (((double) r2.first) / ((double) r2.second) / 60);
@@ -84,13 +103,13 @@ double ExifMetadata::getDoubleFromDegrees(const char *tagName)
     }
 }
 
-double ExifMetadata::getDoubleFromRational(const char *tagName)
+double ExifMetadata::getDoubleFromRational(const char *keyName)
 {
     try {
         Exiv2::Rational r;
 
-        if (_imageData->good()) {
-            r = _imageData->exifData() [tagName].toRational(0);
+        if (hasKey(keyName)) {
+            r = _imageData->exifData() [keyName].toRational(0);
 
             return ((double) r.first) / ((double) r.second);
         }
@@ -151,14 +170,17 @@ int ExifMetadata::orientation()
 
     result = (int) getLong ("Exif.Image.Orientation");
     if (result == -1) {
-        result = 1;
-
-        // If don't save default value, when save metadata the exif
-        // data saved is corrupted
-        _imageData->exifData() ["Exif.Image.Orientation"] = 1;
+        return 1;
     }
+    else {
+        return result;
+    }
+}
 
-    return result;
+void ExifMetadata::setOrientation (int value)
+{
+    _imageData->exifData() ["Exif.Image.Orientation"] = value;
+    _imageData->writeMetadata();
 }
 
 bool ExifMetadata::hasGpsInfo()

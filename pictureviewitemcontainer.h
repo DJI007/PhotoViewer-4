@@ -34,6 +34,9 @@ public:
 
     void setShowTime(int time);
 
+    void rotatePictureLeft ();
+    void rotatePictureRight ();
+
 signals:
     void itemLoaded ();
     void showTimeEnded ();
@@ -51,6 +54,9 @@ public slots:
     void on_geoInfo_leftMousePressed ();
 
     void on_showTimeEnded();
+
+private slots:
+    void on_finishRotateAnimation ();
 
 private:
     QString _fileName;
@@ -70,6 +76,8 @@ private:
     ObjectPixmapItem *createStar (bool, int left, int top);
 
     void setInfoRatingPosition();
+
+    void doRotation (bool left);
 };
 
 #endif // PICTUREVIEWITEMCONTAINER_H

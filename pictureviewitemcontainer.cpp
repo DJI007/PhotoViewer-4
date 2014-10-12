@@ -3,6 +3,8 @@
 #include <QFileInfo>
 #include <QGeoCoordinate>
 #include <QGeoAddress>
+#include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 
 #include "videoitem.h"
 #include "objectpixmapitem.h"
@@ -69,7 +71,7 @@ void PictureViewItemContainer::load()
     _geoInfo = createGeoInfo();
     _rating = createRating();
 
-    _item->load ();
+    _item->load (true);
 
     graphicsItem()->setAcceptHoverEvents(true);
 }
@@ -342,3 +344,89 @@ void PictureViewItemContainer::on_geoInfo_leftMousePressed()
                           _item->metadata()->gpsAltitude());
 }
 
+void PictureViewItemContainer::rotatePictureLeft()
+{
+    if (_item->rotateLeft ()) {
+        setInfoVisible(false);
+        doRotation (true);
+    }
+}
+
+void PictureViewItemContainer::rotatePictureRight()
+{
+    if (_item->rotateRight ()) {
+        setInfoVisible(false);
+        doRotation (false);
+        //_item->load(false);
+        //this->load();
+        //setInfoVisible(true);
+    }
+}
+
+void PictureViewItemContainer::doRotation(bool left)
+{
+    QPropertyAnimation *animRotate;
+    QPropertyAnimation *animScale;
+    QParallelAnimationGroup *anim;
+    int transformX;
+    int transformY;
+    int endValue;
+    QGraphicsItem *gTarget;
+    qreal scaleFactor;
+    qreal width;
+    qreal height;
+
+    gTarget = dynamic_cast<QGraphicsItem *> (_item);
+
+    if (left) {
+        endValue = -90;
+    }
+    else {
+        endValue = 90;
+    }
+
+    width = gTarget->boundingRect().width();
+    height = gTarget->boundingRect().height();
+
+
+
+    transformX = width / 2;
+    transformY = height / 2;
+
+    gTarget->setTransformOriginPoint(transformX, transformY);
+
+    anim = new QParallelAnimationGroup();
+
+    animRotate = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "rotation");
+    animRotate->setDuration(1000);
+    animRotate->setStartValue(0);
+    animRotate->setEndValue(endValue);
+    animRotate->setEasingCurve(QEasingCurve::InExpo);
+
+    animScale = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "scale");
+    animScale->setDuration(1000);
+    animScale->setStartValue(1);
+    animScale->setEndValue(transformX / transformY);
+    animScale->setEasingCurve(QEasingCurve::InExpo);
+
+    anim->addAnimation(animRotate);
+    anim->addAnimation(animScale);
+
+    connect(anim,
+            SIGNAL(finished()),
+            this,
+            SLOT(on_finishRotateAnimation ()));
+
+    anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void PictureViewItemContainer::on_finishRotateAnimation ()
+{
+    // _item->load(false);
+    (dynamic_cast<QGraphicsItem *> (_item))->setRotation(0);
+    // this->load();
+    _item->load (false);
+    setInfoRatingPosition();
+    //resize();
+    setInfoVisible(true);
+}

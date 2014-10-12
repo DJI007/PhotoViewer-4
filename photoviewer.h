@@ -47,6 +47,10 @@ private slots:
     void on_actionFull_screen_triggered();
     void on_actionExit_full_screen_triggered();
 
+    void on_actionRotate_Left_triggered();
+
+    void on_actionRotate_Right_triggered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

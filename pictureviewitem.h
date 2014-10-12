@@ -15,13 +15,16 @@ public:
     // operator QGraphicsItem* () { return dynamic_cast<QGraphicsItem *> (this); }
     // operator QObject* () { return dynamic_cast<QObject *> (this); }
 
-    virtual void load () = 0;
+    virtual void load (bool fireEvent) = 0;
     virtual void resize () = 0;
     virtual QDateTime getDate () = 0;
 
     virtual AbstractMetadata *metadata () = 0;
 
     virtual void setShowTime (int time) = 0;
+
+    virtual bool rotateLeft () = 0;
+    virtual bool rotateRight () = 0;
 
 signals:
     void itemLoaded ();

@@ -138,6 +138,8 @@
    <addaction name="separator"/>
    <addaction name="actionFull_screen"/>
    <addaction name="separator"/>
+   <addaction name="actionRotate_Left"/>
+   <addaction name="actionRotate_Right"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionChange_folder">
@@ -326,6 +328,36 @@
    </property>
    <property name="shortcut">
     <string>Esc</string>
+   </property>
+  </action>
+  <action name="actionRotate_Left">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/mono_rotate_left.png</normaloff>:/images/images/mono_rotate_left.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate Left</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate image to the left</string>
+   </property>
+   <property name="shortcut">
+    <string>Up</string>
+   </property>
+  </action>
+  <action name="actionRotate_Right">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/mono_rotate_right.png</normaloff>:/images/images/mono_rotate_right.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rotate Right</string>
+   </property>
+   <property name="toolTip">
+    <string>Rotate image to the right</string>
+   </property>
+   <property name="shortcut">
+    <string>Down</string>
    </property>
   </action>
  </widget>

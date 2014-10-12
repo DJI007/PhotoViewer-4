@@ -41,6 +41,9 @@ public:
 
     void setShowTime (int time);
 
+    void rotatePictureLeft ();
+    void rotatePictureRight ();
+
 signals:
     void mouseDoubleClick (QMouseEvent *event);
     void mouseMove (QMouseEvent *event);
