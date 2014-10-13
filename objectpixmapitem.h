@@ -24,6 +24,7 @@ public:
     ~ObjectPixmapItem();
 
     void load (bool fireEvent);
+    void refresh ();
     void resize ();
     QDateTime getDate ();
 
@@ -48,6 +49,7 @@ private:
     QString _fileName;
     ExifMetadata *_pictureData;
     QPixmap _correctedImage;
+    QPixmap _realImage;
 
     QTimer *_showTimer;
 

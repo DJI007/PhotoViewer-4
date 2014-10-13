@@ -97,7 +97,6 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
     }
     else if (status == QMediaPlayer::EndOfMedia) {
         if (_emitShowTimeEnded) {
-            qDebug () << "VideoItem: emitting showTimeEnded";
             emit showTimeEnded();
         }
 //        _player->setPosition(_player->duration() / 2);

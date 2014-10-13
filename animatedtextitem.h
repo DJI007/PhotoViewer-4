@@ -16,6 +16,7 @@ class AnimatedTextItem : public QGraphicsTextItem,
     Q_PROPERTY(qreal scale READ scale WRITE setScale)
 
 public:
+    explicit AnimatedTextItem(QGraphicsItem *parent = 0);
 
 signals:
 

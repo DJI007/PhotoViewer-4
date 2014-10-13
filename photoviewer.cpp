@@ -98,6 +98,8 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     this->addAction(ui->actionSet_5_stars);
     this->addAction(ui->actionFull_screen);
     this->addAction(ui->actionExit_full_screen);
+    this->addAction(ui->actionRotate_Left);
+    this->addAction(ui->actionRotate_Right);
 
     QString lastDirectory;
     QStringList filters;

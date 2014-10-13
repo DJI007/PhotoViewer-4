@@ -35,11 +35,12 @@ ObjectPixmapItem::~ObjectPixmapItem()
 
 void ObjectPixmapItem::load(bool fireEvent)
 {
-    QPixmap image;
+    _realImage.load (_fileName);
+    if (!_realImage.isNull()) {
+        QPixmap image;
 
-    image.load (_fileName);
-    if (!image.isNull()) {
-        _correctedImage = correctOrientationPicture(image);
+        _correctedImage = correctOrientationPicture(_realImage);
+
         image = scaledImage (_correctedImage);
         this->setPixmap (image);
     }
@@ -51,6 +52,17 @@ void ObjectPixmapItem::load(bool fireEvent)
     }
 }
 
+void ObjectPixmapItem::refresh()
+{
+    QPixmap scaled;
+
+    _correctedImage = correctOrientationPicture(_realImage);
+
+    scaled = scaledImage (_correctedImage);
+    this->setPixmap (scaled);
+
+    centerOnScene ();
+}
 
 void ObjectPixmapItem::resize()
 {
@@ -196,14 +208,11 @@ void ObjectPixmapItem::centerOnScene()
 
 void ObjectPixmapItem::connectNotify ( const char * signal )
 {
-    qDebug () << "connection stablished: " << signal;
 }
 
 void ObjectPixmapItem::setShowTime(int time)
 {
-    qDebug () << "ObjectPixmapItem::setShowTime: " << time;
     if (time > 0) {
-        qDebug () << "ObjectPixmapItem::setShowTime: registering timer";
         _showTimer = new QTimer(this);
         _showTimer ->setInterval(time);
         this->connect(_showTimer, SIGNAL(timeout()),
@@ -214,9 +223,6 @@ void ObjectPixmapItem::setShowTime(int time)
     }
     else {
         if (_showTimer) {
-            qDebug () << "ObjectPixmapItem::setShowTime: stopping timer";
-//            this->disconnect(_showTimer, SIGNAL(timeout()),
-//                             0, 0);
             if (_showTimer->isActive()) {
                 _showTimer->stop();
             }
@@ -229,13 +235,11 @@ void ObjectPixmapItem::setShowTime(int time)
 
 void ObjectPixmapItem::on_showTimeEnded()
 {
-    qDebug () << "ObjectPixmapItem::on_showTimeEnded()";
     emit showTimeEnded();
 }
 
 bool ObjectPixmapItem::rotateLeft()
 {
-    qDebug () << _pictureData->orientation();
     switch (_pictureData->orientation())
     {
     case 1:
@@ -272,7 +276,6 @@ bool ObjectPixmapItem::rotateLeft()
 
 bool ObjectPixmapItem::rotateRight()
 {
-    qDebug () << _pictureData->orientation();
     switch (_pictureData->orientation())
     {
     case 1:

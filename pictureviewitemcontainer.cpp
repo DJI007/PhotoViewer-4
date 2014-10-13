@@ -4,7 +4,7 @@
 #include <QGeoCoordinate>
 #include <QGeoAddress>
 #include <QPropertyAnimation>
-#include <QParallelAnimationGroup>
+#include <QGraphicsScene>
 
 #include "videoitem.h"
 #include "objectpixmapitem.h"
@@ -78,7 +78,6 @@ void PictureViewItemContainer::load()
 
 void PictureViewItemContainer::setShowTime(int time)
 {
-    qDebug () << "PictureViewItemContainer::setShowTime: " << time;
     _item->setShowTime (time);
     if (time > 0) {
         connect(dynamic_cast<QObject *> (_item), SIGNAL(showTimeEnded()),
@@ -88,14 +87,11 @@ void PictureViewItemContainer::setShowTime(int time)
 
 void PictureViewItemContainer::on_showTimeEnded()
 {
-    qDebug () << "PictureViewItemContainer::on_showTimeEnded()";
     emit showTimeEnded ();
 }
 
 void PictureViewItemContainer::on_itemLoaded()
 {
-    qDebug () << "On itemLoaded";
-
     _info->setParentItem (this->graphicsItem());
     _geoInfo->setParentItem(this->graphicsItem());
     _rating->setParentItem(this->graphicsItem());
@@ -312,8 +308,6 @@ void PictureViewItemContainer::on_reverseGeocode_error(QGeoCodeReply::Error erro
 {
     Q_UNUSED(error);
 
-    qDebug () << "Error on reverse geocode: " << errorString;
-
     _reverseGeocodeReply->deleteLater();
 }
 
@@ -338,7 +332,6 @@ void PictureViewItemContainer::on_reverseGeocode_finished()
 
 void PictureViewItemContainer::on_geoInfo_leftMousePressed()
 {
-    qDebug () << "leftMousePressed";
     emit requestMapWindow(_item->metadata()->gpsLatitude(),
                           _item->metadata()->gpsLongitude(),
                           _item->metadata()->gpsAltitude());
@@ -367,7 +360,7 @@ void PictureViewItemContainer::doRotation(bool left)
 {
     QPropertyAnimation *animRotate;
     QPropertyAnimation *animScale;
-    QParallelAnimationGroup *anim;
+    QAnimationGroup *anim;
     int transformX;
     int transformY;
     int endValue;
@@ -375,6 +368,8 @@ void PictureViewItemContainer::doRotation(bool left)
     qreal scaleFactor;
     qreal width;
     qreal height;
+    qreal sceneWidth;
+    qreal sceneHeight;
 
     gTarget = dynamic_cast<QGraphicsItem *> (_item);
 
@@ -385,10 +380,15 @@ void PictureViewItemContainer::doRotation(bool left)
         endValue = 90;
     }
 
+    sceneWidth = gTarget->scene()->width();
+    sceneHeight = gTarget->scene()->height();
     width = gTarget->boundingRect().width();
     height = gTarget->boundingRect().height();
 
-
+    scaleFactor = sceneHeight / width;
+    if ((height * scaleFactor) > sceneWidth) {
+        scaleFactor = sceneWidth / height;
+    }
 
     transformX = width / 2;
     transformY = height / 2;
@@ -396,17 +396,18 @@ void PictureViewItemContainer::doRotation(bool left)
     gTarget->setTransformOriginPoint(transformX, transformY);
 
     anim = new QParallelAnimationGroup();
+    // anim = new QSequentialAnimationGroup();
 
     animRotate = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "rotation");
-    animRotate->setDuration(1000);
+    animRotate->setDuration(1200);
     animRotate->setStartValue(0);
     animRotate->setEndValue(endValue);
     animRotate->setEasingCurve(QEasingCurve::InExpo);
 
     animScale = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "scale");
-    animScale->setDuration(1000);
-    animScale->setStartValue(1);
-    animScale->setEndValue(transformX / transformY);
+    animScale->setDuration(1200);
+    animScale->setStartValue((qreal) 1);
+    animScale->setEndValue(scaleFactor);
     animScale->setEasingCurve(QEasingCurve::InExpo);
 
     anim->addAnimation(animRotate);
@@ -422,11 +423,9 @@ void PictureViewItemContainer::doRotation(bool left)
 
 void PictureViewItemContainer::on_finishRotateAnimation ()
 {
-    // _item->load(false);
     (dynamic_cast<QGraphicsItem *> (_item))->setRotation(0);
-    // this->load();
-    _item->load (false);
+    (dynamic_cast<QGraphicsItem *> (_item))->setScale(1);
+    _item->refresh();
     setInfoRatingPosition();
-    //resize();
     setInfoVisible(true);
 }
