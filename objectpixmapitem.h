@@ -23,7 +23,7 @@ public:
     explicit ObjectPixmapItem(const QPixmap& pixmap, QObject *parent = 0);
     ~ObjectPixmapItem();
 
-    void load (bool fireEvent);
+    void load ();
     void refresh ();
     void resize ();
     QDateTime getDate ();

@@ -75,6 +75,10 @@ private:
     QGraphicsItemGroup *createRating ();
     ObjectPixmapItem *createStar (bool, int left, int top);
 
+    void showInfo (bool show);
+
+    bool _infoVisible;
+
     void setInfoRatingPosition();
 
     void doRotation (bool left);

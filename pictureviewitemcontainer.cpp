@@ -27,6 +27,7 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     QObject(parent)
 {
     _fileName = fileName;
+    _infoVisible = true;
 
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
         _item = new VideoItem(fileName, this);
@@ -71,7 +72,7 @@ void PictureViewItemContainer::load()
     _geoInfo = createGeoInfo();
     _rating = createRating();
 
-    _item->load (true);
+    _item->load ();
 
     graphicsItem()->setAcceptHoverEvents(true);
 }
@@ -235,6 +236,12 @@ void PictureViewItemContainer::resize()
 
 void PictureViewItemContainer::setInfoVisible(bool visible)
 {
+    _infoVisible = visible;
+    showInfo (visible);
+}
+
+void PictureViewItemContainer::showInfo(bool show)
+{
     AbstractPictureAnimation *anim;
     QAnimationGroup *group;
 
@@ -246,7 +253,7 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
 
         current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
 
-        if (visible) {
+        if (show) {
             group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
         }
         else {
@@ -254,7 +261,7 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
         }
     }
 
-    if (visible) {
+    if (show) {
         group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
     }
     else {
@@ -262,7 +269,7 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
     }
 
     if (_geoInfo) {
-        if (visible) {
+        if (show) {
             group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _info->boundingRect().width()));
         }
         else {
@@ -271,6 +278,7 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
     }
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
+
 }
 
 void PictureViewItemContainer::setRating(int value)
@@ -308,6 +316,8 @@ void PictureViewItemContainer::on_reverseGeocode_error(QGeoCodeReply::Error erro
 {
     Q_UNUSED(error);
 
+    qDebug () << "PictureViewItemContainer::on_reverseGeocode_error: " << errorString;
+
     _reverseGeocodeReply->deleteLater();
 }
 
@@ -340,7 +350,10 @@ void PictureViewItemContainer::on_geoInfo_leftMousePressed()
 void PictureViewItemContainer::rotatePictureLeft()
 {
     if (_item->rotateLeft ()) {
-        setInfoVisible(false);
+        if (_infoVisible) {
+            showInfo(false);
+        }
+
         doRotation (true);
     }
 }
@@ -348,11 +361,11 @@ void PictureViewItemContainer::rotatePictureLeft()
 void PictureViewItemContainer::rotatePictureRight()
 {
     if (_item->rotateRight ()) {
-        setInfoVisible(false);
+        if (_infoVisible) {
+            showInfo(false);
+        }
+
         doRotation (false);
-        //_item->load(false);
-        //this->load();
-        //setInfoVisible(true);
     }
 }
 
@@ -423,9 +436,17 @@ void PictureViewItemContainer::doRotation(bool left)
 
 void PictureViewItemContainer::on_finishRotateAnimation ()
 {
-    (dynamic_cast<QGraphicsItem *> (_item))->setRotation(0);
-    (dynamic_cast<QGraphicsItem *> (_item))->setScale(1);
+    QGraphicsItem *gItem;
+
+    gItem = dynamic_cast<QGraphicsItem *> (_item);
+    gItem->setRotation(0);
+    gItem->setScale(1);
+
     _item->refresh();
+
     setInfoRatingPosition();
-    setInfoVisible(true);
+
+    if (_infoVisible) {
+        showInfo(true);
+    }
 }

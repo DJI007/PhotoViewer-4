@@ -5,6 +5,9 @@
 #include <QApplication>
 #include <QErrorMessage>
 #include <QTimer>
+#include <QString>
+#include <QScreen>
+#include <QGuiApplication>
 
 #include <QPropertyAnimation>
 
@@ -33,11 +36,18 @@ ObjectPixmapItem::~ObjectPixmapItem()
         delete _pictureData;
 }
 
-void ObjectPixmapItem::load(bool fireEvent)
+void ObjectPixmapItem::load()
 {
-    _realImage.load (_fileName);
-    if (!_realImage.isNull()) {
+    QPixmap img;
+
+    img.load(_fileName);
+    if (!img.isNull()) {
         QPixmap image;
+        QScreen *screen;
+
+        screen = QGuiApplication::primaryScreen();
+        _realImage = img.scaledToWidth(screen->geometry().width(),
+                                       Qt::SmoothTransformation);
 
         _correctedImage = correctOrientationPicture(_realImage);
 
@@ -47,9 +57,7 @@ void ObjectPixmapItem::load(bool fireEvent)
 
     centerOnScene ();
 
-    if (fireEvent) {
-        emit itemLoaded();
-    }
+    emit itemLoaded();
 }
 
 void ObjectPixmapItem::refresh()

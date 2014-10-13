@@ -59,7 +59,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->statusBar->addWidget(_lblStatusFileCount);
 
     _toolBarTimer = new QTimer (this);
-    _toolBarTimer->setInterval(2000);
+    _toolBarTimer->setInterval(3000);
     connect (_toolBarTimer,
              SIGNAL(timeout()),
              this,

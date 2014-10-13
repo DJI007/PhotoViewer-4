@@ -15,7 +15,7 @@ public:
     // operator QGraphicsItem* () { return dynamic_cast<QGraphicsItem *> (this); }
     // operator QObject* () { return dynamic_cast<QObject *> (this); }
 
-    virtual void load (bool fireEvent) = 0;
+    virtual void load () = 0;
     virtual void refresh () { }
     virtual void resize () = 0;
     virtual QDateTime getDate () = 0;
