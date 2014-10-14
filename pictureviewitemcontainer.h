@@ -45,8 +45,10 @@ signals:
 public slots:
     void on_itemLoaded();
 
-    void on_beginItemAnimation ();
-    void on_endItemAnimation ();
+    void on_beginItemAnimationIn ();
+    void on_endItemAnimationIn ();
+    void on_beginItemAnimationOut ();
+    void on_endItemAnimationOut ();
 
     void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
     void on_reverseGeocode_finished();

@@ -49,8 +49,10 @@ signals:
     void mouseMove (QMouseEvent *event);
     void requestMapWindow (double latitude, double longitude, double altitude);
 
-    void beginItemAnimation ();
-    void endItemAnimation ();
+    void beginItemAnimationIn ();
+    void endItemAnimationIn ();
+    void beginItemAnimationOut ();
+    void endItemAnimationOut ();
     void showTimeEnded ();
 
 public slots:

@@ -22,7 +22,8 @@ signals:
 
 public slots:
     void on_positionChanged (qint64 value);
-    void on_sliderPositionChanged (int value);
+    void on_sliderPositionActionTriggered(int action);
+    void on_sliderPositionMoved(int value);
     void on_playClicked(bool value);
     void on_play();
     void on_pause();

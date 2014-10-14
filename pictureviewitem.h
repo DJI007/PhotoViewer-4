@@ -32,8 +32,6 @@ signals:
     void showTimeEnded ();
 
 public slots:
-    virtual void on_beginItemAnimation () {}
-    virtual void on_endItemAnimation () {}
 
 private:
 

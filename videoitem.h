@@ -48,13 +48,15 @@ private slots:
 
 public slots:
     void on_mediaStatusChanged(QMediaPlayer::MediaStatus status);
-    void on_videoAvailableChanged(bool available);
     void on_stateChanged(QMediaPlayer::State state);
     void on_volumeChanged(int volume);
     void on_nativeSizeChanged(const QSizeF & size);
 
-    void on_beginItemAnimation();
-    void on_endItemAnimation();
+    void on_positionChanged (qint64 value);
+
+    void on_beginItemAnimationIn();
+    void on_endItemAnimationIn();
+    void on_beginItemAnimationOut();
 
 private:
     QMediaPlayer *_player;
@@ -66,7 +68,7 @@ private:
 
     ExifMetadata *_videoData;
 
-    void createControls ();
+    void setPanelPosition ();
 };
 
 #endif // VIDEOITEM_H

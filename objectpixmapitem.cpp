@@ -8,6 +8,7 @@
 #include <QString>
 #include <QScreen>
 #include <QGuiApplication>
+#include <QFileInfo>
 
 #include <QPropertyAnimation>
 
@@ -80,7 +81,16 @@ void ObjectPixmapItem::resize()
 
 QDateTime ObjectPixmapItem::getDate()
 {
-    return QDateTime::currentDateTime();
+    QFileInfo info;
+    QDateTime result;
+
+    info.setFile(_fileName);
+    result = _pictureData->pictureDate();
+    if (result == QDateTime::fromTime_t(0)) {
+        result = info.created();
+    }
+
+    return result;
 }
 
 AbstractMetadata *ObjectPixmapItem::metadata ()
@@ -216,6 +226,7 @@ void ObjectPixmapItem::centerOnScene()
 
 void ObjectPixmapItem::connectNotify ( const char * signal )
 {
+    Q_UNUSED(signal);
 }
 
 void ObjectPixmapItem::setShowTime(int time)

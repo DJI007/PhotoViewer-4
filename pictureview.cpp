@@ -95,10 +95,18 @@ void PictureView::loadPicture(QString fileName)
     }
 
     _prevItem = _currentItem;
+    if (_prevItem) {
+        disconnect(this, SIGNAL(beginItemAnimationIn()), _prevItem, 0);
+        disconnect(this, SIGNAL(endItemAnimationIn()), _prevItem, 0);
+        connect(this, SIGNAL(beginItemAnimationOut()),
+                _prevItem, SLOT(on_beginItemAnimationOut()));
+        connect(this, SIGNAL(endItemAnimationOut()),
+                _prevItem, SLOT(on_endItemAnimationOut()));
+    }
+
     _currentItem = new PictureViewItemContainer(fileName, this);
     connect(dynamic_cast<QObject *> (_currentItem), SIGNAL(showTimeEnded()),
             this, SLOT(on_showTimeEnded()));
-
 
     connect (dynamic_cast<QObject *> (_currentItem),
              SIGNAL(requestMapWindow(double,double,double)),
@@ -115,13 +123,13 @@ void PictureView::showPicture(PictureAnimationType animType)
                  this,
                  SLOT(on_itemLoaded ()));
         connect (this,
-                 SIGNAL(beginItemAnimation()),
+                 SIGNAL(beginItemAnimationIn()),
                  _currentItem,
-                 SLOT(on_beginItemAnimation()));
+                 SLOT(on_beginItemAnimationIn()));
         connect (this,
-                 SIGNAL(endItemAnimation()),
+                 SIGNAL(endItemAnimationIn()),
                  _currentItem,
-                 SLOT(on_endItemAnimation()));
+                 SLOT(on_endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem->graphicsItem());
         _currentItem->load();
@@ -186,11 +194,12 @@ void PictureView::on_itemLoaded()
             _currentAnimation->addAnimation(animOut);
         }
 
-        emit beginItemAnimation();
+        emit beginItemAnimationIn();
+        emit beginItemAnimationOut();
         _currentAnimation->start(QAbstractAnimation::DeleteWhenStopped);
     }
     else {
-        emit endItemAnimation();
+        emit endItemAnimationIn();
         delete _prevItem;
         _currentAnimation = NULL;
     }
@@ -211,7 +220,7 @@ void PictureView::cleanPicture()
 
 void PictureView::on_finishPrevItemAnimation()
 {
-    emit endItemAnimation();
+    emit endItemAnimationOut();
     delete _prevItem;
 }
 
@@ -219,7 +228,7 @@ void PictureView::on_finishCurrentItemAnimation()
 {
     _currentItem->setShowTime(_showTime);
 
-    emit endItemAnimation();
+    emit endItemAnimationIn();
     _currentAnimation = NULL;
 }
 

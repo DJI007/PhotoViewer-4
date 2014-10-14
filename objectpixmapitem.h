@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QGraphicsPixmapItem>
+#include <QDateTime>
 
 #include "pictureviewitem.h"
 #include "exifmetadata.h"

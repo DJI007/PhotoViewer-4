@@ -12,6 +12,8 @@ QAbstractAnimation *AnimationRotateFade::getAnimationIn(AnimatedItem *target, in
     qreal transformY;
     QGraphicsItem *gTarget;
 
+    Q_UNUSED(parentWidth);
+
     gTarget = dynamic_cast<QGraphicsItem *> (target);
 
     gTarget->setOpacity(0);
@@ -49,6 +51,8 @@ QAbstractAnimation *AnimationRotateFade::getAnimationOut(AnimatedItem *target, i
     qreal transformX;
     qreal transformY;
     QGraphicsItem *gTarget;
+
+    Q_UNUSED(parentWidth);
 
     gTarget = dynamic_cast<QGraphicsItem *> (target);
 

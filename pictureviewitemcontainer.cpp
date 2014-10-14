@@ -127,7 +127,7 @@ ClickableTextItem *PictureViewItemContainer::createGeoInfo()
     ClickableTextItem *item;
     QString msg;
 
-    item = new ClickableTextItem();
+    item = new ClickableTextItem(this->graphicsItem());
 
     if (_item->metadata()->hasGpsInfo()) {
         QGeoCoordinate coord;
@@ -170,7 +170,7 @@ QGraphicsItemGroup *PictureViewItemContainer::createRating()
     QRectF rect;
     QGraphicsItemGroup *result;
 
-    result = new QGraphicsItemGroup ();
+    result = new QGraphicsItemGroup (this->graphicsItem());
 
     rect = this->graphicsItem()->boundingRect();
 
@@ -278,7 +278,6 @@ void PictureViewItemContainer::showInfo(bool show)
     }
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
-
 }
 
 void PictureViewItemContainer::setRating(int value)
@@ -289,6 +288,7 @@ void PictureViewItemContainer::setRating(int value)
 
     _rating = createRating();
     _rating->setParentItem(this->graphicsItem());
+
     setInfoRatingPosition ();
 }
 
@@ -302,14 +302,24 @@ double PictureViewItemContainer::longitude()
     return 0;
 }
 
-void PictureViewItemContainer::on_beginItemAnimation()
+void PictureViewItemContainer::on_beginItemAnimationIn()
 {
-    _item->on_beginItemAnimation();
+    _item->on_beginItemAnimationIn();
 }
 
-void PictureViewItemContainer::on_endItemAnimation()
+void PictureViewItemContainer::on_endItemAnimationIn()
 {
-    _item->on_endItemAnimation();
+    _item->on_endItemAnimationIn();
+}
+
+void PictureViewItemContainer::on_beginItemAnimationOut()
+{
+    _item->on_beginItemAnimationOut();
+}
+
+void PictureViewItemContainer::on_endItemAnimationOut()
+{
+    _item->on_endItemAnimationOut();
 }
 
 void PictureViewItemContainer::on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString)

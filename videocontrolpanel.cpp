@@ -12,6 +12,7 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     QGraphicsRectItem(0, 0, 200, 35, parent)
 {
     setBrush(QColor(100, 100, 100, 175));
+    setParentItem(parent);
 
     _sliderPosition = createSlider(20,
                                    1,
@@ -37,8 +38,10 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     _textInfo = createText (2, this->boundingRect().height() - 22, "00:00:00/00:00:00");
 
     // Register signals
+    connect (((QSlider *) _sliderPosition->widget()), SIGNAL(actionTriggered(int)),
+             this, SLOT(on_sliderPositionActionTriggered(int)));
     connect (((QSlider *) _sliderPosition->widget()), SIGNAL(sliderMoved(int)),
-             this, SLOT(on_sliderPositionChanged(int)));
+             this, SLOT(on_sliderPositionMoved(int)));
 
     connect (((QPushButton *) _buttonPlay->widget()), SIGNAL(clicked(bool)),
              this, SLOT(on_playClicked(bool)));
@@ -87,6 +90,8 @@ QGraphicsProxyWidget *VideoControlPanel::createSlider(int x, int y, int width)
     slider->setMinimum(0);
     slider->resize(width, slider->height());
     slider->move(x, y);
+    slider->setSingleStep(1);
+    slider->setPageStep(5);
 
     return result;
 }
@@ -137,9 +142,58 @@ void VideoControlPanel::on_positionChanged(qint64 value)
     _textInfo->setPlainText(time.toString(format).append("/").append(_duration.toString(format)));
 }
 
-void VideoControlPanel::on_sliderPositionChanged(int value)
+void VideoControlPanel::on_sliderPositionActionTriggered(int action)
 {
-    qDebug () << "Position changed: " << value;
+    QSlider *slider;
+    int value;
+    bool emitSignal;
+
+    slider = (QSlider *) _sliderPosition->widget();
+    value = slider->value();
+
+    emitSignal = false;
+
+    switch (action) {
+    case QAbstractSlider::SliderPageStepSub:
+        value -= slider->pageStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderSingleStepSub:
+        value -= slider->singleStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderSingleStepAdd:
+        value += slider->singleStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderPageStepAdd:
+        value += slider->pageStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderToMinimum:
+        value = slider->minimum();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderToMaximum:
+        value += slider->maximum();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderMove:
+        if (!slider->isSliderDown()) {
+            // Mouse wheel
+            emitSignal = true;
+        }
+        break;
+
+    }
+
+    if (emitSignal) {
+        emit positionChanged ((qint64) (value * 1000));
+    }
+}
+
+void VideoControlPanel::on_sliderPositionMoved(int value)
+{
     emit positionChanged ((qint64) (value * 1000));
 }
 

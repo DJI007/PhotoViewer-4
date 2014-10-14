@@ -133,9 +133,15 @@ QDateTime ExifMetadata::pictureDate()
 {
     QString strDate;
 
-    strDate = QString::fromUtf8 (_imageData->exifData() ["Exif.Photo.DateTimeOriginal"].toString().c_str());
+    // strDate = QString::fromUtf8 (_imageData->exifData() ["Exif.Photo.DateTimeOriginal"].toString().c_str());
+    strDate = getString("Exif.Photo.DateTimeOriginal");
 
-    return QDateTime::fromString(strDate, "yyyy:MM:dd hh:mm:ss");
+    if (strDate != "") {
+        return QDateTime::fromString(strDate, "yyyy:MM:dd hh:mm:ss");
+    }
+    else {
+        return QDateTime::fromTime_t(0);
+    }
 }
 
 int ExifMetadata::rating()

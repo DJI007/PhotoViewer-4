@@ -5,7 +5,7 @@
 AnimatedTextItem::AnimatedTextItem(QGraphicsItem *parent)
     : QGraphicsTextItem(parent)
 {
-    this->setFont(QFont("MS Serif", 12));
+    this->setFont(QFont("MS Serif", 10));
 }
 
 

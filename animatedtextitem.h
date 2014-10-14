@@ -21,8 +21,6 @@ public:
 signals:
 
 public slots:
-    virtual void on_beginItemAnimation () {}
-    virtual void on_endItemAnimation () {}
 
 };
 

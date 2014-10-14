@@ -4,6 +4,8 @@
 #include <QGraphicsPixmapItem>
 #include <QPushButton>
 #include <QSlider>
+#include <QFileInfo>
+#include <QDateTime>
 
 #include "abstractmetadata.h"
 
@@ -16,7 +18,9 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
 
     _player = new QMediaPlayer (parent);
     _player->setVideoOutput(this);
+
     _panel = new VideoControlPanel(this);
+    _panel->hide();
 
     connect (_player,
              SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
@@ -43,7 +47,7 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
              _panel, SLOT(on_stop()));
 
     connect (_player, SIGNAL(positionChanged(qint64)),
-             _panel, SLOT(on_positionChanged(qint64)));
+             this, SLOT(on_positionChanged(qint64)));
     connect (_panel, SIGNAL(positionChanged(qint64)),
              _player, SLOT(setPosition(qint64)));
     connect (_panel, SIGNAL(playClicked()),
@@ -68,45 +72,53 @@ void VideoItem::load()
 void VideoItem::resize()
 {
     setSize(QSizeF(this->scene()->width(), this->scene()->height()));
-    createControls ();
+    setPanelPosition ();
 }
 
 QDateTime VideoItem::getDate()
 {
-    return QDateTime::currentDateTime();
+    QFileInfo info;
+    QDateTime result;
+
+    info.setFile(_fileName);
+    result = _videoData->pictureDate();
+    if (result == QDateTime::fromTime_t(0)) {
+        result = info.created();
+    }
+
+    return result;
 }
 
 void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
     qDebug () << "on media status changed: " << status;
     if (status == QMediaPlayer::MediaStatus::LoadedMedia) {
-        // resize();
         _player->play();
-        _player->pause();
+        // _player->pause();
 
         resize();
-
-        emit itemLoaded();
-
         _panel->setVolume(_player->volume());
         _panel->setDuration (_player->duration());
+        _panel->show();
+    }
+    else if (status == QMediaPlayer::MediaStatus::BufferedMedia) {
+        //_player->pause();
     }
     else if (status == QMediaPlayer::EndOfMedia) {
         if (_emitShowTimeEnded) {
             emit showTimeEnded();
         }
-//        _player->setPosition(_player->duration() / 2);
-//        _player->pause();
+/*
+        _player->setPosition(0);
+        _player->play();
+        _player->pause();
+*/
     }
-}
-
-void VideoItem::on_videoAvailableChanged(bool available)
-{
-    qDebug () << "Video available";
 }
 
 void VideoItem::on_stateChanged(QMediaPlayer::State state)
 {
+    qDebug () << "on media state changed: " << state;
     if (state == QMediaPlayer::PlayingState) {
         emit playMedia();
     }
@@ -126,19 +138,34 @@ void VideoItem::on_nativeSizeChanged(const QSizeF &size)
     }
 }
 
+void VideoItem::on_positionChanged(qint64 value)
+{
+    if (value == _player->duration()) {
+        _player->pause();
+    }
+    else {
+        _panel->on_positionChanged(value);
+    }
+}
+
 void VideoItem::on_volumeChanged(int volume)
 {
     emit volumeChanged (volume);
 }
 
-void VideoItem::on_beginItemAnimation()
+void VideoItem::on_beginItemAnimationIn()
 {
     _player->pause();
 }
 
-void VideoItem::on_endItemAnimation()
+void VideoItem::on_endItemAnimationIn()
 {
     _player->play();
+}
+
+void VideoItem::on_beginItemAnimationOut()
+{
+    _player->pause();
 }
 
 AbstractMetadata *VideoItem::metadata()
@@ -146,7 +173,7 @@ AbstractMetadata *VideoItem::metadata()
     return _videoData;
 }
 
-void VideoItem::createControls()
+void VideoItem::setPanelPosition()
 {
     _panel->setPos (this->boundingRect().right() - (_panel->rect().width() + 10),
                     this->boundingRect().bottom() - (_panel->rect().height() + 10));

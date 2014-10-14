@@ -12,6 +12,7 @@ class ClickableTextItem : public AnimatedTextItem
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 
 public:
+    explicit ClickableTextItem (QGraphicsItem *parent = 0);
     bool isClickable ();
     void setIsClickable (bool value);
 

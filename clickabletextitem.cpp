@@ -4,6 +4,12 @@
 #include <QDebug>
 #include <QApplication>
 
+ClickableTextItem::ClickableTextItem (QGraphicsItem *parent)
+    : AnimatedTextItem(parent)
+{
+
+}
+
 void ClickableTextItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     if (_isClickable) {

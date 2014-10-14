@@ -12,6 +12,8 @@ QAbstractAnimation *AnimationRotateScale::getAnimationIn(AnimatedItem *target, i
     qreal transformY;
     QGraphicsItem *gTarget;
 
+    Q_UNUSED(parentWidth);
+
     gTarget = dynamic_cast<QGraphicsItem *> (target);
 
     transformX = gTarget->boundingRect().width() / 2;
@@ -47,6 +49,8 @@ QAbstractAnimation *AnimationRotateScale::getAnimationOut(AnimatedItem *target, 
     qreal transformX;
     qreal transformY;
     QGraphicsItem *gTarget;
+
+    Q_UNUSED(parentWidth);
 
     gTarget = dynamic_cast<QGraphicsItem *> (target);
 
