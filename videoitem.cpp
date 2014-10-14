@@ -22,22 +22,14 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
     _panel = new VideoControlPanel(this);
     _panel->hide();
 
-    connect (_player,
-             SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
-             this,
-             SLOT(on_mediaStatusChanged(QMediaPlayer::MediaStatus)));
-    connect (this,
-             SIGNAL(nativeSizeChanged(QSizeF)),
-             this,
-             SLOT(on_nativeSizeChanged(QSizeF)));
-    connect (_player,
-             SIGNAL(stateChanged(QMediaPlayer::State)),
-             this,
-             SLOT(on_stateChanged(QMediaPlayer::State)));
-    connect (_player,
-             SIGNAL(volumeChanged(int)),
-             this,
-             SLOT(on_volumeChanged(int)));
+    connect (_player, SIGNAL(mediaStatusChanged(QMediaPlayer::MediaStatus)),
+             this, SLOT(on_mediaStatusChanged(QMediaPlayer::MediaStatus)));
+    connect (this, SIGNAL(nativeSizeChanged(QSizeF)),
+             this, SLOT(on_nativeSizeChanged(QSizeF)));
+    connect (_player, SIGNAL(stateChanged(QMediaPlayer::State)),
+             this, SLOT(on_stateChanged(QMediaPlayer::State)));
+    connect (_player, SIGNAL(volumeChanged(int)),
+             this, SLOT(on_volumeChanged(int)));
 
     connect (this, SIGNAL(playMedia()),
              _panel, SLOT(on_play()));
@@ -67,6 +59,8 @@ VideoItem::~VideoItem()
 void VideoItem::load()
 {
     _player->setMedia(QUrl::fromLocalFile(_fileName));
+    _panel->setVolume(_player->volume());
+    _panel->show();
 }
 
 void VideoItem::resize()
@@ -102,7 +96,7 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
         _panel->show();
     }
     else if (status == QMediaPlayer::MediaStatus::BufferedMedia) {
-        //_player->pause();
+        _panel->setDuration (_player->duration());
     }
     else if (status == QMediaPlayer::EndOfMedia) {
         if (_emitShowTimeEnded) {
@@ -134,6 +128,7 @@ void VideoItem::on_nativeSizeChanged(const QSizeF &size)
 {
     if (size.width() > 0) {
         resize();
+
         emit itemLoaded();
     }
 }
@@ -143,9 +138,8 @@ void VideoItem::on_positionChanged(qint64 value)
     if (value == _player->duration()) {
         _player->pause();
     }
-    else {
-        _panel->on_positionChanged(value);
-    }
+
+    _panel->on_positionChanged(value);
 }
 
 void VideoItem::on_volumeChanged(int volume)

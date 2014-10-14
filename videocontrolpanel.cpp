@@ -11,6 +11,8 @@
 VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     QGraphicsRectItem(0, 0, 200, 35, parent)
 {
+    _duration = QTime(0, 0, 0, 0);
+
     setBrush(QColor(100, 100, 100, 175));
     setParentItem(parent);
 
