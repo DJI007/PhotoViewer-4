@@ -14,7 +14,7 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     _duration = QTime(0, 0, 0, 0);
 
     setBrush(QColor(100, 100, 100, 175));
-    setParentItem(parent);
+    //setParentItem(parent);
 
     _sliderPosition = createSlider(20,
                                    1,
@@ -51,6 +51,14 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     connect (((QSlider *) _sliderVolume->widget()), SIGNAL(sliderMoved(int)),
              this, SIGNAL(volumeChanged(int)));
 
+}
+
+VideoControlPanel::~VideoControlPanel()
+{
+    delete _sliderPosition;
+    delete _buttonPlay;
+    delete _sliderVolume;
+    delete _textInfo;
 }
 
 QGraphicsProxyWidget *VideoControlPanel::createButton(QString iconPathOn, QString iconPathOff)

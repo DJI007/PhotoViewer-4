@@ -80,6 +80,7 @@ private:
     void showInfo (bool show);
 
     bool _infoVisible;
+    bool _isInfoVisible;
 
     void setInfoRatingPosition();
 

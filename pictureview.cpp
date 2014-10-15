@@ -132,9 +132,8 @@ void PictureView::showPicture(PictureAnimationType animType)
                  SLOT(on_endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem->graphicsItem());
-        _currentItem->load();
-
         _currentItem->setInfoVisible(_infoVisible);
+        _currentItem->load();
     }
 }
 

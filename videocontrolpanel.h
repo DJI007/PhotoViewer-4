@@ -12,6 +12,7 @@ class VideoControlPanel : public QObject, public QGraphicsRectItem
 
 public:
     explicit VideoControlPanel(QGraphicsItem *parent = 0);
+    ~VideoControlPanel();
 
 signals:
     void playClicked();

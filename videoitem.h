@@ -68,6 +68,7 @@ private:
 
     ExifMetadata *_videoData;
 
+    void createPanel ();
     void setPanelPosition ();
 };
 
