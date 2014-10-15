@@ -445,34 +445,45 @@ void PhotoViewer::on_actionExit_full_screen_triggered()
     }
 }
 
+void PhotoViewer::on_starsAction_setRating_triggered(int rating)
+{
+    setRating (rating);
+}
+
 void PhotoViewer::on_actionSet_0_stars_triggered()
 {
-    ui->gvPicture->setPictureRating(0);
+    setRating (0);
 }
 
 void PhotoViewer::on_actionSet_1_star_triggered()
 {
-    ui->gvPicture->setPictureRating(1);
+    setRating (1);
 }
 
 void PhotoViewer::on_actionSet_2_stars_triggered()
 {
-    ui->gvPicture->setPictureRating(2);
+    setRating (2);
 }
 
 void PhotoViewer::on_actionSet_3_stars_triggered()
 {
-    ui->gvPicture->setPictureRating(3);
+    setRating (3);
 }
 
 void PhotoViewer::on_actionSet_4_stars_triggered()
 {
-    ui->gvPicture->setPictureRating(4);
+    setRating (4);
 }
 
 void PhotoViewer::on_actionSet_5_stars_triggered()
 {
-    ui->gvPicture->setPictureRating(5);
+    setRating (5);
+}
+
+void PhotoViewer::setRating(int value)
+{
+    ui->gvPicture->setPictureRating(value);
+    showToolBarFullScreen (false);
 }
 
 void PhotoViewer::updateStatusBar ()

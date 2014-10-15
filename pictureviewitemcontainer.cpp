@@ -318,6 +318,7 @@ void PictureViewItemContainer::setRating(int value)
     _rating = createRating();
     _rating->setParentItem(this->graphicsItem());
 
+    //setInfoVisible(true);
     setInfoRatingPosition ();
 }
 
