@@ -8,6 +8,7 @@
 #include <QDateTime>
 
 #include "abstractmetadata.h"
+#include "settingshelper.h"
 
 VideoItem::VideoItem(QString fileName, QObject *parent)
 {
@@ -37,6 +38,7 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
 
 VideoItem::~VideoItem()
 {
+    SettingsHelper::instance().setVolume(_player->volume());
     if (_videoData)
         delete _videoData;
 }
@@ -44,6 +46,8 @@ VideoItem::~VideoItem()
 void VideoItem::load()
 {
     _player->setMedia(QUrl::fromLocalFile(_fileName));
+    _player->setVolume(SettingsHelper::instance().volume());
+
     // _panel->setVolume(_player->volume());
     // _panel->show();
 }

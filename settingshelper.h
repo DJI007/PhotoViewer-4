@@ -27,6 +27,9 @@ public:
 
     int lastFileIndex ();
     void setLastFileIndex (int value);
+
+    int volume();
+    void setVolume(int value);
 };
 
 #endif // SETTINGSHELPER_H

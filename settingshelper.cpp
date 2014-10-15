@@ -36,3 +36,13 @@ void SettingsHelper::setLastFileIndex(int value)
 {
     _settings->setValue("last_file_index", value);
 }
+
+int SettingsHelper::volume()
+{
+    return _settings->value("volume", 50).toInt();
+}
+
+void SettingsHelper::setVolume(int value)
+{
+    _settings->setValue("volume", value);
+}
