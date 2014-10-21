@@ -39,7 +39,8 @@ SOURCES += main.cpp\
     animatedtextitem.cpp \
     animationrotatefade.cpp \
     animationrotatescale.cpp \
-    videocontrolpanel.cpp
+    videocontrolpanel.cpp \
+    xmpmetadata.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -66,7 +67,8 @@ HEADERS  += photoviewer.h \
     animatedtextitem.h \
     animationrotatefade.h \
     animationrotatescale.h \
-    videocontrolpanel.h
+    videocontrolpanel.h \
+    xmpmetadata.h
 
 FORMS    += photoviewer.ui
 

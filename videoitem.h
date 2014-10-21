@@ -7,7 +7,7 @@
 #include <QPushButton>
 
 #include "pictureviewitem.h"
-#include "exifmetadata.h"
+#include "xmpmetadata.h"
 #include "videocontrolpanel.h"
 
 class VideoItem : public QGraphicsVideoItem,
@@ -66,7 +66,7 @@ private:
 
     VideoControlPanel *_panel;
 
-    ExifMetadata *_videoData;
+    XMPMetadata *_videoData;
 
     void createPanel ();
     void setPanelPosition ();

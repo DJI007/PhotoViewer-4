@@ -6,6 +6,7 @@
 #include <QSlider>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QMediaMetaData>
 
 #include "abstractmetadata.h"
 #include "settingshelper.h"
@@ -15,14 +16,14 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
     this->setParent(parent);
 
     _fileName = fileName;
-    _videoData = new ExifMetadata(fileName);
+    _videoData = new XMPMetadata(fileName);
 
     _emitShowTimeEnded = false;
 
     _player = new QMediaPlayer (this);
     _player->setVideoOutput(this);
 
-    _panel = NULL;
+    createPanel();
 
     connect (_player, SIGNAL(positionChanged(qint64)),
              this, SLOT(on_positionChanged(qint64)));
@@ -60,12 +61,14 @@ void VideoItem::resize()
 
 QDateTime VideoItem::getDate()
 {
-    QFileInfo info;
     QDateTime result;
 
-    info.setFile(_fileName);
     result = _videoData->pictureDate();
-    if (result == QDateTime::fromTime_t(0)) {
+    if (!result.isValid()) {
+        QFileInfo info;
+
+        info.setFile(_fileName);
+
         result = info.created();
     }
 
@@ -91,6 +94,8 @@ void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
         if (_panel) {
             _panel->setDuration (_player->duration());
         }
+
+        qDebug () << _player->metaData(QMediaMetaData::UserRating).toString();
     }
     else if (status == QMediaPlayer::EndOfMedia) {
         if (_emitShowTimeEnded) {
@@ -119,7 +124,8 @@ void VideoItem::on_nativeSizeChanged(const QSizeF &size)
     if (size.width() > 0) {
         resize();
 
-        createPanel();
+        _panel->show();
+
         emit itemLoaded();
     }
 }
@@ -166,7 +172,8 @@ void VideoItem::createPanel()
     setPanelPosition();
 
     _panel->setVolume(_player->volume());
-    _panel->show();
+    // _panel->show();
+    _panel->hide();
 
     connect (this, SIGNAL(playMedia()),
              _panel, SLOT(on_play()));
