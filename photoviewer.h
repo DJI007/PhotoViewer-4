@@ -26,7 +26,7 @@ private slots:
     void on_actionPrevious_picture_triggered();
     void on_actionPlay_triggered();
     void on_actionNext_picture_triggered();
-    void on_starsAction_setRating_triggered(int rating);
+    //void on_starsAction_setRating_triggered(int rating);
     void on_actionSet_0_stars_triggered();
     void on_actionSet_1_star_triggered();
     void on_actionSet_2_stars_triggered();

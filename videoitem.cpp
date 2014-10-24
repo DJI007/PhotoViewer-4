@@ -77,7 +77,7 @@ QDateTime VideoItem::getDate()
 
 void VideoItem::on_mediaStatusChanged(QMediaPlayer::MediaStatus status)
 {
-    // qDebug () << "on media status changed: " << status;
+    qDebug () << "on media status changed: " << status;
     if (status == QMediaPlayer::MediaStatus::LoadedMedia) {
         _player->play();
 
@@ -208,11 +208,11 @@ void VideoItem::setShowTime(int time)
 bool VideoItem::rotateLeft()
 {
     // TODO: Rotate video
-    return false;
+    return true;
 }
 
 bool VideoItem::rotateRight()
 {
     // TODO: Rotate video
-    return false;
+    return true;
 }

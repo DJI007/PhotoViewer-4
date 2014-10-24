@@ -445,11 +445,12 @@ void PhotoViewer::on_actionExit_full_screen_triggered()
     }
 }
 
+/*
 void PhotoViewer::on_starsAction_setRating_triggered(int rating)
 {
     setRating (rating);
 }
-
+*/
 void PhotoViewer::on_actionSet_0_stars_triggered()
 {
     setRating (0);

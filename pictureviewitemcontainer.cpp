@@ -22,6 +22,8 @@
 #include "animationrotatescale.h"
 #include "animationscale.h"
 
+#include <QDebug>
+
 
 PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *parent) :
     QObject(parent)

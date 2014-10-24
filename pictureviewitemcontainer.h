@@ -11,6 +11,8 @@
 #include "clickabletextitem.h"
 #include "animatedtextitem.h"
 
+#include <QtAV/AVPlayer.h>
+
 class PictureViewItemContainer : public QObject
 {
     Q_OBJECT

@@ -8,6 +8,7 @@ QT += core gui
 QT += positioning location
 QT += qml quick
 QT += multimedia multimediawidgets
+# QT += av
 # QT += declarative
 # QT += testlib
 
