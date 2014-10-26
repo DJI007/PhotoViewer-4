@@ -14,7 +14,6 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     _duration = QTime(0, 0, 0, 0);
 
     setBrush(QColor(100, 100, 100, 175));
-    //setParentItem(parent);
 
     _sliderPosition = createSlider(20,
                                    1,
@@ -28,7 +27,6 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     QSlider *slider;
 
     slider = (QSlider *) _sliderVolume->widget();
-
     slider->setMaximum(100);
 
     createIcon (":/images/images/audio-volume-high.png",
@@ -48,8 +46,10 @@ VideoControlPanel::VideoControlPanel(QGraphicsItem *parent) :
     connect (((QPushButton *) _buttonPlay->widget()), SIGNAL(clicked(bool)),
              this, SLOT(on_playClicked(bool)));
 
+    connect (((QSlider *) _sliderVolume->widget()), SIGNAL(actionTriggered(int)),
+             this, SLOT(on_sliderVolumeActionTriggered(int)));
     connect (((QSlider *) _sliderVolume->widget()), SIGNAL(sliderMoved(int)),
-             this, SIGNAL(volumeChanged(int)));
+             this, SLOT(on_sliderVolumeMoved(int)));
 
 }
 
@@ -131,7 +131,7 @@ QGraphicsTextItem *VideoControlPanel::createText (int x, int y, QString text)
     return result;
 }
 
-void VideoControlPanel::on_positionChanged(qint64 value)
+void VideoControlPanel::setPosition (qint64 value)
 {
     QSlider *position;
     QTime time(0, 0, 0, 0);
@@ -217,19 +217,74 @@ void VideoControlPanel::on_playClicked(bool checked)
     }
 }
 
-void VideoControlPanel::on_play()
+void VideoControlPanel::play()
 {
     ((QPushButton *) _buttonPlay->widget())->setChecked(true);
 }
 
-void VideoControlPanel::on_pause()
+void VideoControlPanel::pause()
 {
     ((QPushButton *) _buttonPlay->widget())->setChecked(false);
 }
 
-void VideoControlPanel::on_stop()
+void VideoControlPanel::stop()
 {
     ((QPushButton *) _buttonPlay->widget())->setChecked(false);
+}
+
+void VideoControlPanel::on_sliderVolumeActionTriggered(int action)
+{
+    QSlider *slider;
+    int value;
+    bool emitSignal;
+
+    slider = (QSlider *) _sliderVolume->widget();
+    value = slider->value();
+
+    emitSignal = false;
+
+    switch (action) {
+    case QAbstractSlider::SliderPageStepSub:
+        value -= slider->pageStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderSingleStepSub:
+        value -= slider->singleStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderSingleStepAdd:
+        value += slider->singleStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderPageStepAdd:
+        value += slider->pageStep();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderToMinimum:
+        value = slider->minimum();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderToMaximum:
+        value += slider->maximum();
+        emitSignal = true;
+        break;
+    case QAbstractSlider::SliderMove:
+        if (!slider->isSliderDown()) {
+            // Mouse wheel
+            emitSignal = true;
+        }
+        break;
+
+    }
+
+    if (emitSignal) {
+        emit volumeChanged (((qreal) value) / 100);
+    }
+}
+
+void VideoControlPanel::on_sliderVolumeMoved(int value)
+{
+    emit volumeChanged(((qreal) value) / 100);
 }
 
 void VideoControlPanel::setDuration(qint64 value)
@@ -252,10 +307,10 @@ QString VideoControlPanel::readCSS(QString path)
     return QLatin1String(file.readAll());
 }
 
-void VideoControlPanel::setVolume(int value)
+void VideoControlPanel::setVolume(qreal value)
 {
     QSlider *volume;
 
     volume = (QSlider *) _sliderVolume->widget();
-    volume->setValue(value);
+    volume->setValue(qRound(value * 100));
 }

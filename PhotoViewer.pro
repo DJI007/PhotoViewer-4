@@ -7,7 +7,8 @@
 QT += core gui
 QT += positioning location
 QT += qml quick
-QT += multimedia multimediawidgets
+# QT += multimedia multimediawidgets
+QT += phonon4qt5
 # QT += av
 # QT += declarative
 # QT += testlib
@@ -33,7 +34,7 @@ SOURCES += main.cpp\
     mapview.cpp \
 #    animateditemvideo.cpp \
     objectpixmapitem.cpp \
-    videoitem.cpp \
+#    videoitem.cpp \
     pictureviewitem.cpp \
     pictureviewitemcontainer.cpp \
     clickabletextitem.cpp \
@@ -41,7 +42,8 @@ SOURCES += main.cpp\
     animationrotatefade.cpp \
     animationrotatescale.cpp \
     videocontrolpanel.cpp \
-    xmpmetadata.cpp
+    xmpmetadata.cpp \
+    videoitemphonon.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -60,7 +62,7 @@ HEADERS  += photoviewer.h \
 #    animateditemvideo.h \
     animateditem.h \
     objectpixmapitem.h \
-    videoitem.h \
+#    videoitem.h \
     pictureviewitem.h \
     pictureviewitemcontainer.h \
     abstractmetadata.h \
@@ -69,7 +71,8 @@ HEADERS  += photoviewer.h \
     animationrotatefade.h \
     animationrotatescale.h \
     videocontrolpanel.h \
-    xmpmetadata.h
+    xmpmetadata.h \
+    videoitemphonon.h
 
 FORMS    += photoviewer.ui
 

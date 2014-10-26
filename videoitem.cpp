@@ -136,7 +136,7 @@ void VideoItem::on_positionChanged(qint64 value)
     }
 
     if (_panel) {
-        _panel->on_positionChanged(value);
+        _panel->setPosition (value);
     }
 }
 

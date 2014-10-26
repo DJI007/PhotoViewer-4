@@ -19,19 +19,25 @@ signals:
     void pauseClicked ();
 
     void positionChanged (qint64);
-    void volumeChanged (int);
+    void volumeChanged (qreal);
 
-public slots:
-    void on_positionChanged (qint64 value);
+private slots:
     void on_sliderPositionActionTriggered(int action);
+    void on_sliderVolumeActionTriggered(int action);
     void on_sliderPositionMoved(int value);
     void on_playClicked(bool value);
-    void on_play();
-    void on_pause();
-    void on_stop();
 
+public slots:
+    void play();
+    void pause();
+    void stop();
+
+    void setPosition (qint64 value);
     void setDuration (qint64 value);
-    void setVolume (int value);
+    void setVolume (qreal value);
+
+private slots:
+    void on_sliderVolumeMoved (int value);
 
 private:
     QGraphicsProxyWidget *_sliderPosition;

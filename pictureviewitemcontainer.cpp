@@ -7,6 +7,7 @@
 #include <QGraphicsScene>
 
 #include "videoitem.h"
+#include "videoitemphonon.h"
 #include "objectpixmapitem.h"
 
 #include <QAnimationGroup>
@@ -37,7 +38,8 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     _geoInfo = NULL;
 
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
-        _item = new VideoItem(fileName, this);
+        //  _item = new VideoItem(fileName, this);
+        _item = new VideoItemPhonon(fileName, this);
     }
     else {
         _item = new ObjectPixmapItem(fileName, this);
@@ -60,7 +62,6 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
 
 PictureViewItemContainer::~PictureViewItemContainer()
 {
-    //delete _geoProvider;
 }
 
 PictureViewItem *PictureViewItemContainer::item()
@@ -101,7 +102,6 @@ void PictureViewItemContainer::on_showTimeEnded()
 
 void PictureViewItemContainer::on_itemLoaded()
 {
-
     _info = createInfo();
     _geoInfo = createGeoInfo();
     _rating = createRating();
