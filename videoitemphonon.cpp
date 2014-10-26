@@ -7,7 +7,6 @@
 #include <QFileInfo>
 #include <QDateTime>
 
-
 #include "abstractmetadata.h"
 #include "settingshelper.h"
 
@@ -34,6 +33,8 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     this->setWidget(_video);
     this->setPos(0, 0);
 
+    _controller = new Phonon::MediaController (_player);
+
     createPanel();
 
     connect (_player, SIGNAL(tick(qint64)),
@@ -47,6 +48,9 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     connect (_audio, SIGNAL(volumeChanged(qreal)),
              _panel, SLOT(setVolume(qreal)));
+
+    connect (_controller, SIGNAL(availableSubtitlesChanged()),
+             this, SLOT(on_availableSubitlesChanged ()));
 }
 
 VideoItemPhonon::~VideoItemPhonon()
@@ -58,11 +62,14 @@ VideoItemPhonon::~VideoItemPhonon()
 
     // Only delete audio, video is deleted by player
     delete _audio;
+
+    delete _controller;
 }
 
 void VideoItemPhonon::load()
 {
     _player->setCurrentSource(Phonon::MediaSource(QUrl::fromLocalFile(_fileName)));
+
     resize();
 
     _panel->setVolume(_audio->volume());
@@ -124,6 +131,11 @@ void VideoItemPhonon::on_stateChanged(Phonon::State newState, Phonon::State oldS
         emit stopMedia();
         break;
     }
+}
+
+void VideoItemPhonon::on_availableSubitlesChanged()
+{
+    qDebug () << _controller->availableSubtitles().count();
 }
 
 void VideoItemPhonon::on_beginItemAnimationIn()

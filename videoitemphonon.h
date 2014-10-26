@@ -5,11 +5,10 @@
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
 
-#include <QMediaPlayer>
-
 #include <phonon/mediaobject.h>
 #include <phonon/videowidget.h>
 #include <phonon/audiooutput.h>
+#include <phonon/MediaController>
 
 #include "pictureviewitem.h"
 #include "xmpmetadata.h"
@@ -53,6 +52,7 @@ private slots:
     void on_durationChanged(qint64 value);
     void on_stateChanged (Phonon::State newState, Phonon::State oldState);
     void on_aboutToFinish ();
+    void on_availableSubitlesChanged ();
 
 public slots:
     void on_beginItemAnimationIn();
@@ -63,6 +63,7 @@ private:
     Phonon::AudioOutput *_audio;
     Phonon::VideoWidget *_video;
     Phonon::MediaObject *_player;
+    Phonon::MediaController *_controller;
 
     QString _fileName;
 

@@ -6,7 +6,6 @@
 #include <QPropertyAnimation>
 #include <QGraphicsScene>
 
-#include "videoitem.h"
 #include "videoitemphonon.h"
 #include "objectpixmapitem.h"
 
