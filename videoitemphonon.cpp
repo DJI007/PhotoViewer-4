@@ -130,12 +130,17 @@ void VideoItemPhonon::on_stateChanged(Phonon::State newState, Phonon::State oldS
     case Phonon::StoppedState:
         emit stopMedia();
         break;
+
+    case Phonon::LoadingState:
+    case Phonon::BufferingState:
+    case Phonon::ErrorState:
+        break;
     }
 }
 
 void VideoItemPhonon::on_availableSubitlesChanged()
 {
-    qDebug () << _controller->availableSubtitles().count();
+    qDebug () << _controller->availableSubtitles().count() << "-.-" << _controller->subtitleAutodetect();
 }
 
 void VideoItemPhonon::on_beginItemAnimationIn()

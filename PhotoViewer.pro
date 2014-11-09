@@ -43,7 +43,8 @@ SOURCES += main.cpp\
     animationrotatescale.cpp \
     videocontrolpanel.cpp \
     xmpmetadata.cpp \
-    videoitemphonon.cpp
+    videoitemphonon.cpp \
+    videofilter.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -72,7 +73,8 @@ HEADERS  += photoviewer.h \
     animationrotatescale.h \
     videocontrolpanel.h \
     xmpmetadata.h \
-    videoitemphonon.h
+    videoitemphonon.h \
+    videofilter.h
 
 FORMS    += photoviewer.ui
 
@@ -103,10 +105,11 @@ unix {
     # enum
     QMAKE_CXXFLAGS += -std=c++11
 
+    # exiv lib
     LIBS += -lexiv2
 
-    INCLUDEPATH += -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libxml2
-    LIBS += -pthread -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lxml2 -lglib-2.0
+    #INCLUDEPATH += -I/usr/include/gstreamer-0.10 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -I/usr/include/libxml2
+    #LIBS += -pthread -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lxml2 -lglib-2.0
 
     # marble
     #LIBS += -L/usr/local/lib -lmarblewidget
@@ -117,6 +120,11 @@ unix {
 
     # lib vlc-qt
     # LIBS += -lvlc-qt -lvlc-qt-widgets
+
+    # ffmpeg
+    INCLUDEPATH  += $$quote(/opt/ffmpeg-2.4.2/include/)
+    LIBS         += -L$$quote(/opt/ffmpeg-2.4.2/lib/)
+    LIBS         += -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lpostproc
 }
 
 OTHER_FILES += \
