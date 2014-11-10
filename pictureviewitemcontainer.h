@@ -44,23 +44,24 @@ signals:
     void showTimeEnded ();
     void requestMapWindow (double latitude, double longitude, double altitude);
 
+    void beginRotateAnimation ();
+    void endRotateAnimation ();
+
 public slots:
-    void on_itemLoaded();
+    void setItemLoaded();
 
-    void on_beginItemAnimationIn ();
-    void on_endItemAnimationIn ();
-    void on_beginItemAnimationOut ();
-    void on_endItemAnimationOut ();
+    void beginItemAnimationIn ();
+    void endItemAnimationIn ();
+    void beginItemAnimationOut ();
+    void endItemAnimationOut ();
 
-    void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
-    void on_reverseGeocode_finished();
-
-    void on_geoInfo_leftMousePressed ();
-
-    void on_showTimeEnded();
+    void setShowTimeEnded();
 
 private slots:
-    void on_finishRotateAnimation ();
+    void on_endRotateAnimation ();
+    void on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString);
+    void on_reverseGeocode_finished();
+    void on_geoInfo_leftMousePressed ();
 
 private:
     QString _fileName;

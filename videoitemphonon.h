@@ -4,6 +4,7 @@
 #include <QGraphicsRectItem>
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
+#include <QThread>
 
 #include <phonon/mediaobject.h>
 #include <phonon/videowidget.h>
@@ -54,10 +55,18 @@ private slots:
     void on_aboutToFinish ();
     void on_availableSubitlesChanged ();
 
+    void on_rotateThreadFinished ();
+    void on_rotateThreadProgress (double progress);
+
 public slots:
-    void on_beginItemAnimationIn();
-    void on_endItemAnimationIn();
-    void on_beginItemAnimationOut();
+    void beginItemAnimationIn();
+    void endItemAnimationIn();
+    void beginItemAnimationOut();
+
+    void beginRotateLeftAnimation();
+    void endRotateLeftAnimation();
+    void beginRotateRightAnimation();
+    void endRotateRightAnimation();
 
 private:
     Phonon::AudioOutput *_audio;
@@ -72,6 +81,8 @@ private:
     VideoControlPanel *_panel;
 
     XMPMetadata *_videoData;
+
+    QThread _rotateThread;
 
     void createPanel ();
     void setPanelPosition ();

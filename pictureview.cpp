@@ -125,11 +125,11 @@ void PictureView::showPicture(PictureAnimationType animType)
         connect (this,
                  SIGNAL(beginItemAnimationIn()),
                  _currentItem,
-                 SLOT(on_beginItemAnimationIn()));
+                 SLOT(beginItemAnimationIn()));
         connect (this,
                  SIGNAL(endItemAnimationIn()),
                  _currentItem,
-                 SLOT(on_endItemAnimationIn()));
+                 SLOT(endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem->graphicsItem());
         _currentItem->setInfoVisible(_infoVisible);

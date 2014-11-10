@@ -47,7 +47,7 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     connect (dynamic_cast<QObject *> (_item),
              SIGNAL(itemLoaded()),
              this,
-             SLOT(on_itemLoaded()));
+             SLOT(setItemLoaded()));
 
     _geoProvider = new QGeoServiceProvider("osm");
     if (_geoProvider) {
@@ -90,16 +90,16 @@ void PictureViewItemContainer::setShowTime(int time)
     _item->setShowTime (time);
     if (time > 0) {
         connect(dynamic_cast<QObject *> (_item), SIGNAL(showTimeEnded()),
-                this, SLOT(on_showTimeEnded()));
+                this, SLOT(setShowTimeEnded()));
     }
 }
 
-void PictureViewItemContainer::on_showTimeEnded()
+void PictureViewItemContainer::setShowTimeEnded()
 {
     emit showTimeEnded ();
 }
 
-void PictureViewItemContainer::on_itemLoaded()
+void PictureViewItemContainer::setItemLoaded()
 {
     _info = createInfo();
     _geoInfo = createGeoInfo();
@@ -333,14 +333,14 @@ double PictureViewItemContainer::longitude()
     return 0;
 }
 
-void PictureViewItemContainer::on_beginItemAnimationIn()
+void PictureViewItemContainer::beginItemAnimationIn()
 {
-    _item->on_beginItemAnimationIn();
+    _item->beginItemAnimationIn();
 }
 
-void PictureViewItemContainer::on_endItemAnimationIn()
+void PictureViewItemContainer::endItemAnimationIn()
 {
-    _item->on_endItemAnimationIn();
+    _item->endItemAnimationIn();
 /*
     if (_infoVisible) {
         showInfo(true);
@@ -348,14 +348,14 @@ void PictureViewItemContainer::on_endItemAnimationIn()
 */
 }
 
-void PictureViewItemContainer::on_beginItemAnimationOut()
+void PictureViewItemContainer::beginItemAnimationOut()
 {
-    _item->on_beginItemAnimationOut();
+    _item->beginItemAnimationOut();
 }
 
-void PictureViewItemContainer::on_endItemAnimationOut()
+void PictureViewItemContainer::endItemAnimationOut()
 {
-    _item->on_endItemAnimationOut();
+    _item->endItemAnimationOut();
 }
 
 void PictureViewItemContainer::on_reverseGeocode_error(QGeoCodeReply::Error error, const QString &errorString)
@@ -430,6 +430,19 @@ void PictureViewItemContainer::doRotation(bool left)
     qreal sceneWidth;
     qreal sceneHeight;
 
+    if (left) {
+        connect (this, SIGNAL(beginRotateAnimation()),
+                 dynamic_cast<QObject *> (_item), SLOT(beginRotateLeftAnimation()));
+        connect (this, SIGNAL(endRotateAnimation()),
+                 dynamic_cast<QObject *> (_item), SLOT(endRotateLeftAnimation()));
+    }
+    else {
+        connect (this, SIGNAL(beginRotateAnimation()),
+                 dynamic_cast<QObject *> (_item), SLOT(beginRotateRightAnimation()));
+        connect (this, SIGNAL(endRotateAnimation()),
+                 dynamic_cast<QObject *> (_item), SLOT(endRotateRightAnimation()));
+    }
+
     gTarget = dynamic_cast<QGraphicsItem *> (_item);
 
     if (left) {
@@ -475,12 +488,14 @@ void PictureViewItemContainer::doRotation(bool left)
     connect(anim,
             SIGNAL(finished()),
             this,
-            SLOT(on_finishRotateAnimation ()));
+            SLOT(on_endRotateAnimation ()));
+
+    emit beginRotateAnimation();
 
     anim->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-void PictureViewItemContainer::on_finishRotateAnimation ()
+void PictureViewItemContainer::on_endRotateAnimation ()
 {
     QGraphicsItem *gItem;
 
@@ -495,4 +510,6 @@ void PictureViewItemContainer::on_finishRotateAnimation ()
     if (_infoVisible) {
         showInfo(true);
     }
+
+    emit endRotateAnimation();
 }

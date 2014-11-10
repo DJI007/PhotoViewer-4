@@ -32,7 +32,7 @@ void VideoFilter::transpose(VideoFilter::TransposeDirection direction)
 {
     initAV ();
 
-    showFFMpegInfo();
+    // showFFMpegInfo();
 
     openInputFile ();
     openOutputTempFile ();
@@ -44,9 +44,9 @@ void VideoFilter::transpose(VideoFilter::TransposeDirection direction)
     AVPacket packet;
 
     while (readPacket(&packet) >= 0) {
-        updateProgress (packet);
+        updateProgress (&packet);
 
-        writePacket(packet);
+        writePacket(&packet);
 
         av_free_packet(&packet);
     }
@@ -55,23 +55,25 @@ void VideoFilter::transpose(VideoFilter::TransposeDirection direction)
     close ();
 
     replaceInputFile ();
+
+    emit finished ();
 }
 
-void VideoFilter::updateProgress (AVPacket pkt)
+void VideoFilter::updateProgress (AVPacket *pkt)
 {
     int streamIndex;
     AVStream *stream;
 
-    streamIndex = pkt.stream_index;
+    streamIndex = pkt->stream_index;
     stream = _inCtx->streams[streamIndex];
-    if (stream->codec->codec_type == AVMEDIA_TYPE_VIDEO && pkt.dts > 0) {
+    if (stream->codec->codec_type == AVMEDIA_TYPE_VIDEO && pkt->dts > 0) {
         int total;
 
         total = stream->duration + stream->start_time;
 
-        qDebug () << "Progress: " << ((double) (pkt.dts * 100) / (double)total) << "%";
+        // qDebug () << "Progress: " << ((double) (pkt->dts * 100) / (double)total) << "%";
 
-        emit progressChanged((pkt.dts * 100) / total);
+        emit progressChanged((pkt->dts * 100) / total);
     }
 }
 
@@ -274,10 +276,10 @@ bool VideoFilter::initFilters(VideoFilter::TransposeDirection direction)
 
         if (_inCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
             switch (direction) {
-            case TransposeDirection::Clock:
+            case TransposeDirection::ClockWise:
                 filterSpec = "transpose=clock";
                 break;
-            case TransposeDirection::ClockFlip:
+            case TransposeDirection::ClockWiseFlip:
                 filterSpec = "transpose=clock_flip";
                 break;
             case TransposeDirection::CounterClockWise:
@@ -504,7 +506,7 @@ int VideoFilter::readPacket(AVPacket *packet)
     return av_read_frame(_inCtx, packet);
 }
 
-void VideoFilter::writePacket(AVPacket packet)
+void VideoFilter::writePacket(AVPacket *packet)
 {
     int streamIndex;
     enum AVMediaType type;
@@ -914,4 +916,5 @@ void FilteringContext::setFilterGraph(AVFilterGraph *value)
 {
     _filterGraph = value;
 }
+
 

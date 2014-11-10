@@ -9,6 +9,7 @@
 
 #include "abstractmetadata.h"
 #include "settingshelper.h"
+#include "videofilter.h"
 
 VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 {
@@ -37,18 +38,6 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     createPanel();
 
-    connect (_player, SIGNAL(tick(qint64)),
-             _panel, SLOT(setPosition(qint64)));
-    connect (_player, SIGNAL(aboutToFinish()),
-             this, SLOT(on_aboutToFinish()));
-    connect (_player, SIGNAL(totalTimeChanged(qint64)),
-             this, SLOT(on_durationChanged (qint64)));
-    connect (_player, SIGNAL(stateChanged(Phonon::State,Phonon::State)),
-             this, SLOT(on_stateChanged (Phonon::State,Phonon::State)));
-
-    connect (_audio, SIGNAL(volumeChanged(qreal)),
-             _panel, SLOT(setVolume(qreal)));
-
     connect (_controller, SIGNAL(availableSubtitlesChanged()),
              this, SLOT(on_availableSubitlesChanged ()));
 }
@@ -64,6 +53,9 @@ VideoItemPhonon::~VideoItemPhonon()
     delete _audio;
 
     delete _controller;
+
+    _rotateThread.quit();
+    _rotateThread.wait ();
 }
 
 void VideoItemPhonon::load()
@@ -143,17 +135,17 @@ void VideoItemPhonon::on_availableSubitlesChanged()
     qDebug () << _controller->availableSubtitles().count() << "-.-" << _controller->subtitleAutodetect();
 }
 
-void VideoItemPhonon::on_beginItemAnimationIn()
+void VideoItemPhonon::beginItemAnimationIn()
 {
     _player->pause();
 }
 
-void VideoItemPhonon::on_endItemAnimationIn()
+void VideoItemPhonon::endItemAnimationIn()
 {
     _player->play();
 }
 
-void VideoItemPhonon::on_beginItemAnimationOut()
+void VideoItemPhonon::beginItemAnimationOut()
 {
     _player->pause();
 }
@@ -172,7 +164,7 @@ void VideoItemPhonon::createPanel()
     _panel->setVolume(_audio->volume());
     _panel->hide();
 
-
+    // this -> panel
     connect (this, SIGNAL(playMedia()),
              _panel, SLOT(play()));
     connect (this, SIGNAL(pauseMedia()),
@@ -180,6 +172,7 @@ void VideoItemPhonon::createPanel()
     connect (this, SIGNAL(stopMedia()),
              _panel, SLOT(stop()));
 
+    // panel -> player
     connect (_panel, SIGNAL(positionChanged(qint64)),
              _player, SLOT(seek(qint64)));
     connect (_panel, SIGNAL(playClicked()),
@@ -187,8 +180,19 @@ void VideoItemPhonon::createPanel()
     connect (_panel, SIGNAL(pauseClicked()),
              _player, SLOT(pause()));
 
-    connect (_panel, SIGNAL(volumeChanged(qreal)),
-             _audio, SLOT(setVolume(qreal)));
+    // panel -> player (audio)
+    connect (_audio, SIGNAL(volumeChanged(qreal)),
+             _panel, SLOT(setVolume(qreal)));
+
+    // player -> panel
+    connect (_player, SIGNAL(tick(qint64)),
+             _panel, SLOT(setPosition(qint64)));
+    connect (_player, SIGNAL(aboutToFinish()),
+             this, SLOT(on_aboutToFinish()));
+    connect (_player, SIGNAL(totalTimeChanged(qint64)),
+             this, SLOT(on_durationChanged (qint64)));
+    connect (_player, SIGNAL(stateChanged(Phonon::State,Phonon::State)),
+             this, SLOT(on_stateChanged (Phonon::State,Phonon::State)));
 }
 
 void VideoItemPhonon::setPanelPosition()
@@ -206,12 +210,59 @@ void VideoItemPhonon::setShowTime(int time)
 
 bool VideoItemPhonon::rotateLeft()
 {
-    // TODO: Rotate video
     return true;
 }
 
 bool VideoItemPhonon::rotateRight()
 {
-    // TODO: Rotate video
     return true;
+}
+
+void VideoItemPhonon::beginRotateLeftAnimation()
+{
+    _player->pause();
+    _panel->hide();
+}
+
+void VideoItemPhonon::endRotateLeftAnimation()
+{
+    VideoFilter filter(_fileName);
+
+    filter.moveToThread(&_rotateThread);
+
+    connect (&_rotateThread, SIGNAL(finished()), filter, SLOT(deleteLater));
+    connect (this, SIGNAL(rotateVideoLeft), filter, SLOT(transpose()));
+    connect (filter, SIGNAL(transposeDone()), this, SLOT(on_rotateThreadFinished()));
+
+    _rotateThread.start();
+    // filter.transpose(VideoFilter::TransposeDirection::CounterClockWise);
+
+    setPanelPosition();
+    _panel->show();
+}
+
+void VideoItemPhonon::beginRotateRightAnimation()
+{
+    _player->pause();
+    _panel->hide();
+}
+
+void VideoItemPhonon::endRotateRightAnimation()
+{
+    VideoFilter filter(_fileName);
+
+    filter.transpose(VideoFilter::TransposeDirection::ClockWise);
+
+    setPanelPosition();
+    _panel->show();
+}
+
+void VideoItemPhonon::on_rotateThreadFinished()
+{
+
+}
+
+void VideoItemPhonon::on_rotateThreadProgress(double progress)
+{
+
 }

@@ -44,14 +44,15 @@ public:
     ~VideoFilter ();
 
     enum TransposeDirection {
-        ClockFlip,
-        Clock,
+        ClockWiseFlip,
+        ClockWise,
         CounterClockWiseFlip,
         CounterClockWise
     };
 
 signals:
     void progressChanged (double percent);
+    void transposeDone ();
 
 public slots:
     void transpose (VideoFilter::TransposeDirection direction);
@@ -79,7 +80,7 @@ private:
 
     bool useADTSToASCFilter (int streamIndex);
 
-    void updateProgress (AVPacket pkt);
+    void updateProgress (AVPacket *pkt);
 
     AVFilterContext *createVideoBufferContextIn (AVCodecContext *ctx, AVFilterGraph *filterGraph);
     AVFilterContext *createVideoBufferContextOut (AVCodecContext *ctx, AVFilterGraph *filterGraph);
@@ -87,7 +88,7 @@ private:
     AVFilterContext *createAudioBufferContextOut (AVCodecContext *ctx, AVFilterGraph *filterGraph);
 
     int readPacket(AVPacket *packet);
-    void writePacket (AVPacket packet);
+    void writePacket (AVPacket *packet);
 
     int filterEncodeWriteFrame(AVFrame *frame, unsigned int streamIndex);
     int encodeWriteFrame(AVFrame *filtFrame, unsigned int streamIndex, int *gotFrame);
