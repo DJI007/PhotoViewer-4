@@ -430,6 +430,9 @@ void PictureViewItemContainer::doRotation(bool left)
     qreal sceneWidth;
     qreal sceneHeight;
 
+    this->disconnect(SIGNAL(beginRotateAnimation()));
+    this->disconnect(SIGNAL(endRotateAnimation()));
+
     if (left) {
         connect (this, SIGNAL(beginRotateAnimation()),
                  dynamic_cast<QObject *> (_item), SLOT(beginRotateLeftAnimation()));

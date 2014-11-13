@@ -99,6 +99,10 @@ win32|win32-msvc* {
     #INCLUDEPATH += $$quote(C:/marble-tmp/)
     #LIBS += $$quote(C:/Program Files/Marble/marblewidget.dll)
 
+    # ffmpeg
+    INCLUDEPATH  += $$quote(C:/Users/dmagro/git/ffmpeg-dev/include)
+    LIBS         += -L$$quote(C:/Users/dmagro/git/ffmpeg-dev/lib)
+    LIBS         += -lavfilter -lavformat -lavcodec -lavutil
 }
 
 unix {

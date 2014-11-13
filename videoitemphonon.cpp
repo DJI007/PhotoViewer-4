@@ -9,7 +9,6 @@
 
 #include "abstractmetadata.h"
 #include "settingshelper.h"
-#include "videofilter.h"
 
 VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 {
@@ -20,7 +19,7 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     _emitShowTimeEnded = false;
 
-    _player = new Phonon::MediaObject();
+    _player = new Phonon::MediaObject(parent);
     _player->setTickInterval(1000);
 
     _audio = new Phonon::AudioOutput(Phonon::VideoCategory);
@@ -40,6 +39,10 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     connect (_controller, SIGNAL(availableSubtitlesChanged()),
              this, SLOT(on_availableSubitlesChanged ()));
+
+    _rotateFilter = new VideoFilter();
+    connect (_rotateFilter, SIGNAL(rotateDone()),
+             this, SLOT(on_videoFilterFinished()));
 }
 
 VideoItemPhonon::~VideoItemPhonon()
@@ -54,8 +57,7 @@ VideoItemPhonon::~VideoItemPhonon()
 
     delete _controller;
 
-    _rotateThread.quit();
-    _rotateThread.wait ();
+    delete _rotateFilter;
 }
 
 void VideoItemPhonon::load()
@@ -210,6 +212,11 @@ void VideoItemPhonon::setShowTime(int time)
 
 bool VideoItemPhonon::rotateLeft()
 {
+    _player->clear();
+    _rotateFilter->transposeAsync(_fileName, VideoFilter::RotateDirection::CounterClockWise);
+
+    qDebug () << "Rotate left done!!";
+
     return true;
 }
 
@@ -220,49 +227,42 @@ bool VideoItemPhonon::rotateRight()
 
 void VideoItemPhonon::beginRotateLeftAnimation()
 {
+    qDebug () << "BeginRotateLeftAnimation";
     _player->pause();
     _panel->hide();
 }
 
 void VideoItemPhonon::endRotateLeftAnimation()
 {
-    VideoFilter filter(_fileName);
+    qDebug () << "EndRotateLeftAnimation: Calling rotate left";
+    //_rotateFilter->rotate(_fileName, VideoFilter::RotateDirection::CounterClockWise);
 
-    filter.moveToThread(&_rotateThread);
-
-    connect (&_rotateThread, SIGNAL(finished()), filter, SLOT(deleteLater));
-    connect (this, SIGNAL(rotateVideoLeft), filter, SLOT(transpose()));
-    connect (filter, SIGNAL(transposeDone()), this, SLOT(on_rotateThreadFinished()));
-
-    _rotateThread.start();
-    // filter.transpose(VideoFilter::TransposeDirection::CounterClockWise);
-
-    setPanelPosition();
-    _panel->show();
+    load ();
+    // setPanelPosition();
+    // _panel->show();
 }
 
 void VideoItemPhonon::beginRotateRightAnimation()
 {
+    qDebug () << "BeginRotateRightAnimation";
     _player->pause();
     _panel->hide();
 }
 
 void VideoItemPhonon::endRotateRightAnimation()
 {
-    VideoFilter filter(_fileName);
+    _player->clear();
 
-    filter.transpose(VideoFilter::TransposeDirection::ClockWise);
+    qDebug () << "EndRotateRightAnimation: Calling rotate right";
+    _rotateFilter->rotate(_fileName, VideoFilter::RotateDirection::ClockWise);
 
-    setPanelPosition();
-    _panel->show();
+    // _panel->show();
+    // setPanelPosition();
 }
 
-void VideoItemPhonon::on_rotateThreadFinished()
+void VideoItemPhonon::on_videoFilterFinished()
 {
-
+    qDebug () << "Rotate done";
+    //load ();
 }
 
-void VideoItemPhonon::on_rotateThreadProgress(double progress)
-{
-
-}

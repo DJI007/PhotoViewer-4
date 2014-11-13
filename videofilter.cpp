@@ -3,6 +3,9 @@
 #include <QDir>
 #include <QDebug>
 #include <QDate>
+#include <QSignalMapper>
+
+// ffmpeg -i 0001_00001.MTS -vf "transpose=1" -vcodec libx264 -acodec copy 0001_00001_ffmpeg.mts
 
 inline int snprintf(char* str, size_t size, const char* format, ...)
 {
@@ -16,26 +19,34 @@ inline int snprintf(char* str, size_t size, const char* format, ...)
     return count;
 }
 
-VideoFilter::VideoFilter(QString fileName, QObject *parent) :
+VideoFilter::VideoFilter(QObject *parent) :
     QObject(parent)
 {
-    _fileName = fileName;
     _filterCtx = NULL;
+
+    _operationDialog.setLabelText(tr("Rotating video"));
+    _operationDialog.setCancelButtonText(tr("Cancel"));
+    _operationDialog.setMinimum(0);
+    _operationDialog.setMaximum(100);
+    _operationDialog.setWindowModality(Qt::ApplicationModal);
+    _operationDialog.hide();
 }
 
 VideoFilter::~VideoFilter()
 {
-    //close ();
 }
 
-void VideoFilter::transpose(VideoFilter::TransposeDirection direction)
+
+void VideoFilter::transposeAsync(QString fileName, VideoFilter::RotateDirection direction)
 {
+    _operationDialog.show();
+
     initAV ();
 
     // showFFMpegInfo();
 
-    openInputFile ();
-    openOutputTempFile ();
+    openInputFile (fileName);
+    openOutputTempFile (fileName);
 
     initFilters (direction);
 
@@ -54,9 +65,11 @@ void VideoFilter::transpose(VideoFilter::TransposeDirection direction)
     flush ();
     close ();
 
-    replaceInputFile ();
+    replaceInputFile (fileName);
 
-    emit finished ();
+    emit rotateDone ();
+
+    _operationDialog.hide();
 }
 
 void VideoFilter::updateProgress (AVPacket *pkt)
@@ -72,6 +85,8 @@ void VideoFilter::updateProgress (AVPacket *pkt)
         total = stream->duration + stream->start_time;
 
         // qDebug () << "Progress: " << ((double) (pkt->dts * 100) / (double)total) << "%";
+
+        _operationDialog.setValue((pkt->dts * 100) / total);
 
         emit progressChanged((pkt->dts * 100) / total);
     }
@@ -89,12 +104,12 @@ void VideoFilter::initAV()
     avcodec_register_all();
 }
 
-bool VideoFilter::openInputFile()
+bool VideoFilter::openInputFile(QString fileName)
 {
     QByteArray fileNameChar;
     _inCtx = NULL;
 
-    fileNameChar = _fileName.toLatin1();
+    fileNameChar = fileName.toLatin1();
     if (avformat_open_input(&_inCtx, fileNameChar.data(), NULL, NULL) < 0) {
         return false;
     }
@@ -125,7 +140,7 @@ bool VideoFilter::openInputFile()
     return true;
 }
 
-bool VideoFilter::openOutputTempFile()
+bool VideoFilter::openOutputTempFile(QString fileName)
 {
     AVStream *outStream;
     AVStream *inStream;
@@ -133,14 +148,14 @@ bool VideoFilter::openOutputTempFile()
     AVCodecContext *encCtx;
     AVCodec *encoder;
     unsigned int i;
-    QByteArray fileName;
+    QByteArray tempFileName;
 
-    fileName = getTempFileName().toLatin1();
+    tempFileName = getTempFileName(fileName).toLatin1();
 
-    qDebug () << "Out file: " << getTempFileName();
+    qDebug () << "Out file: " << getTempFileName(fileName);
 
     _outCtx = NULL;
-    if (avformat_alloc_output_context2(&_outCtx, NULL, NULL, fileName.data()) < 0) {
+    if (avformat_alloc_output_context2(&_outCtx, NULL, NULL, tempFileName.data()) < 0) {
         return false;
     }
 
@@ -231,11 +246,11 @@ bool VideoFilter::openOutputTempFile()
     }
 
 #ifdef QT_DEBUG
-    av_dump_format(_outCtx, 0, fileName.data(), 1);
+    av_dump_format(_outCtx, 0, tempFileName.data(), 1);
 #endif
 
     if (!(_outCtx->oformat->flags & AVFMT_NOFILE)) {
-        if (avio_open(&_outCtx->pb, fileName.data(), AVIO_FLAG_WRITE) < 0) {
+        if (avio_open(&_outCtx->pb, tempFileName.data(), AVIO_FLAG_WRITE) < 0) {
             return false;
         }
     }
@@ -248,16 +263,16 @@ bool VideoFilter::openOutputTempFile()
     return true;
 }
 
-QString VideoFilter::getTempFileName()
+QString VideoFilter::getTempFileName(QString fileName)
 {
-    QFileInfo info(_fileName);
+    QFileInfo info(fileName);
 
     // return QDir::tempPath().append("/").append("_").append(info.fileName());
     return info.absolutePath().append("/_").append(info.fileName());
 }
 
 
-bool VideoFilter::initFilters(VideoFilter::TransposeDirection direction)
+bool VideoFilter::initFilters(VideoFilter::RotateDirection direction)
 {
     const char *filterSpec;
 
@@ -276,16 +291,16 @@ bool VideoFilter::initFilters(VideoFilter::TransposeDirection direction)
 
         if (_inCtx->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
             switch (direction) {
-            case TransposeDirection::ClockWise:
+            case RotateDirection::ClockWise:
                 filterSpec = "transpose=clock";
                 break;
-            case TransposeDirection::ClockWiseFlip:
+            case RotateDirection::ClockWiseFlip:
                 filterSpec = "transpose=clock_flip";
                 break;
-            case TransposeDirection::CounterClockWise:
+            case RotateDirection::CounterClockWise:
                 filterSpec = "transpose=cclock";
                 break;
-            case TransposeDirection::CounterClockWiseFlip:
+            case RotateDirection::CounterClockWiseFlip:
                 filterSpec = "transpose=cclock_flip";
                 break;
             }
@@ -511,7 +526,7 @@ void VideoFilter::writePacket(AVPacket *packet)
     int streamIndex;
     enum AVMediaType type;
 
-    streamIndex = packet.stream_index;
+    streamIndex = packet->stream_index;
     type = _inCtx->streams[streamIndex]->codec->codec_type;
 
     if (type == AVMEDIA_TYPE_VIDEO || type == AVMEDIA_TYPE_AUDIO) {
@@ -524,7 +539,7 @@ void VideoFilter::writePacket(AVPacket *packet)
 
             frame = av_frame_alloc();
             if (frame) {
-                av_packet_rescale_ts(&packet,
+                av_packet_rescale_ts(packet,
                                      _inCtx->streams[streamIndex]->time_base,
                                      _inCtx->streams[streamIndex]->codec->time_base);
 
@@ -537,13 +552,13 @@ void VideoFilter::writePacket(AVPacket *packet)
                     ret = avcodec_decode_video2(_inCtx->streams[streamIndex]->codec,
                                                 frame,
                                                 &gotFrame,
-                                                &packet);
+                                                packet);
                 }
                 else if (type == AVMEDIA_TYPE_AUDIO) {
                     ret = avcodec_decode_audio4(_inCtx->streams[streamIndex]->codec,
                                                 frame,
                                                 &gotFrame,
-                                                &packet);
+                                                packet);
                 }
 
                 if (ret < 0) {
@@ -563,11 +578,11 @@ void VideoFilter::writePacket(AVPacket *packet)
         }
         else {
             // remux this frame without reencoding
-            av_packet_rescale_ts(&packet,
+            av_packet_rescale_ts(packet,
                                  _inCtx->streams[streamIndex]->time_base,
                                  _outCtx->streams[streamIndex]->time_base);
 
-            av_interleaved_write_frame(_outCtx, &packet);
+            av_interleaved_write_frame(_outCtx, packet);
         }
     }
 /*
@@ -616,7 +631,7 @@ int VideoFilter::filterEncodeWriteFrame(AVFrame *frame, unsigned int streamIndex
     int ret;
     AVFrame *filtFrame;
 
-    // qDebug () << "Pushing decoded frame to filters";
+    qDebug () << "Pushing decoded frame to filters";
 
     // push the decoded frame into the filtergraph
     ret = av_buffersrc_add_frame_flags(_filterCtx[streamIndex].bufferSrcCtx(),
@@ -634,10 +649,12 @@ int VideoFilter::filterEncodeWriteFrame(AVFrame *frame, unsigned int streamIndex
             break;
         }
 
-        // qDebug () << "Pulling filtered frame from filters";
+        qDebug () << "Pulling filtered frame from filters";
         ret = av_buffersink_get_frame(_filterCtx[streamIndex].bufferSinkCtx(),
                                       filtFrame);
         if (ret < 0) {
+            qDebug () << "Pulling filtered frame: ret < 0: " << ret << "-.-" << (ret == AVERROR_EOF);
+
             /* if no more frames for output - returns AVERROR(EAGAIN)
              * if flushed and no more frames for output - returns AVERROR_EOF
              * rewrite retcode to 0 to show it as normal procedure completion
@@ -650,6 +667,8 @@ int VideoFilter::filterEncodeWriteFrame(AVFrame *frame, unsigned int streamIndex
         }
 
         filtFrame->pict_type = AV_PICTURE_TYPE_NONE;
+
+        qDebug () << "Call encodeWriteFrame";
         ret = encodeWriteFrame(filtFrame, streamIndex, NULL);
         if (ret < 0)
             break;
@@ -670,7 +689,7 @@ int VideoFilter::encodeWriteFrame(AVFrame *filtFrame, unsigned int streamIndex, 
     if (!gotFrame)
         gotFrame = &gotFrameLocal;
 
-    // qDebug () << "Encoding frame!!";
+    qDebug () << "Encoding frame!!";
 
     // encode filtered frame
     encPkt.data = NULL;
@@ -724,6 +743,10 @@ int VideoFilter::encodeWriteFrame(AVFrame *filtFrame, unsigned int streamIndex, 
         ret = av_interleaved_write_frame(_outCtx, &encPkt);
     }
 
+    av_free_packet(&encPkt);
+
+    qDebug () << "encodeWriteFrame done: " << ret;
+
     return ret;
 }
 
@@ -746,16 +769,18 @@ void VideoFilter::flush()
             continue;
         }
 
+        qDebug () << "Flushing-........";
+
         // flush filter
         if (!_filterCtx[i].filterGraph())
             continue;
 
+        qDebug () << "Flushing 2-........";
+
         filterEncodeWriteFrame(NULL, i);
 
         // flush encoder
-        if (flushEncoder(i) < 0) {
-            break;
-        }
+        flushEncoder(i);
     }
 
     av_write_trailer(_outCtx);
@@ -766,8 +791,12 @@ int VideoFilter::flushEncoder (int streamIndex)
     int ret;
     int gotFrame;
 
+    qDebug () << "Flusing encoder " << streamIndex;
+
     if (_outCtx->streams[streamIndex]->codec->codec->capabilities & CODEC_CAP_DELAY) {
         while (1) {
+            qDebug () << "Encode and write frame ";
+
             ret = encodeWriteFrame(NULL, streamIndex, &gotFrame);
 
             if (ret < 0)
@@ -795,8 +824,9 @@ void VideoFilter::close()
         if (_outCtx &&
                 _outCtx->nb_streams > i &&
                 _outCtx->streams[i] &&
-                _outCtx->streams[i]->codec)
+                _outCtx->streams[i]->codec) {
             avcodec_close(_outCtx->streams[i]->codec);
+        }
     }
 
     delete [] _filterCtx;
@@ -810,24 +840,36 @@ void VideoFilter::close()
 }
 
 
-bool VideoFilter::replaceInputFile()
+bool VideoFilter::replaceInputFile(QString fileName)
 {
     QFileInfo info;
     QString rotatedPath;
 
-    info.setFile(_fileName);
+    info.setFile(fileName);
     rotatedPath = info.absolutePath().append("/").append(".rotated_video");
 
     if (info.absoluteDir().mkpath(rotatedPath)) {
         QString newFileName;
 
-        newFileName = info.fileName().append(".").append(
-                    QDateTime::currentDateTime().toString ("yyyyMMddhhmmss"));
+        newFileName = rotatedPath;
+        newFileName.append("/");
+        newFileName.append(info.fileName());
+        newFileName.append(".");
+        newFileName.append(QDateTime::currentDateTime().toString ("yyyyMMddhhmmss"));
 
-        if (QFile::rename(_fileName, rotatedPath.append("/").append (newFileName))) {
-            if (QFile::rename(getTempFileName(), _fileName)) {
+        if (QFile::rename(fileName, newFileName)) {
+            qDebug () << "New file name: " << newFileName;
+            if (QFile::rename(getTempFileName(fileName), fileName)) {
+                qDebug () << "Old file overwrited";
+
                 return true;
             }
+            else {
+                qDebug () << "Can't rename temp file to file:" << getTempFileName(fileName) << "-.-" << fileName;
+            }
+        }
+        else {
+            qDebug () << "Can't rename file to new file: " << newFileName;
         }
     }
 

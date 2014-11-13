@@ -4,7 +4,6 @@
 #include <QGraphicsRectItem>
 #include <QPushButton>
 #include <QGraphicsProxyWidget>
-#include <QThread>
 
 #include <phonon/mediaobject.h>
 #include <phonon/videowidget.h>
@@ -14,6 +13,7 @@
 #include "pictureviewitem.h"
 #include "xmpmetadata.h"
 #include "videocontrolpanel.h"
+#include "videofilter.h"
 
 class VideoItemPhonon : public QGraphicsProxyWidget,
         public PictureViewItem
@@ -49,14 +49,15 @@ signals:
 
     void showTimeEnded ();
 
+    void rotateVideoLeft ();
+
 private slots:
     void on_durationChanged(qint64 value);
     void on_stateChanged (Phonon::State newState, Phonon::State oldState);
     void on_aboutToFinish ();
     void on_availableSubitlesChanged ();
 
-    void on_rotateThreadFinished ();
-    void on_rotateThreadProgress (double progress);
+    void on_videoFilterFinished ();
 
 public slots:
     void beginItemAnimationIn();
@@ -82,7 +83,7 @@ private:
 
     XMPMetadata *_videoData;
 
-    QThread _rotateThread;
+    VideoFilter *_rotateFilter;
 
     void createPanel ();
     void setPanelPosition ();

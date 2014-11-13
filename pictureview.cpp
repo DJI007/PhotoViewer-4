@@ -99,9 +99,9 @@ void PictureView::loadPicture(QString fileName)
         disconnect(this, SIGNAL(beginItemAnimationIn()), _prevItem, 0);
         disconnect(this, SIGNAL(endItemAnimationIn()), _prevItem, 0);
         connect(this, SIGNAL(beginItemAnimationOut()),
-                _prevItem, SLOT(on_beginItemAnimationOut()));
+                _prevItem, SLOT(beginItemAnimationOut()));
         connect(this, SIGNAL(endItemAnimationOut()),
-                _prevItem, SLOT(on_endItemAnimationOut()));
+                _prevItem, SLOT(endItemAnimationOut()));
     }
 
     _currentItem = new PictureViewItemContainer(fileName, this);

@@ -2,6 +2,7 @@
 #define VIDEOFILTER_H
 
 #include <QObject>
+#include <QProgressDialog>
 
 extern "C" {
 
@@ -39,38 +40,45 @@ private:
 class VideoFilter : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit VideoFilter(QString fileName, QObject *parent = 0);
+    explicit VideoFilter(QObject *parent = 0);
     ~VideoFilter ();
 
-    enum TransposeDirection {
+    enum RotateDirection {
         ClockWiseFlip,
         ClockWise,
         CounterClockWiseFlip,
         CounterClockWise
     };
 
+
 signals:
+    void rotate (QString fileName, VideoFilter::RotateDirection direction);
+
     void progressChanged (double percent);
-    void transposeDone ();
+    void rotateDone ();
 
 public slots:
-    void transpose (VideoFilter::TransposeDirection direction);
+    void transposeAsync (QString fileName, VideoFilter::RotateDirection direction);
+
+private slots:
 
 private:
-    QString _fileName;
     AVFormatContext *_inCtx;
     AVFormatContext *_outCtx;
     FilteringContext *_filterCtx;
 
+    QProgressDialog _operationDialog;
+
     void initAV();
 
-    bool openInputFile();
-    bool openOutputTempFile();
-    bool replaceInputFile();
-    QString getTempFileName ();
+    bool openInputFile(QString fileName);
+    bool openOutputTempFile(QString fileName);
+    bool replaceInputFile(QString fileName);
+    QString getTempFileName (QString fileName);
 
-    bool initFilters (TransposeDirection direction);
+    bool initFilters (RotateDirection direction);
     bool initFilter (FilteringContext *fctx,
                      AVCodecContext *decCtx,
                      AVCodecContext *encCtx,
