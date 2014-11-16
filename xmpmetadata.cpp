@@ -11,46 +11,32 @@
 
 XMPMetadata::XMPMetadata(QString fileName)
 {
-    try {
-        _fileData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
-        _fileData->readMetadata ();
+    _fileData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
+    _fileData->readMetadata ();
 
-        for (Exiv2::XmpData::const_iterator md = _fileData->xmpData().begin();
-             md != _fileData->xmpData().end(); ++md) {
-            std::cout << std::setfill(' ') << std::left
-                      << std::setw(44)
-                      << md->key() << " "
-                      << std::setw(9) << std::setfill(' ') << std::left
-                      << md->typeName() << " "
-                      << std::dec << std::setw(3)
-                      << std::setfill(' ') << std::right
-                      << md->count() << "  "
-                      << std::dec << md->value()
-                      << std::endl;
-        }
-
-        _hasData = true;
-    }
-    catch (Exiv2::AnyError& e) {
-        qDebug () << "Caught Exiv2 exception " << QString::fromUtf8 (e.what());
-
-        _hasData = false;
+    for (Exiv2::XmpData::const_iterator md = _fileData->xmpData().begin();
+         md != _fileData->xmpData().end(); ++md) {
+        std::cout << std::setfill(' ') << std::left
+                  << std::setw(44)
+                  << md->key() << " "
+                  << std::setw(9) << std::setfill(' ') << std::left
+                  << md->typeName() << " "
+                  << std::dec << std::setw(3)
+                  << std::setfill(' ') << std::right
+                  << md->count() << "  "
+                  << std::dec << md->value()
+                  << std::endl;
     }
 }
 
 bool XMPMetadata::hasKey(const char *keyName)
 {
-    if (_hasData) {
-        Exiv2::XmpKey key(keyName);
-        Exiv2::XmpData::iterator pos;
+    Exiv2::XmpKey key(keyName);
+    Exiv2::XmpData::iterator pos;
 
-        pos = _fileData->xmpData().findKey(key);
+    pos = _fileData->xmpData().findKey(key);
 
-        return (pos != _fileData->xmpData().end());
-    }
-    else {
-        return false;
-    }
+    return (pos != _fileData->xmpData().end());
 }
 
 
@@ -142,11 +128,6 @@ double XMPMetadata::getDoubleFromRational(const char *keyName)
 
         return -1;
     }
-}
-
-QString XMPMetadata::manufacturer()
-{
-    return "";
 }
 
 QDateTime XMPMetadata::pictureDate()

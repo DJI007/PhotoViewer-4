@@ -7,7 +7,8 @@
 class AbstractMetadata
 {
 public:
-    virtual QString manufacturer () = 0;
+    virtual ~AbstractMetadata () {}
+
     virtual QDateTime pictureDate () = 0;
     virtual int rating () = 0;
     virtual int orientation () = 0;
@@ -20,6 +21,7 @@ public:
     virtual double gpsAltitude () = 0;
 
     virtual void setRating (int value) = 0;
+    virtual void setOrientation (int value) = 0;
 };
 
 #endif // ABSTRACTMETADATA_H

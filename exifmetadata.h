@@ -12,8 +12,6 @@ class ExifMetadata : public AbstractMetadata
 public:
     explicit ExifMetadata(QString fileName);
 
-    QString manufacturer ();
-
     QDateTime pictureDate ();
     int rating ();
     int orientation ();

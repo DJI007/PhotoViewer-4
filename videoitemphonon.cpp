@@ -7,15 +7,23 @@
 #include <QFileInfo>
 #include <QDateTime>
 
-#include "abstractmetadata.h"
 #include "settingshelper.h"
+#include "xmpmetadata.h"
+#include "sqlitemetadata.h"
 
 VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 {
     setParent(parent);
 
     _fileName = fileName;
-    _videoData = new XMPMetadata(fileName);
+
+    try {
+        _videoData = new XMPMetadata(fileName);
+    }
+    catch (Exiv2::AnyError& e) {
+        _videoData = new SQLiteMetadata (fileName);
+    }
+
 
     _emitShowTimeEnded = false;
 

@@ -124,11 +124,6 @@ double ExifMetadata::getDoubleFromRational(const char *keyName)
     }
 }
 
-QString ExifMetadata::manufacturer()
-{
-    return getString ("Exif.Image.Make");
-}
-
 QDateTime ExifMetadata::pictureDate()
 {
     QString strDate;

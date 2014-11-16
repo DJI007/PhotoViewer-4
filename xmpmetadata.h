@@ -12,8 +12,6 @@ class XMPMetadata : public AbstractMetadata
 public:
     explicit XMPMetadata(QString fileName);
 
-    QString manufacturer ();
-
     QDateTime pictureDate ();
     int rating ();
     int orientation ();
@@ -30,7 +28,6 @@ public:
 
 private:
     Exiv2::Image::AutoPtr _fileData;
-    bool _hasData;
 
     QString getString (const char *keyName);
     long getLong (const char *keyName);

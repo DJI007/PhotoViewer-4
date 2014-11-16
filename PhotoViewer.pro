@@ -7,8 +7,9 @@
 QT += core gui
 QT += positioning location
 QT += qml quick
-# QT += multimedia multimediawidgets
 QT += phonon4qt5
+QT += sql
+# QT += multimedia multimediawidgets
 # QT += av
 # QT += declarative
 # QT += testlib
@@ -44,7 +45,8 @@ SOURCES += main.cpp\
     videocontrolpanel.cpp \
     xmpmetadata.cpp \
     videoitemphonon.cpp \
-    videofilter.cpp
+    videofilter.cpp \
+    sqlitemetadata.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -74,7 +76,8 @@ HEADERS  += photoviewer.h \
     videocontrolpanel.h \
     xmpmetadata.h \
     videoitemphonon.h \
-    videofilter.h
+    videofilter.h \
+    sqlitemetadata.h
 
 FORMS    += photoviewer.ui
 

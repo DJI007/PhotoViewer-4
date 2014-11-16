@@ -10,8 +10,8 @@
 #include <phonon/audiooutput.h>
 #include <phonon/MediaController>
 
+#include "abstractmetadata.h"
 #include "pictureviewitem.h"
-#include "xmpmetadata.h"
 #include "videocontrolpanel.h"
 #include "videofilter.h"
 
@@ -81,7 +81,7 @@ private:
 
     VideoControlPanel *_panel;
 
-    XMPMetadata *_videoData;
+    AbstractMetadata *_videoData;
 
     VideoFilter *_rotateFilter;
 
