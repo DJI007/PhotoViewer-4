@@ -483,7 +483,7 @@ void PictureViewItemContainer::doRotation(bool left)
 
     animScale = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "itemScale");
     animScale->setDuration(1200);
-    animScale->setStartValue((qreal) 1);
+    animScale->setStartValue(_item->itemScale());
     animScale->setEndValue(scaleFactor);
     animScale->setEasingCurve(QEasingCurve::InExpo);
 

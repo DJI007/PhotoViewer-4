@@ -240,9 +240,18 @@ void VideoItemPhonon::beginRotateLeftAnimation()
 
 void VideoItemPhonon::endRotateLeftAnimation()
 {
-    qDebug () << "EndRotateLeftAnimation: Calling rotate left: " << rotation();
+    qDebug () << "EndRotateLeftAnimation: Calling rotate left: " << itemRotation();
 
-    load ();
+    if ((((int) itemRotation ()) == 90) || (((int) itemRotation ()) == 180)) {
+        qDebug () << "EndRotateLeftAnimation: Calling rotate left == 0: " << rotation();
+        this->setRect(0, 0, _video->height(), _video->width());
+    }
+    else {
+        qDebug () << "EndRotateLeftAnimation: Calling rotate left != 0: " << rotation();
+        this->setRect(0, 0, _video->width(), _video->height());
+    }
+
+    //load ();
     // setPanelPosition();
     _panel->show();
     _player->play();
