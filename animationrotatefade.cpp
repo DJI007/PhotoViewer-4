@@ -33,7 +33,7 @@ QAbstractAnimation *AnimationRotateFade::getAnimationIn(AnimatedItem *target, in
 
     rotateFade->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(360);
     anim->setEndValue(0);
@@ -71,7 +71,7 @@ QAbstractAnimation *AnimationRotateFade::getAnimationOut(AnimatedItem *target, i
 
     rotateFade->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(360);

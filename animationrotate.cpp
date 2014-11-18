@@ -12,7 +12,7 @@ QAbstractAnimation *AnimationRotate::getAnimationIn(AnimatedItem *target, int du
 
     (dynamic_cast<QGraphicsItem *> (target))->setTransformOriginPoint(0, 0);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(-180);
     anim->setEndValue(0);
@@ -29,7 +29,7 @@ QAbstractAnimation *AnimationRotate::getAnimationOut(AnimatedItem *target, int d
 
     (dynamic_cast<QGraphicsItem *> (target))->setTransformOriginPoint(0, 0);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(-180);

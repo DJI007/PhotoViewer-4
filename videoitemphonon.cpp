@@ -265,7 +265,7 @@ void VideoItemPhonon::endRotateRightAnimation()
     // setPanelPosition();
 }
 
-void VideoItemPhonon::setRotation(qreal angle)
+void VideoItemPhonon::setItemRotation(qreal angle)
 {
     qDebug () << "VideoItemPhonon::setRotation: " << angle;
 
@@ -273,21 +273,21 @@ void VideoItemPhonon::setRotation(qreal angle)
     _videoItem->setRotation(angle);
 }
 
-qreal VideoItemPhonon::rotation()
+qreal VideoItemPhonon::itemRotation()
 {
     qDebug () << "VideoItemPhonon::rotation";
 
     return _videoItem->rotation();
 }
 
-void VideoItemPhonon::setScale(qreal scale)
+void VideoItemPhonon::setItemScale(qreal scale)
 {
     qDebug () << "VideoItemPhonon::setScale: " << scale;
     //QGraphicsRectItem::setScale(scale);
     _videoItem->setScale(scale);
 }
 
-qreal VideoItemPhonon::scale()
+qreal VideoItemPhonon::itemScale()
 {
     qDebug () << "VideoItemPhonon::scale";
     return _videoItem->scale();

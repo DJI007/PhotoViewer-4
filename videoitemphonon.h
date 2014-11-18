@@ -24,8 +24,8 @@ class VideoItemPhonon : public QObject,
 
     Q_PROPERTY(QPointF pos READ pos WRITE setPos)
     Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
-    Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
-    Q_PROPERTY(qreal scale READ scale WRITE setScale)
+    Q_PROPERTY(qreal itemRotation READ itemRotation WRITE setItemRotation)
+    Q_PROPERTY(qreal itemScale READ itemScale WRITE setItemScale)
 
 public:
     explicit VideoItemPhonon(QString fileName, QObject *parent = 0);
@@ -42,11 +42,10 @@ public:
     bool rotateLeft();
     bool rotateRight();
 
-    void setRotation (qreal angle);
-    qreal rotation ();
-
-    void setScale(qreal scale);
-    qreal scale ();
+    void setItemRotation (qreal angle);
+    void setItemScale (qreal scale);
+    qreal itemRotation ();
+    qreal itemScale ();
 
 signals:
     void itemLoaded ();

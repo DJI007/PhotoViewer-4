@@ -29,7 +29,7 @@ QAbstractAnimation *AnimationRotateMove::getAnimationIn(AnimatedItem *target, in
 
     rotateMove->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(180);
     anim->setEndValue(0);
@@ -66,7 +66,7 @@ QAbstractAnimation *AnimationRotateMove::getAnimationOut(AnimatedItem *target, i
 
     rotateMove->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(-180);

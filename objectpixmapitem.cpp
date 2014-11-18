@@ -341,4 +341,23 @@ void ObjectPixmapItem::endRotateRightAnimation()
     this->setScale(1);
 }
 
+void ObjectPixmapItem::setItemRotation(qreal angle)
+{
+    QGraphicsItem::setRotation(angle);
+}
+
+void ObjectPixmapItem::setItemScale(qreal scale)
+{
+    QGraphicsItem::setScale(scale);
+}
+
+qreal ObjectPixmapItem::itemRotation()
+{
+    return QGraphicsItem::rotation();
+}
+
+qreal ObjectPixmapItem::itemScale()
+{
+    return QGraphicsItem::scale();
+}
 

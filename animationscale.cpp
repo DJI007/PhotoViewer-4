@@ -19,7 +19,7 @@ QAbstractAnimation *AnimationScale::getAnimationIn(AnimatedItem *target, int dur
 
     gTarget->setTransformOriginPoint(transformX, transformY);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemScale");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(1);
@@ -44,7 +44,7 @@ QAbstractAnimation *AnimationScale::getAnimationOut(AnimatedItem *target, int du
 
     gTarget->setTransformOriginPoint(transformX, transformY);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemScale");
     anim->setDuration(duration);
     anim->setStartValue(1);
     anim->setEndValue(0);

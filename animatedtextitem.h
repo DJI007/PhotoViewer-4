@@ -15,8 +15,16 @@ class AnimatedTextItem : public QGraphicsTextItem,
     Q_PROPERTY(qreal rotation READ rotation WRITE setRotation)
     Q_PROPERTY(qreal scale READ scale WRITE setScale)
 
+    Q_PROPERTY(qreal itemRotation READ itemRotation WRITE setItemRotation)
+    Q_PROPERTY(qreal itemScale READ itemScale WRITE setItemScale)
+
 public:
     explicit AnimatedTextItem(QGraphicsItem *parent = 0);
+
+    void setItemRotation (qreal angle);
+    void setItemScale (qreal scale);
+    qreal itemRotation ();
+    qreal itemScale ();
 
 signals:
 

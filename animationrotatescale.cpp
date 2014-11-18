@@ -23,7 +23,7 @@ QAbstractAnimation *AnimationRotateScale::getAnimationIn(AnimatedItem *target, i
 
     rotateScale = new QParallelAnimationGroup();
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemScale");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(1);
@@ -31,7 +31,7 @@ QAbstractAnimation *AnimationRotateScale::getAnimationIn(AnimatedItem *target, i
 
     rotateScale->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(360);
     anim->setEndValue(0);
@@ -61,7 +61,7 @@ QAbstractAnimation *AnimationRotateScale::getAnimationOut(AnimatedItem *target, 
 
     rotateScale = new QParallelAnimationGroup();
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "scale");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemScale");
     anim->setDuration(duration);
     anim->setStartValue(1);
     anim->setEndValue(0);
@@ -69,7 +69,7 @@ QAbstractAnimation *AnimationRotateScale::getAnimationOut(AnimatedItem *target, 
 
     rotateScale->addAnimation(anim);
 
-    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "rotation");
+    anim = new QPropertyAnimation(dynamic_cast<QObject *> (target), "itemRotation");
     anim->setDuration(duration);
     anim->setStartValue(0);
     anim->setEndValue(360);

@@ -10,6 +10,12 @@ class AnimatedItem
     operator QObject* () { return dynamic_cast<QObject *> (this); }
 
 public:
+    virtual qreal itemRotation () = 0;
+    virtual qreal itemScale () = 0;
+
+    virtual void setItemRotation (qreal angle) = 0;
+    virtual void setItemScale (qreal scale) = 0;
+
 
 signals:
 
