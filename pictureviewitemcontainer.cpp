@@ -468,15 +468,17 @@ void PictureViewItemContainer::doRotation(bool left)
     transformX = width / 2;
     transformY = height / 2;
 
-    gTarget->setTransformOriginPoint(transformX, transformY);
+    gTarget->setTransformOriginPoint((qreal) transformX, (qreal) transformY);
+
+    qDebug () << "PictureViewItemContainer::doRotation: " << gTarget->rotation();
 
     anim = new QParallelAnimationGroup();
     // anim = new QSequentialAnimationGroup();
 
     animRotate = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "rotation");
     animRotate->setDuration(1200);
-    animRotate->setStartValue(0);
-    animRotate->setEndValue(endValue);
+    animRotate->setStartValue(gTarget->rotation());
+    animRotate->setEndValue(gTarget->rotation() + endValue);
     animRotate->setEasingCurve(QEasingCurve::InExpo);
 
     animScale = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "scale");
@@ -500,11 +502,11 @@ void PictureViewItemContainer::doRotation(bool left)
 
 void PictureViewItemContainer::on_endRotateAnimation ()
 {
-    QGraphicsItem *gItem;
+    // QGraphicsItem *gItem;
 
-    gItem = dynamic_cast<QGraphicsItem *> (_item);
-    gItem->setRotation(0);
-    gItem->setScale(1);
+    // gItem = dynamic_cast<QGraphicsItem *> (_item);
+    // gItem->setRotation(0);
+    // gItem->setScale(1);
 
     _item->refresh();
 
@@ -516,3 +518,5 @@ void PictureViewItemContainer::on_endRotateAnimation ()
 
     emit endRotateAnimation();
 }
+
+

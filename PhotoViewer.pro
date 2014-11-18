@@ -45,7 +45,7 @@ SOURCES += main.cpp\
     videocontrolpanel.cpp \
     xmpmetadata.cpp \
     videoitemphonon.cpp \
-    videofilter.cpp \
+#    videofilter.cpp \
     sqlitemetadata.cpp
 
 HEADERS  += photoviewer.h \
@@ -76,7 +76,7 @@ HEADERS  += photoviewer.h \
     videocontrolpanel.h \
     xmpmetadata.h \
     videoitemphonon.h \
-    videofilter.h \
+#    videofilter.h \
     sqlitemetadata.h
 
 FORMS    += photoviewer.ui
@@ -103,9 +103,9 @@ win32|win32-msvc* {
     #LIBS += $$quote(C:/Program Files/Marble/marblewidget.dll)
 
     # ffmpeg
-    INCLUDEPATH  += $$quote(C:/Users/dmagro/git/ffmpeg-dev/include)
-    LIBS         += -L$$quote(C:/Users/dmagro/git/ffmpeg-dev/lib)
-    LIBS         += -lavfilter -lavformat -lavcodec -lavutil
+    #INCLUDEPATH  += $$quote(C:/Users/dmagro/git/ffmpeg-dev/include)
+    #LIBS         += -L$$quote(C:/Users/dmagro/git/ffmpeg-dev/lib)
+    #LIBS         += -lavfilter -lavformat -lavcodec -lavutil
 }
 
 unix {
@@ -129,9 +129,9 @@ unix {
     # LIBS += -lvlc-qt -lvlc-qt-widgets
 
     # ffmpeg
-    INCLUDEPATH  += $$quote(/opt/ffmpeg-2.4.2/include/)
-    LIBS         += -L$$quote(/opt/ffmpeg-2.4.2/lib/)
-    LIBS         += -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lpostproc
+    #INCLUDEPATH  += $$quote(/opt/ffmpeg-2.4.2/include/)
+    #LIBS         += -L$$quote(/opt/ffmpeg-2.4.2/lib/)
+    #LIBS         += -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lpostproc
 }
 
 OTHER_FILES += \

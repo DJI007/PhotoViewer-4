@@ -3,6 +3,8 @@
 
 #include <QGraphicsRectItem>
 #include <QPushButton>
+#include <QGraphicsObject>
+#include <QGraphicsRectItem>
 #include <QGraphicsProxyWidget>
 
 #include <phonon/mediaobject.h>
@@ -13,9 +15,9 @@
 #include "abstractmetadata.h"
 #include "pictureviewitem.h"
 #include "videocontrolpanel.h"
-#include "videofilter.h"
 
-class VideoItemPhonon : public QGraphicsProxyWidget,
+class VideoItemPhonon : public QObject,
+        public QGraphicsRectItem,
         public PictureViewItem
 {
     Q_OBJECT
@@ -40,6 +42,12 @@ public:
     bool rotateLeft();
     bool rotateRight();
 
+    void setRotation (qreal angle);
+    qreal rotation ();
+
+    void setScale(qreal scale);
+    qreal scale ();
+
 signals:
     void itemLoaded ();
     void playMedia();
@@ -56,8 +64,6 @@ private slots:
     void on_stateChanged (Phonon::State newState, Phonon::State oldState);
     void on_aboutToFinish ();
     void on_availableSubitlesChanged ();
-
-    void on_videoFilterFinished ();
 
 public slots:
     void beginItemAnimationIn();
@@ -79,11 +85,10 @@ private:
 
     bool _emitShowTimeEnded;
 
+    QGraphicsProxyWidget *_videoItem;
     VideoControlPanel *_panel;
 
     AbstractMetadata *_videoData;
-
-    VideoFilter *_rotateFilter;
 
     void createPanel ();
     void setPanelPosition ();

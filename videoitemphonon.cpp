@@ -24,10 +24,9 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
         _videoData = new SQLiteMetadata (fileName);
     }
 
-
     _emitShowTimeEnded = false;
 
-    _player = new Phonon::MediaObject(parent);
+    _player = new Phonon::MediaObject(this);
     _player->setTickInterval(1000);
 
     _audio = new Phonon::AudioOutput(Phonon::VideoCategory);
@@ -38,8 +37,9 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     Phonon::createPath(_player, _audio);
     Phonon::createPath(_player, _video);
 
-    this->setWidget(_video);
-    this->setPos(0, 0);
+    _videoItem = new QGraphicsProxyWidget(this);
+    _videoItem->setWidget(_video);
+    _videoItem->setPos(0, 0);
 
     _controller = new Phonon::MediaController (_player);
 
@@ -47,10 +47,6 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     connect (_controller, SIGNAL(availableSubtitlesChanged()),
              this, SLOT(on_availableSubitlesChanged ()));
-
-    _rotateFilter = new VideoFilter();
-    connect (_rotateFilter, SIGNAL(rotateDone()),
-             this, SLOT(on_videoFilterFinished()));
 }
 
 VideoItemPhonon::~VideoItemPhonon()
@@ -64,13 +60,13 @@ VideoItemPhonon::~VideoItemPhonon()
     delete _audio;
 
     delete _controller;
-
-    delete _rotateFilter;
 }
 
 void VideoItemPhonon::load()
 {
     _player->setCurrentSource(Phonon::MediaSource(QUrl::fromLocalFile(_fileName)));
+
+    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
 
     resize();
 
@@ -82,7 +78,10 @@ void VideoItemPhonon::load()
 
 void VideoItemPhonon::resize()
 {
+    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
     _video->resize(this->scene()->width(), this->scene()->height());
+    // _videoItem->setTransformOriginPoint(this->boundingRect().width() / 2, this->boundingRect().height() / 2);
+    _videoItem->setTransformOriginPoint(_video->width() / 2, _video->height() / 2);
     setPanelPosition ();
 }
 
@@ -167,7 +166,7 @@ AbstractMetadata *VideoItemPhonon::metadata()
 
 void VideoItemPhonon::createPanel()
 {
-    _panel = new VideoControlPanel();
+    _panel = new VideoControlPanel(this);
     _panel->setParentItem(this);
     setPanelPosition();
 
@@ -221,7 +220,6 @@ void VideoItemPhonon::setShowTime(int time)
 bool VideoItemPhonon::rotateLeft()
 {
     _player->clear();
-    _rotateFilter->transposeAsync(_fileName, VideoFilter::RotateDirection::CounterClockWise);
 
     qDebug () << "Rotate left done!!";
 
@@ -235,19 +233,19 @@ bool VideoItemPhonon::rotateRight()
 
 void VideoItemPhonon::beginRotateLeftAnimation()
 {
-    qDebug () << "BeginRotateLeftAnimation";
-    _player->pause();
+    qDebug () << "BeginRotateLeftAnimation: " << rotation();
+    _player->stop();
     _panel->hide();
 }
 
 void VideoItemPhonon::endRotateLeftAnimation()
 {
-    qDebug () << "EndRotateLeftAnimation: Calling rotate left";
-    //_rotateFilter->rotate(_fileName, VideoFilter::RotateDirection::CounterClockWise);
+    qDebug () << "EndRotateLeftAnimation: Calling rotate left: " << rotation();
 
     load ();
     // setPanelPosition();
-    // _panel->show();
+    _panel->show();
+    _player->play();
 }
 
 void VideoItemPhonon::beginRotateRightAnimation()
@@ -262,15 +260,36 @@ void VideoItemPhonon::endRotateRightAnimation()
     _player->clear();
 
     qDebug () << "EndRotateRightAnimation: Calling rotate right";
-    _rotateFilter->rotate(_fileName, VideoFilter::RotateDirection::ClockWise);
 
-    // _panel->show();
+    _panel->show();
     // setPanelPosition();
 }
 
-void VideoItemPhonon::on_videoFilterFinished()
+void VideoItemPhonon::setRotation(qreal angle)
 {
-    qDebug () << "Rotate done";
-    //load ();
+    qDebug () << "VideoItemPhonon::setRotation: " << angle;
+
+    //QGraphicsRectItem::setRotation(angle);
+    _videoItem->setRotation(angle);
+}
+
+qreal VideoItemPhonon::rotation()
+{
+    qDebug () << "VideoItemPhonon::rotation";
+
+    return _videoItem->rotation();
+}
+
+void VideoItemPhonon::setScale(qreal scale)
+{
+    qDebug () << "VideoItemPhonon::setScale: " << scale;
+    //QGraphicsRectItem::setScale(scale);
+    _videoItem->setScale(scale);
+}
+
+qreal VideoItemPhonon::scale()
+{
+    qDebug () << "VideoItemPhonon::scale";
+    return _videoItem->scale();
 }
 
