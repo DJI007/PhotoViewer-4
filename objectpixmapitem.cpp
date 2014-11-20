@@ -329,13 +329,7 @@ bool ObjectPixmapItem::rotateRight()
     return true;
 }
 
-void ObjectPixmapItem::endRotateLeftAnimation()
-{
-    this->setRotation(0);
-    this->setScale(1);
-}
-
-void ObjectPixmapItem::endRotateRightAnimation()
+void ObjectPixmapItem::endRotateAnimation()
 {
     this->setRotation(0);
     this->setScale(1);

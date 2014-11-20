@@ -47,8 +47,9 @@ signals:
 
 public slots:
     void on_showTimeEnded ();
-    void endRotateLeftAnimation ();
-    void endRotateRightAnimation ();
+
+    void beginRotateAnimation () {}
+    void endRotateAnimation ();
 
 protected:
     void connectNotify ( const char * signal );
