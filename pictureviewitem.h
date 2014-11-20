@@ -32,10 +32,8 @@ signals:
     void showTimeEnded ();
 
 public slots:
-    virtual void beginRotateLeftAnimation () {}
-    virtual void endRotateLeftAnimation () {}
-    virtual void beginRotateRightAnimation () {}
-    virtual void endRotateRightAnimation () {}
+    virtual void beginRotateAnimation () {}
+    virtual void endRotateAnimation () {}
 
 private:
 

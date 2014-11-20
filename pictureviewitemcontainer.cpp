@@ -31,6 +31,7 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     _fileName = fileName;
     _infoVisible = true;
     _isInfoVisible = false;
+    _rotating = false;
 
     _rating = NULL;
     _info = NULL;
@@ -75,11 +76,6 @@ QGraphicsItem *PictureViewItemContainer::graphicsItem()
 
 void PictureViewItemContainer::load()
 {
-/*
-    _info = createInfo();
-    _geoInfo = createGeoInfo();
-    _rating = createRating();
-*/
     _item->load ();
 
     graphicsItem()->setAcceptHoverEvents(true);
@@ -400,7 +396,7 @@ void PictureViewItemContainer::rotatePictureLeft()
             showInfo(false);
         }
 
-        doRotation (true);
+        doRotation (-90);
     }
 }
 
@@ -411,18 +407,17 @@ void PictureViewItemContainer::rotatePictureRight()
             showInfo(false);
         }
 
-        doRotation (false);
+        doRotation (90);
     }
 }
 
-void PictureViewItemContainer::doRotation(bool left)
+void PictureViewItemContainer::doRotation(int angle)
 {
     QPropertyAnimation *animRotate;
     QPropertyAnimation *animScale;
     QAnimationGroup *anim;
     int transformX;
     int transformY;
-    int endValue;
     QGraphicsItem *gTarget;
     qreal scaleFactor;
     qreal width;
@@ -430,30 +425,21 @@ void PictureViewItemContainer::doRotation(bool left)
     qreal sceneWidth;
     qreal sceneHeight;
 
+    if (_rotating) {
+        return;
+    }
+
+    _rotating = true;
+
     this->disconnect(SIGNAL(beginRotateAnimation()));
     this->disconnect(SIGNAL(endRotateAnimation()));
 
-    if (left) {
-        connect (this, SIGNAL(beginRotateAnimation()),
-                 dynamic_cast<QObject *> (_item), SLOT(beginRotateLeftAnimation()));
-        connect (this, SIGNAL(endRotateAnimation()),
-                 dynamic_cast<QObject *> (_item), SLOT(endRotateLeftAnimation()));
-    }
-    else {
-        connect (this, SIGNAL(beginRotateAnimation()),
-                 dynamic_cast<QObject *> (_item), SLOT(beginRotateRightAnimation()));
-        connect (this, SIGNAL(endRotateAnimation()),
-                 dynamic_cast<QObject *> (_item), SLOT(endRotateRightAnimation()));
-    }
+    connect (this, SIGNAL(beginRotateAnimation()),
+             dynamic_cast<QObject *> (_item), SLOT(beginRotateAnimation()));
+    connect (this, SIGNAL(endRotateAnimation()),
+             dynamic_cast<QObject *> (_item), SLOT(endRotateAnimation()));
 
     gTarget = dynamic_cast<QGraphicsItem *> (_item);
-
-    if (left) {
-        endValue = -90;
-    }
-    else {
-        endValue = 90;
-    }
 
     sceneWidth = gTarget->scene()->width();
     sceneHeight = gTarget->scene()->height();
@@ -470,15 +456,13 @@ void PictureViewItemContainer::doRotation(bool left)
 
     gTarget->setTransformOriginPoint((qreal) transformX, (qreal) transformY);
 
-    qDebug () << "PictureViewItemContainer::doRotation: " << _item->itemRotation();
-
     anim = new QParallelAnimationGroup();
     // anim = new QSequentialAnimationGroup();
 
     animRotate = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "itemRotation");
     animRotate->setDuration(1200);
     animRotate->setStartValue(_item->itemRotation());
-    animRotate->setEndValue(_item->itemRotation() + endValue);
+    animRotate->setEndValue(_item->itemRotation() + angle);
     animRotate->setEasingCurve(QEasingCurve::InExpo);
 
     animScale = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "itemScale");
@@ -502,11 +486,7 @@ void PictureViewItemContainer::doRotation(bool left)
 
 void PictureViewItemContainer::on_endRotateAnimation ()
 {
-    // QGraphicsItem *gItem;
-
-    // gItem = dynamic_cast<QGraphicsItem *> (_item);
-    // gItem->setRotation(0);
-    // gItem->setScale(1);
+    _rotating = false;
 
     _item->refresh();
 

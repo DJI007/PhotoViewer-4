@@ -16,11 +16,14 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     setParent(parent);
 
     _fileName = fileName;
+    setBrush(Qt::NoBrush);
+    setPen(Qt::NoPen);
 
     try {
         _videoData = new XMPMetadata(fileName);
     }
     catch (Exiv2::AnyError& e) {
+        Q_UNUSED(e);
         _videoData = new SQLiteMetadata (fileName);
     }
 
@@ -141,7 +144,7 @@ void VideoItemPhonon::on_stateChanged(Phonon::State newState, Phonon::State oldS
 
 void VideoItemPhonon::on_availableSubitlesChanged()
 {
-    qDebug () << _controller->availableSubtitles().count() << "-.-" << _controller->subtitleAutodetect();
+    // qDebug () << _controller->availableSubtitles().count() << "-.-" << _controller->subtitleAutodetect();
 }
 
 void VideoItemPhonon::beginItemAnimationIn()
@@ -221,8 +224,6 @@ bool VideoItemPhonon::rotateLeft()
 {
     _player->clear();
 
-    qDebug () << "Rotate left done!!";
-
     return true;
 }
 
@@ -231,74 +232,38 @@ bool VideoItemPhonon::rotateRight()
     return true;
 }
 
-void VideoItemPhonon::beginRotateLeftAnimation()
+void VideoItemPhonon::beginRotateAnimation()
 {
-    qDebug () << "BeginRotateLeftAnimation: " << rotation();
     _player->stop();
     _panel->hide();
 }
 
-void VideoItemPhonon::endRotateLeftAnimation()
+void VideoItemPhonon::endRotateAnimation()
 {
-    qDebug () << "EndRotateLeftAnimation: Calling rotate left: " << itemRotation();
+    // Change width and height
+    this->setRect(0, 0, this->rect().height(), this->rect().width());
 
-    if ((((int) itemRotation ()) == 90) || (((int) itemRotation ()) == 180)) {
-        qDebug () << "EndRotateLeftAnimation: Calling rotate left == 0: " << rotation();
-        this->setRect(0, 0, _video->height(), _video->width());
-    }
-    else {
-        qDebug () << "EndRotateLeftAnimation: Calling rotate left != 0: " << rotation();
-        this->setRect(0, 0, _video->width(), _video->height());
-    }
-
-    //load ();
-    // setPanelPosition();
     _panel->show();
     _player->play();
 }
 
-void VideoItemPhonon::beginRotateRightAnimation()
-{
-    qDebug () << "BeginRotateRightAnimation";
-    _player->pause();
-    _panel->hide();
-}
-
-void VideoItemPhonon::endRotateRightAnimation()
-{
-    _player->clear();
-
-    qDebug () << "EndRotateRightAnimation: Calling rotate right";
-
-    _panel->show();
-    // setPanelPosition();
-}
-
 void VideoItemPhonon::setItemRotation(qreal angle)
 {
-    qDebug () << "VideoItemPhonon::setRotation: " << angle;
-
-    //QGraphicsRectItem::setRotation(angle);
     _videoItem->setRotation(angle);
 }
 
 qreal VideoItemPhonon::itemRotation()
 {
-    qDebug () << "VideoItemPhonon::rotation";
-
     return _videoItem->rotation();
 }
 
 void VideoItemPhonon::setItemScale(qreal scale)
 {
-    qDebug () << "VideoItemPhonon::setScale: " << scale;
-    //QGraphicsRectItem::setScale(scale);
     _videoItem->setScale(scale);
 }
 
 qreal VideoItemPhonon::itemScale()
 {
-    qDebug () << "VideoItemPhonon::scale";
     return _videoItem->scale();
 }
 

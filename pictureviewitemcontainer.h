@@ -85,9 +85,11 @@ private:
     bool _infoVisible;
     bool _isInfoVisible;
 
+    bool _rotating;
+
     void setInfoRatingPosition();
 
-    void doRotation (bool left);
+    void doRotation (int angle);
 };
 
 #endif // PICTUREVIEWITEMCONTAINER_H

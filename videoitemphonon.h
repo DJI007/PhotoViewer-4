@@ -69,10 +69,8 @@ public slots:
     void endItemAnimationIn();
     void beginItemAnimationOut();
 
-    void beginRotateLeftAnimation();
-    void endRotateLeftAnimation();
-    void beginRotateRightAnimation();
-    void endRotateRightAnimation();
+    void beginRotateAnimation();
+    void endRotateAnimation();
 
 private:
     Phonon::AudioOutput *_audio;
