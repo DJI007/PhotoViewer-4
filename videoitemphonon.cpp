@@ -18,6 +18,13 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     _fileName = fileName;
     setBrush(Qt::NoBrush);
     setPen(Qt::NoPen);
+/*
+    QPen pen;
+    pen.setStyle(Qt::SolidLine);
+    pen.setColor(Qt::red);
+    pen.setWidth(3);
+    setPen(pen);
+*/
 
     try {
         _videoData = new XMPMetadata(fileName);
@@ -31,6 +38,9 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 
     _player = new Phonon::MediaObject(this);
     _player->setTickInterval(1000);
+    _controller = new Phonon::MediaController (_player);
+    connect (_controller, SIGNAL(availableSubtitlesChanged()),
+             this, SLOT(on_availableSubitlesChanged ()));
 
     _audio = new Phonon::AudioOutput(Phonon::VideoCategory);
     _video = new Phonon::VideoWidget();
@@ -44,12 +54,7 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     _videoItem->setWidget(_video);
     _videoItem->setPos(0, 0);
 
-    _controller = new Phonon::MediaController (_player);
-
     createPanel();
-
-    connect (_controller, SIGNAL(availableSubtitlesChanged()),
-             this, SLOT(on_availableSubitlesChanged ()));
 }
 
 VideoItemPhonon::~VideoItemPhonon()
@@ -69,8 +74,7 @@ void VideoItemPhonon::load()
 {
     _player->setCurrentSource(Phonon::MediaSource(QUrl::fromLocalFile(_fileName)));
 
-    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
-
+    setItemRotation(_videoData->orientation());
     resize();
 
     _panel->setVolume(_audio->volume());
@@ -81,10 +85,54 @@ void VideoItemPhonon::load()
 
 void VideoItemPhonon::resize()
 {
-    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
-    _video->resize(this->scene()->width(), this->scene()->height());
-    // _videoItem->setTransformOriginPoint(this->boundingRect().width() / 2, this->boundingRect().height() / 2);
-    _videoItem->setTransformOriginPoint(_video->width() / 2, _video->height() / 2);
+    // this->setRect(0, 0, this->scene()->width(), this->scene()->height());
+    int rot;
+    qreal width;
+    qreal height;
+    qreal sceneWidth;
+    qreal sceneHeight;
+    qreal scaleFactor;
+    qreal left;
+    qreal top;
+
+    rot = qAbs(((int) itemRotation()) % 360);
+
+    sceneHeight = this->scene()->height();
+    sceneWidth = this->scene()->width();
+    if (rot == 90 || rot == 270) {
+        qDebug () << "Vertical: " << rot;
+        width = sceneHeight;
+        height = sceneWidth;
+    }
+    else {
+        qDebug () << "Horizontal: " << rot;
+        width = this->scene()->width();
+        height = this->scene()->height();
+    }
+
+    scaleFactor = sceneHeight / height;
+    if ((width * scaleFactor) > sceneWidth) {
+        scaleFactor = sceneWidth / width;
+    }
+
+    qDebug () << "ScaleFactor (resize): " << scaleFactor;
+
+    //width *= scaleFactor;
+    //height *= scaleFactor;
+
+    //left = ((sceneWidth - width) / 2);
+    //top = ((sceneHeight - height) / 2);
+    left = 0;
+    top = 0;
+
+    this->setRect(left, top, width, height);
+
+    _video->resize(sceneWidth, sceneHeight);
+    _videoItem->setTransformOriginPoint(sceneWidth / 2, sceneHeight / 2);
+    if (_videoItem->scale() != scaleFactor) {
+        _videoItem->setScale(scaleFactor);
+    }
+
     setPanelPosition ();
 }
 
@@ -209,9 +257,14 @@ void VideoItemPhonon::createPanel()
 
 void VideoItemPhonon::setPanelPosition()
 {
-    if (_panel) {
+    if (_panel && this->scene()) {
+        /*
         _panel->setPos (this->boundingRect().right() - (_panel->rect().width() + 10),
                         this->boundingRect().bottom() - (_panel->rect().height() + 10));
+        */
+        _panel->setPos (this->scene()->width() - (_panel->rect().width() + 10),
+                        this->scene()->height() - (_panel->rect().height() + 10));
+
     }
 }
 
@@ -222,8 +275,6 @@ void VideoItemPhonon::setShowTime(int time)
 
 bool VideoItemPhonon::rotateLeft()
 {
-    _player->clear();
-
     return true;
 }
 
@@ -241,7 +292,10 @@ void VideoItemPhonon::beginRotateAnimation()
 void VideoItemPhonon::endRotateAnimation()
 {
     // Change width and height
-    this->setRect(0, 0, this->rect().height(), this->rect().width());
+    // this->setRect(0, 0, this->rect().height(), this->rect().width());
+    _videoData->setOrientation(((int) itemRotation()) % 360);
+
+    resize ();
 
     _panel->show();
     _player->play();

@@ -36,8 +36,12 @@ private:
 
     void initDB ();
     void setValue (QString column, QVariant value);
-    QVariant getValue (QString column);
 
+    bool exist ();
+
+    QVariant getValue (QString column);
+    int getInt (QString column);
+    QString getString (QString column);
 };
 
 #endif // SQLITEMETADATA_H

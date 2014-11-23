@@ -13,9 +13,16 @@
 
 //#include <QtAV/AVPlayer.h>
 
-class PictureViewItemContainer : public QObject
+class PictureViewItemContainer : public QObject,
+        public QGraphicsRectItem,
+        public AnimatedItem
 {
     Q_OBJECT
+
+    Q_PROPERTY(QPointF pos READ pos WRITE setPos)
+    Q_PROPERTY(qreal opacity READ opacity WRITE setOpacity)
+    Q_PROPERTY(qreal itemRotation READ itemRotation WRITE setItemRotation)
+    Q_PROPERTY(qreal itemScale READ itemScale WRITE setItemScale)
 
 public:
     explicit PictureViewItemContainer(QString fileName, QObject *parent = 0);
@@ -38,6 +45,12 @@ public:
 
     void rotatePictureLeft ();
     void rotatePictureRight ();
+
+    qreal itemRotation ();
+    qreal itemScale ();
+
+    void setItemRotation (qreal angle);
+    void setItemScale (qreal scale);
 
 signals:
     void itemLoaded ();

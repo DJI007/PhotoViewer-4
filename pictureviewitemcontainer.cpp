@@ -37,6 +37,9 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     _info = NULL;
     _geoInfo = NULL;
 
+    setBrush(Qt::NoBrush);
+    setPen(Qt::NoPen);
+
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
         //  _item = new VideoItem(fileName, this);
         _item = new VideoItemPhonon(fileName, this);
@@ -45,23 +48,28 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
         _item = new ObjectPixmapItem(fileName, this);
     }
 
+    dynamic_cast<QGraphicsItem *> (_item)->setParentItem(this);
+
     connect (dynamic_cast<QObject *> (_item),
              SIGNAL(itemLoaded()),
              this,
              SLOT(setItemLoaded()));
 
+    _geoManager = NULL;
     _geoProvider = new QGeoServiceProvider("osm");
     if (_geoProvider) {
-        if (_geoProvider->error() != _geoProvider->NoError) {
+        if (_geoProvider->error() == _geoProvider->NoError) {
+            _geoManager = _geoProvider->geocodingManager();
+        }
+        else {
             qDebug () << _geoProvider->errorString();
         }
-
-        _geoManager = _geoProvider->geocodingManager();
     }
 }
 
 PictureViewItemContainer::~PictureViewItemContainer()
 {
+    delete _geoProvider;
 }
 
 PictureViewItem *PictureViewItemContainer::item()
@@ -76,6 +84,7 @@ QGraphicsItem *PictureViewItemContainer::graphicsItem()
 
 void PictureViewItemContainer::load()
 {
+    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
     _item->load ();
 
     graphicsItem()->setAcceptHoverEvents(true);
@@ -100,10 +109,18 @@ void PictureViewItemContainer::setItemLoaded()
     _info = createInfo();
     _geoInfo = createGeoInfo();
     _rating = createRating();
-
+/*
     _info->setParentItem (this->graphicsItem());
     _geoInfo->setParentItem(this->graphicsItem());
     _rating->setParentItem(this->graphicsItem());
+*/
+    _info->hide();
+    _geoInfo->hide();
+    _rating->hide();
+
+    _info->setParentItem (this);
+    _geoInfo->setParentItem(this);
+    _rating->setParentItem(this);
 
     setInfoRatingPosition();
 
@@ -175,12 +192,9 @@ QGraphicsItemGroup *PictureViewItemContainer::createRating()
 {
     int rating;
     int left;
-    QRectF rect;
     QGraphicsItemGroup *result;
 
     result = new QGraphicsItemGroup ();
-
-    rect = this->graphicsItem()->boundingRect();
 
     rating = _item->metadata()->rating();
     left = 0;
@@ -222,7 +236,7 @@ void PictureViewItemContainer::setInfoRatingPosition ()
 {
     QRectF rect;
 
-    rect = this->graphicsItem()->boundingRect();
+    rect = this->boundingRect();
 
     if (_info) {
         _info->setPos(rect.left(), rect.bottom() - 40);
@@ -246,6 +260,7 @@ void PictureViewItemContainer::setInfoRatingPosition ()
 
 void PictureViewItemContainer::resize()
 {
+    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
     _item->resize();
     setInfoRatingPosition();
 }
@@ -261,6 +276,14 @@ void PictureViewItemContainer::showInfo(bool show)
     if (show != _isInfoVisible) {
         AbstractPictureAnimation *anim;
         QAnimationGroup *group;
+
+        if (_info) {
+            if (show) {
+                _info->show();
+                _geoInfo->show();
+                _rating->show();
+            }
+        }
 
         //setInfoRatingPosition();
 
@@ -302,6 +325,8 @@ void PictureViewItemContainer::showInfo(bool show)
 
         group->start(QAbstractAnimation::DeleteWhenStopped);
 
+        delete anim;
+
         _isInfoVisible = show;
     }
 }
@@ -313,7 +338,7 @@ void PictureViewItemContainer::setRating(int value)
     delete _rating;
 
     _rating = createRating();
-    _rating->setParentItem(this->graphicsItem());
+    _rating->setParentItem(this);
 
     //setInfoVisible(true);
     setInfoRatingPosition ();
@@ -331,11 +356,13 @@ double PictureViewItemContainer::longitude()
 
 void PictureViewItemContainer::beginItemAnimationIn()
 {
+    showInfo(false);
     _item->beginItemAnimationIn();
 }
 
 void PictureViewItemContainer::endItemAnimationIn()
 {
+    showInfo(true);
     _item->endItemAnimationIn();
 /*
     if (_infoVisible) {
@@ -346,6 +373,7 @@ void PictureViewItemContainer::endItemAnimationIn()
 
 void PictureViewItemContainer::beginItemAnimationOut()
 {
+    showInfo(false);
     _item->beginItemAnimationOut();
 }
 
@@ -451,13 +479,16 @@ void PictureViewItemContainer::doRotation(int angle)
         scaleFactor = sceneWidth / height;
     }
 
+    qDebug () << "Scene: " << sceneWidth <<"x"<< sceneHeight;
+    qDebug () << "Rect:  " << width <<"x"<< height;
+    qDebug () << "ScaleFactor (rotating): " << scaleFactor;
+
     transformX = width / 2;
     transformY = height / 2;
 
     gTarget->setTransformOriginPoint((qreal) transformX, (qreal) transformY);
 
     anim = new QParallelAnimationGroup();
-    // anim = new QSequentialAnimationGroup();
 
     animRotate = new QPropertyAnimation(dynamic_cast<QObject *> (_item), "itemRotation");
     animRotate->setDuration(1200);
@@ -486,6 +517,8 @@ void PictureViewItemContainer::doRotation(int angle)
 
 void PictureViewItemContainer::on_endRotateAnimation ()
 {
+    emit endRotateAnimation();
+
     _rotating = false;
 
     _item->refresh();
@@ -495,8 +528,24 @@ void PictureViewItemContainer::on_endRotateAnimation ()
     if (_infoVisible) {
         showInfo(true);
     }
-
-    emit endRotateAnimation();
 }
 
+qreal PictureViewItemContainer::itemRotation()
+{
+    return _item->itemRotation();
+}
 
+qreal PictureViewItemContainer::itemScale()
+{
+    return _item->itemScale();
+}
+
+void PictureViewItemContainer::setItemRotation(qreal angle)
+{
+    _item->setItemRotation(angle);
+}
+
+void PictureViewItemContainer::setItemScale(qreal scale)
+{
+    _item->setItemScale(scale);
+}

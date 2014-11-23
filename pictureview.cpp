@@ -47,6 +47,10 @@ PictureView::PictureView(QWidget *parent) :
 PictureView::~PictureView ()
 {
     delete _pictureScene;
+
+    while (!_animations.isEmpty()) {
+        delete _animations.takeFirst();
+    }
 }
 
 void PictureView::mouseDoubleClickEvent (QMouseEvent *event)
@@ -131,7 +135,8 @@ void PictureView::showPicture(PictureAnimationType animType)
                  _currentItem,
                  SLOT(endItemAnimationIn()));
 
-        _pictureScene->addItem(_currentItem->graphicsItem());
+        // _pictureScene->addItem(_currentItem->graphicsItem());
+        _pictureScene->addItem(_currentItem);
         _currentItem->setInfoVisible(_infoVisible);
         _currentItem->load();
     }
@@ -151,22 +156,28 @@ void PictureView::on_itemLoaded()
             int current;
 
             current = qrand() % _animations.count();
-            animIn = _animations.at(current)->getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animIn = _animations.at(current)->getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = _animations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
 
             current = qrand() % _animations.count();
-            animOut = _animations.at(current)->getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animOut = _animations.at(current)->getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = _animations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::LeftToRight:
             slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
-            animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::RightToLeft:
             slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
-            animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            // animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
+            animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::None:  // To supress compile warning

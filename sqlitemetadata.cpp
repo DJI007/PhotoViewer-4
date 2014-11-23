@@ -17,7 +17,6 @@ SQLiteMetadata::SQLiteMetadata(QString fileName)
 
 SQLiteMetadata::~SQLiteMetadata()
 {
-    qDebug () << "Destroying SQLiteMetadata";
 }
 
 void SQLiteMetadata::setValue(QString column, QVariant value)
@@ -31,6 +30,17 @@ void SQLiteMetadata::setValue(QString column, QVariant value)
     q.addBindValue(value);
     q.addBindValue(QFileInfo(_fileName).fileName());
     q.exec();
+}
+
+bool SQLiteMetadata::exist()
+{
+    QSqlQuery q;
+
+    q.prepare("select * from file_metadata where file_name = ?");
+    q.addBindValue(QFileInfo(_fileName).fileName());
+    q.exec();
+
+    return q.next();
 }
 
 QVariant SQLiteMetadata::getValue(QString column)
@@ -55,6 +65,32 @@ QVariant SQLiteMetadata::getValue(QString column)
     return result;
 }
 
+int SQLiteMetadata::getInt(QString column)
+{
+    QVariant result;
+
+    result = getValue (column);
+    if (result.isValid()) {
+        return result.toInt();
+    }
+    else {
+        return 0;
+    }
+}
+
+QString SQLiteMetadata::getString(QString column)
+{
+    QVariant result;
+
+    result = getValue (column);
+    if (result.isValid()) {
+        return result.toString();
+    }
+    else {
+        return "";
+    }
+}
+
 QDateTime SQLiteMetadata::pictureDate()
 {
     QDateTime result;
@@ -64,35 +100,23 @@ QDateTime SQLiteMetadata::pictureDate()
 
 int SQLiteMetadata::rating()
 {
-    QVariant result;
-
-    qDebug () << "getRating";
-
-    result = getValue("rating");
-    if (result.isValid()) {
-        qDebug () << "Rating: " << result.toInt();
-
-        return result.toInt();
-    }
-    else {
-        qDebug () << "no rating";
-        return 0;
-    }
+    return getInt ("rating");
 }
 
 void SQLiteMetadata::setRating(int value)
 {
-    qDebug () << "setRating: " << value;
     setValue("rating", value);
 }
 
 int SQLiteMetadata::orientation()
 {
-    return 0;
+    return getInt("orientation");
 }
 
 void SQLiteMetadata::setOrientation (int value)
 {
+    qDebug () << "Setting orientation: " << value;
+    setValue ("orientation", value);
 }
 
 bool SQLiteMetadata::hasGpsInfo()
@@ -152,9 +176,11 @@ void SQLiteMetadata::initDB ()
 
         }
 
-        q.prepare(QLatin1String("insert into file_metadata (file_name) values (?)"));
-        q.addBindValue(info.fileName());
-        q.exec();
+        if (!exist()) {
+            q.prepare(QLatin1String("insert into file_metadata (file_name) values (?)"));
+            q.addBindValue(info.fileName());
+            q.exec();
+        }
     }
 }
 
