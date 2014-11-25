@@ -30,6 +30,8 @@ public:
 
     int volume();
     void setVolume(int value);
+
+    QString digikamDBFile ();
 };
 
 #endif // SETTINGSHELPER_H

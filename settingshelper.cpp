@@ -46,3 +46,8 @@ void SettingsHelper::setVolume(int value)
 {
     _settings->setValue("volume", value);
 }
+
+QString SettingsHelper::digikamDBFile()
+{
+    return _settings->value("digikam_db_file", "/home/david/Imágenes/digikam4.db").toString();
+}

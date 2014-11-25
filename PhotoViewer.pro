@@ -46,7 +46,8 @@ SOURCES += main.cpp\
     xmpmetadata.cpp \
     videoitemphonon.cpp \
 #    videofilter.cpp \
-    sqlitemetadata.cpp
+    sqlitemetadata.cpp \
+    digikammetadata.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -77,7 +78,8 @@ HEADERS  += photoviewer.h \
     xmpmetadata.h \
     videoitemphonon.h \
 #    videofilter.h \
-    sqlitemetadata.h
+    sqlitemetadata.h \
+    digikammetadata.h
 
 FORMS    += photoviewer.ui
 

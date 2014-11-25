@@ -164,23 +164,23 @@ void SQLiteMetadata::initDB ()
         db.setDatabaseName(dbName);
 
         db.open();
+    }
 
-        QStringList tables = db.tables();
-        QSqlQuery q;
+    QStringList tables = db.tables();
+    QSqlQuery q;
 
-        if (!tables.contains("file_metadata", Qt::CaseInsensitive)) {
-            q.exec(QLatin1String("create table file_metadata (id integer primary key, \
-                                                              file_name text, \
-                                                              rating integer, \
-                                                              orientation integer)"));
+    if (!tables.contains("file_metadata", Qt::CaseInsensitive)) {
+        q.exec(QLatin1String("create table file_metadata (id integer primary key, \
+                                                          file_name text, \
+                                                          rating integer, \
+                                                          orientation integer)"));
 
-        }
+    }
 
-        if (!exist()) {
-            q.prepare(QLatin1String("insert into file_metadata (file_name) values (?)"));
-            q.addBindValue(info.fileName());
-            q.exec();
-        }
+    if (!exist()) {
+        q.prepare(QLatin1String("insert into file_metadata (file_name) values (?)"));
+        q.addBindValue(info.fileName());
+        q.exec();
     }
 }
 

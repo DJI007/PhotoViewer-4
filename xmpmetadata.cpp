@@ -13,7 +13,7 @@ XMPMetadata::XMPMetadata(QString fileName)
 {
     _fileData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
     _fileData->readMetadata ();
-/*
+
     for (Exiv2::XmpData::const_iterator md = _fileData->xmpData().begin();
          md != _fileData->xmpData().end(); ++md) {
         std::cout << std::setfill(' ') << std::left
@@ -27,7 +27,6 @@ XMPMetadata::XMPMetadata(QString fileName)
                   << std::dec << md->value()
                   << std::endl;
     }
-*/
 }
 
 bool XMPMetadata::hasKey(const char *keyName)

@@ -10,6 +10,7 @@
 #include "settingshelper.h"
 #include "xmpmetadata.h"
 #include "sqlitemetadata.h"
+#include "digikammetadata.h"
 
 VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
 {
@@ -24,7 +25,15 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     }
     catch (Exiv2::AnyError& e) {
         Q_UNUSED(e);
-        _videoData = new SQLiteMetadata (fileName);
+
+        QFile digikamDB (SettingsHelper::instance().digikamDBFile());
+
+        if (digikamDB.exists()) {
+            _videoData = new DigikamMetadata (fileName);
+        }
+        else {
+            _videoData = new SQLiteMetadata (fileName);
+        }
     }
 
     _emitShowTimeEnded = false;
