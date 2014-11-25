@@ -122,20 +122,14 @@ void PictureView::showPicture(PictureAnimationType animType)
 {
     if (_currentItem != NULL) {
         _currentAnimationType = animType;
-        connect (_currentItem,
-                 SIGNAL(itemLoaded()),
-                 this,
-                 SLOT(on_itemLoaded ()));
-        connect (this,
-                 SIGNAL(beginItemAnimationIn()),
-                 _currentItem,
-                 SLOT(beginItemAnimationIn()));
-        connect (this,
-                 SIGNAL(endItemAnimationIn()),
-                 _currentItem,
-                 SLOT(endItemAnimationIn()));
 
-        // _pictureScene->addItem(_currentItem->graphicsItem());
+        connect (_currentItem, SIGNAL(itemLoaded()),
+                 this, SLOT(on_itemLoaded ()));
+        connect (this, SIGNAL(beginItemAnimationIn()),
+                 _currentItem, SLOT(beginItemAnimationIn()));
+        connect (this, SIGNAL(endItemAnimationIn()),
+                 _currentItem, SLOT(endItemAnimationIn()));
+
         _pictureScene->addItem(_currentItem);
         _currentItem->setInfoVisible(_infoVisible);
         _currentItem->load();

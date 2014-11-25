@@ -94,6 +94,7 @@ void PictureViewItemContainer::setShowTime(int time)
 {
     _item->setShowTime (time);
     if (time > 0) {
+        disconnect(dynamic_cast<QObject *> (_item), SIGNAL(showTimeEnded()), 0, 0);
         connect(dynamic_cast<QObject *> (_item), SIGNAL(showTimeEnded()),
                 this, SLOT(setShowTimeEnded()));
     }
@@ -109,11 +110,7 @@ void PictureViewItemContainer::setItemLoaded()
     _info = createInfo();
     _geoInfo = createGeoInfo();
     _rating = createRating();
-/*
-    _info->setParentItem (this->graphicsItem());
-    _geoInfo->setParentItem(this->graphicsItem());
-    _rating->setParentItem(this->graphicsItem());
-*/
+
     _info->hide();
     _geoInfo->hide();
     _rating->hide();
@@ -273,16 +270,14 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
 
 void PictureViewItemContainer::showInfo(bool show)
 {
-    if (show != _isInfoVisible) {
+    if (_info && show != _isInfoVisible) {
         AbstractPictureAnimation *anim;
         QAnimationGroup *group;
 
-        if (_info) {
-            if (show) {
-                _info->show();
-                _geoInfo->show();
-                _rating->show();
-            }
+        if (show) {
+            _info->show();
+            _geoInfo->show();
+            _rating->show();
         }
 
         //setInfoRatingPosition();
@@ -290,37 +285,31 @@ void PictureViewItemContainer::showInfo(bool show)
         group = new QParallelAnimationGroup();
         anim = new AnimationScale();
 
-        if (_rating) {
-            for (int i = 0; i < _rating->childItems().count(); i++) {
-                ObjectPixmapItem *current;
+        for (int i = 0; i < _rating->childItems().count(); i++) {
+            ObjectPixmapItem *current;
 
-                current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
+            current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
 
-                if (show) {
-                    group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
-                }
-                else {
-                    group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
-                }
+            if (show) {
+                group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
+            }
+            else {
+                group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
             }
         }
 
-        if (_info) {
-            if (show) {
-                group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
-            }
-            else {
-                group->addAnimation(anim->getAnimationOut(_info, 500, _info->boundingRect().width()));
-            }
+        if (show) {
+            group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
+        }
+        else {
+            group->addAnimation(anim->getAnimationOut(_info, 500, _info->boundingRect().width()));
         }
 
-        if (_geoInfo) {
-            if (show) {
-                group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _info->boundingRect().width()));
-            }
-            else {
-                group->addAnimation(anim->getAnimationOut(_geoInfo, 500, _info->boundingRect().width()));
-            }
+        if (show) {
+            group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _info->boundingRect().width()));
+        }
+        else {
+            group->addAnimation(anim->getAnimationOut(_geoInfo, 500, _info->boundingRect().width()));
         }
 
         group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -346,12 +335,12 @@ void PictureViewItemContainer::setRating(int value)
 
 double PictureViewItemContainer::latitude()
 {
-    return 0;
+    return _item->metadata()->gpsLatitude();
 }
 
 double PictureViewItemContainer::longitude()
 {
-    return 0;
+    return _item->metadata()->gpsLongitude();
 }
 
 void PictureViewItemContainer::beginItemAnimationIn()
@@ -362,13 +351,11 @@ void PictureViewItemContainer::beginItemAnimationIn()
 
 void PictureViewItemContainer::endItemAnimationIn()
 {
-    showInfo(true);
-    _item->endItemAnimationIn();
-/*
     if (_infoVisible) {
         showInfo(true);
     }
-*/
+
+    _item->endItemAnimationIn();
 }
 
 void PictureViewItemContainer::beginItemAnimationOut()
@@ -478,10 +465,6 @@ void PictureViewItemContainer::doRotation(int angle)
     if ((height * scaleFactor) > sceneWidth) {
         scaleFactor = sceneWidth / height;
     }
-
-    qDebug () << "Scene: " << sceneWidth <<"x"<< sceneHeight;
-    qDebug () << "Rect:  " << width <<"x"<< height;
-    qDebug () << "ScaleFactor (rotating): " << scaleFactor;
 
     transformX = width / 2;
     transformY = height / 2;

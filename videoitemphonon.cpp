@@ -18,13 +18,6 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     _fileName = fileName;
     setBrush(Qt::NoBrush);
     setPen(Qt::NoPen);
-/*
-    QPen pen;
-    pen.setStyle(Qt::SolidLine);
-    pen.setColor(Qt::red);
-    pen.setWidth(3);
-    setPen(pen);
-*/
 
     try {
         _videoData = new XMPMetadata(fileName);
@@ -100,12 +93,10 @@ void VideoItemPhonon::resize()
     sceneHeight = this->scene()->height();
     sceneWidth = this->scene()->width();
     if (rot == 90 || rot == 270) {
-        qDebug () << "Vertical: " << rot;
         width = sceneHeight;
         height = sceneWidth;
     }
     else {
-        qDebug () << "Horizontal: " << rot;
         width = this->scene()->width();
         height = this->scene()->height();
     }
@@ -115,13 +106,6 @@ void VideoItemPhonon::resize()
         scaleFactor = sceneWidth / width;
     }
 
-    qDebug () << "ScaleFactor (resize): " << scaleFactor;
-
-    //width *= scaleFactor;
-    //height *= scaleFactor;
-
-    //left = ((sceneWidth - width) / 2);
-    //top = ((sceneHeight - height) / 2);
     left = 0;
     top = 0;
 
@@ -154,9 +138,6 @@ QDateTime VideoItemPhonon::getDate()
 
 void VideoItemPhonon::on_aboutToFinish()
 {
-    if (_emitShowTimeEnded) {
-        emit showTimeEnded();
-    }
 }
 
 void VideoItemPhonon::on_durationChanged(qint64 value)
@@ -180,6 +161,10 @@ void VideoItemPhonon::on_stateChanged(Phonon::State newState, Phonon::State oldS
         break;
 
     case Phonon::StoppedState:
+        if (_emitShowTimeEnded && oldState == Phonon::PlayingState) {
+            emit showTimeEnded();
+        }
+
         emit stopMedia();
         break;
 

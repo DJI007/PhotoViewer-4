@@ -121,6 +121,8 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 
     if (lastDirectory.compare("~") != 0) {
         showCurrentPicture();
+
+        ui->gvPicture->setInfoVisible(true);
     }
 
 }
