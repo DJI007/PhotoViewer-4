@@ -47,8 +47,8 @@ SOURCES += main.cpp\
     videoitemphonon.cpp \
 #    videofilter.cpp \
     sqlitemetadata.cpp \
-    digikammetadata.cpp \
-    volumeinformation.cpp
+    digikammetadata.cpp
+
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -110,6 +110,7 @@ win32|win32-msvc* {
     #INCLUDEPATH  += $$quote(C:/Users/dmagro/git/ffmpeg-dev/include)
     #LIBS         += -L$$quote(C:/Users/dmagro/git/ffmpeg-dev/lib)
     #LIBS         += -lavfilter -lavformat -lavcodec -lavutil
+    SOURCES += volumeinformation_windows.cpp
 }
 
 unix {
@@ -138,6 +139,7 @@ unix {
     #LIBS         += -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lpostproc
 
     # blkid
+    SOURCES += volumeinformation_unix.cpp
     LIBS += -lblkid
 }
 

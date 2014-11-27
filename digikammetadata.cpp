@@ -35,10 +35,6 @@ DigikamMetadata::DigikamMetadata(QString fileName)
     _fileName = fileName;
 
     readFromDB ();
-
-    VolumeInformation *v;
-
-    v = new VolumeInformation();
 }
 
 DigikamMetadata::~DigikamMetadata()
