@@ -9,6 +9,7 @@
 #include <QDebug>
 
 #include "settingshelper.h"
+#include "volumeinformation.h"
 
 /* Digikam select:
  *   select i.id,
@@ -22,9 +23,11 @@
  *          ip.longitudeNumber,
  *          ip.altitude
  *   from images i
+ *        inner join albums a on i.album = a.id
+ *        inner join albumroots ar on a.albumRoot = ar.id
  *        left join imagepositions ip on i.id = ip.imageid
  *        left join imageinformation ii on i.id = ii.imageid
- *   where i.name = ?
+ *   where i.name = ? and ar.specificPath = ?
  */
 
 DigikamMetadata::DigikamMetadata(QString fileName)
@@ -32,6 +35,10 @@ DigikamMetadata::DigikamMetadata(QString fileName)
     _fileName = fileName;
 
     readFromDB ();
+
+    VolumeInformation *v;
+
+    v = new VolumeInformation();
 }
 
 DigikamMetadata::~DigikamMetadata()
@@ -49,6 +56,8 @@ void DigikamMetadata::setImageInformationValue(QString column, QVariant value)
     q.addBindValue(value);
     q.addBindValue(_id);
     q.exec();
+
+    qDebug () << "setImageInformationValue: " << column << ": " << value.toString() << "-.-" << _id;
 }
 
 
@@ -112,21 +121,25 @@ double DigikamMetadata::gpsAltitude()
 void DigikamMetadata::readFromDB()
 {
     QString dbName;
-    QSqlDatabase db;
 
     dbName = SettingsHelper::instance().digikamDBFile();
 
     if (!QSqlDatabase::database().isValid()) {
+        QSqlDatabase db;
+
         db = QSqlDatabase::addDatabase("QSQLITE");
         db.setDatabaseName(dbName);
     }
 
-    db.open();
-    if (db.isOpen()) {
+    if (QSqlDatabase::database().open()) {
         QSqlQuery q;
+        QFileInfo info (_fileName);
+
+        qDebug () << SQL_SELECT << "-.-" << info.fileName() << "-.-" << info.absolutePath();
 
         q.prepare(SQL_SELECT);
-        q.addBindValue(QFileInfo(_fileName).fileName());
+        q.addBindValue(info.fileName());
+        q.addBindValue(info.absolutePath());
         q.exec();
 
         if (q.next()) {

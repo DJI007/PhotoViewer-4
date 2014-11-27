@@ -47,7 +47,8 @@ SOURCES += main.cpp\
     videoitemphonon.cpp \
 #    videofilter.cpp \
     sqlitemetadata.cpp \
-    digikammetadata.cpp
+    digikammetadata.cpp \
+    volumeinformation.cpp
 
 HEADERS  += photoviewer.h \
     pictureview.h \
@@ -79,7 +80,8 @@ HEADERS  += photoviewer.h \
     videoitemphonon.h \
 #    videofilter.h \
     sqlitemetadata.h \
-    digikammetadata.h
+    digikammetadata.h \
+    volumeinformation.h
 
 FORMS    += photoviewer.ui
 
@@ -134,6 +136,9 @@ unix {
     #INCLUDEPATH  += $$quote(/opt/ffmpeg-2.4.2/include/)
     #LIBS         += -L$$quote(/opt/ffmpeg-2.4.2/lib/)
     #LIBS         += -lavfilter -lavformat -lavcodec -lavutil -lswscale -lswresample -lpostproc
+
+    # blkid
+    LIBS += -lblkid
 }
 
 OTHER_FILES += \

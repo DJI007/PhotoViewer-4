@@ -16,9 +16,11 @@
                            ip.longitudeNumber, \
                            ip.altitude \
                     from images i \
+                         inner join albums a on i.album = a.id \
+                         inner join albumroots ar on a.albumRoot = ar.id \
                          left join imagepositions ip on i.id = ip.imageid \
                          left join imageinformation ii on i.id = ii.imageid \
-                    where i.name = ?"
+                    where i.name = ? and ar.specificPath = ?"
 
 class DigikamMetadata : public AbstractMetadata
 {
