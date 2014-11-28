@@ -79,7 +79,24 @@ void VideoItemPhonon::load()
 {
     _player->setCurrentSource(Phonon::MediaSource(QUrl::fromLocalFile(_fileName)));
 
-    setItemRotation(_videoData->orientation());
+    // Use the same orientation values that exif
+    // (see objectpixmapitem.cpp, correctOrientationPicture method)
+    switch (_videoData->orientation()) {
+    case 1:
+        // Do nothing
+        // setItemRotation(0);
+        break;
+    case 6:
+        setItemRotation(90);
+        break;
+    case 3:
+        setItemRotation(180);
+        break;
+    case 8:
+        setItemRotation(270);
+        break;
+    }
+
     resize();
 
     _panel->setVolume(_audio->volume());
@@ -289,8 +306,33 @@ void VideoItemPhonon::beginRotateAnimation()
 void VideoItemPhonon::endRotateAnimation()
 {
     // Change width and height
-    // this->setRect(0, 0, this->rect().height(), this->rect().width());
-    _videoData->setOrientation(((int) itemRotation()) % 360);
+    int degrees;
+
+    degrees = ((int) itemRotation()) % 360;
+
+    qDebug () << "ItemRotation: " << degrees;
+
+    // Use the same orientation values that exif
+    // (see objectpixmapitem.cpp, correctOrientationPicture method)
+    switch (degrees) {
+    case 0:
+        _videoData->setOrientation(1);
+        break;
+    case 90:
+    case -270:
+        _videoData->setOrientation(6);
+        break;
+    case 180:
+    case -180:
+        _videoData->setOrientation(3);
+        break;
+    case 270:
+    case -90:
+        _videoData->setOrientation(8);
+        break;
+    default:
+        qDebug () << "Unsuported orientation: " << degrees;
+    }
 
     resize ();
 

@@ -16,6 +16,20 @@ DigikamMetadata::DigikamMetadata(QString fileName)
     _fileName = fileName;
 
     readFromDB ();
+
+    if (!_exist) {
+        _id = -1;
+        _creationDate = QFileInfo(fileName).created();
+        _rating = 0;
+        _orientation = 0;
+
+        _hasGpsInfo = false;
+        _latitudeRef = "";
+        _latitude = 0;
+        _longitudeRef = "";
+        _longitude = 0;
+        _altitude = 0;
+    }
 }
 
 DigikamMetadata::~DigikamMetadata()
@@ -24,17 +38,17 @@ DigikamMetadata::~DigikamMetadata()
 
 void DigikamMetadata::setImageInformationValue(QString column, QVariant value)
 {
-    QString sql;
-    QSqlQuery q;
+    if (_exist) {
+        QString sql;
+        QSqlQuery q;
 
-    QTextStream(&sql) << "update imageinformation set " << column << " = ? where imageid = ?";
+        QTextStream(&sql) << "update imageinformation set " << column << " = ? where imageid = ?";
 
-    q.prepare(sql);
-    q.addBindValue(value);
-    q.addBindValue(_id);
-    q.exec();
-
-    qDebug () << "setImageInformationValue: " << column << ": " << value.toString() << "-.-" << _id;
+        q.prepare(sql);
+        q.addBindValue(value);
+        q.addBindValue(_id);
+        q.exec();
+    }
 }
 
 
@@ -67,32 +81,32 @@ void DigikamMetadata::setOrientation (int value)
 
 bool DigikamMetadata::hasGpsInfo()
 {
-    return false;
+    return _hasGpsInfo;
 }
 
 double DigikamMetadata::gpsLatitude()
 {
-    return 0;
+    return _latitude;
 }
 
 QString DigikamMetadata::gpsLatitudeRef ()
 {
-    return "";
+    return _latitudeRef;
 }
 
 double DigikamMetadata::gpsLongitude()
 {
-    return 0;
+    return _longitude;
 }
 
 QString DigikamMetadata::gpsLongitudeRef ()
 {
-    return "";
+    return _longitudeRef;
 }
 
 double DigikamMetadata::gpsAltitude()
 {
-    return 0;
+    return _altitude;
 }
 
 void DigikamMetadata::readFromDB()
@@ -112,9 +126,7 @@ void DigikamMetadata::readFromDB()
         QSqlQuery q;
         VolumeInformation volInfo (_fileName);
 
-        // qDebug () << SQL_SELECT << "-.-" << info.fileName() << "-.-" << info.absolutePath();
-
-        qDebug () << volInfo.volumeUri() << "-.-" << volInfo.filePath();
+        qDebug () << volInfo.fileName() << "-.-" << volInfo.volumeUri() << "-.-" << volInfo.filePath();
 
         q.prepare(SQL_SELECT);
         q.addBindValue(volInfo.fileName());
@@ -127,28 +139,40 @@ void DigikamMetadata::readFromDB()
             _creationDate = q.value("creationDate").toDateTime();
 
             _rating = getIntValue(q.value("rating"));
-            _orientation = getIntValue(q.value("orientation"));
-            _latitudeRef = getStringValue(q.value("latitudeRef"));
-            _latitude = getDoubleValue(q.value("latitudeNumber"));
-            _longitudeRef = getStringValue(q.value("longitudeRef"));
-            _longitude = getDoubleValue(q.value("longitudeNumber"));
-            _altitude = getDoubleValue(q.value("altitude"));
+            _orientation = getIntValue(q.value("orientation"), 1);
+
+            if (q.value("latitudeNumber").isNull()) {
+                _hasGpsInfo = false;
+            }
+            else {
+                _hasGpsInfo = true;
+                _latitudeRef = getStringValue(q.value("latitudeRef"));
+                _latitude = getDoubleValue(q.value("latitudeNumber"));
+                _longitudeRef = getStringValue(q.value("longitudeRef"));
+                _longitude = getDoubleValue(q.value("longitudeNumber"));
+                _altitude = getDoubleValue(q.value("altitude"));
+            }
+
+            qDebug () << "Reading digikam info: " << _rating << ", " << _orientation;
 
             _exist = true;
         }
         else {
+            qDebug () << "Doesn't exist in digikam";
+
             _exist = false;
         }
     }
     else {
+        qDebug () << "Can't open database";
         _exist = false;
     }
 }
 
-int DigikamMetadata::getIntValue(QVariant value)
+int DigikamMetadata::getIntValue(QVariant value, int defaultValue)
 {
     if (value.isNull()) {
-        return 0;
+        return defaultValue;
     }
     else {
         int result;
@@ -163,20 +187,20 @@ int DigikamMetadata::getIntValue(QVariant value)
     }
 }
 
-QString DigikamMetadata::getStringValue(QVariant value)
+QString DigikamMetadata::getStringValue(QVariant value, QString defaultValue)
 {
     if (value.isNull()) {
-        return "";
+        return defaultValue;
     }
     else {
         return value.toString();
     }
 }
 
-double DigikamMetadata::getDoubleValue(QVariant value)
+double DigikamMetadata::getDoubleValue(QVariant value, double defaultValue)
 {
     if (value.isNull()) {
-        return 0;
+        return defaultValue;
     }
     else {
         return value.toDouble();

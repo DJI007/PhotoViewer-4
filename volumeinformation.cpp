@@ -4,11 +4,6 @@
 
 #include <QFileInfoList>
 #include <QDir>
-#include <QDBusReply>
-#include <QDBusObjectPath>
-#include <QDBusMessage>
-#include <QDBusConnection>
-#include <QDBusInterface>
 
 #ifdef Q_OS_WIN32
 
@@ -19,23 +14,22 @@ VolumeInformation::VolumeInformation(QString path)
     WCHAR szVolumeName[256] ;
     WCHAR szFileSystemName[256];
     DWORD dwSerialNumber = 0;
-    DWORD dwMaxFileNameLength=256;
-    DWORD dwFileSystemFlags=0;
+    DWORD dwMaxFileNameLength = 256;
+    DWORD dwFileSystemFlags = 0;
+
     int pos;
-    QString windowsPath;
 
-    windowsPath = path.replace("/", "\\");
+    _srcPath = QDir::toNativeSeparators(path);
 
-    qDebug () << windowsPath;
-    pos = windowsPath.indexOf("\\");
+    pos = _srcPath.indexOf("\\");
     if (pos == -1) {
-        return QObject::tr("Unknown");
+        _rootPath = "C:\\";
+    }
+    else {
+        _rootPath = _srcPath.left(pos + 1);
     }
 
-    qDebug () << "QFileInfo(path).baseName(): " << windowsPath.left(pos + 1);
-
-
-    bool ret = GetVolumeInformation( (WCHAR *) windowsPath.left(pos + 1).utf16(),
+    bool ret = GetVolumeInformation( (WCHAR *) _srcPath.left(pos + 1).utf16(),
                                      szVolumeName,
                                      256,
                                      &dwSerialNumber,
@@ -45,16 +39,24 @@ VolumeInformation::VolumeInformation(QString path)
                                      256);
 
     if (!ret) {
-        return QString(QObject::tr("Unknown"));
+        _uuid = QString(QObject::tr("Unknown"));
     }
     else {
-        return QString::number(dwSerialNumber, 16);
+        _uuid = QString::number(dwSerialNumber, 16);
     }
+
+    qDebug () << _srcPath << "-.-" << _rootPath << "-.-" << _uuid << "-.-" << filePath() << "-.-" << fileName();
 }
 
 #endif
 
 #ifdef Q_OS_LINUX
+
+#include <QDBusReply>
+#include <QDBusObjectPath>
+#include <QDBusMessage>
+#include <QDBusConnection>
+#include <QDBusInterface>
 
 extern "C" {
 #include <stdio.h>
@@ -140,7 +142,14 @@ QString VolumeInformation::filePath()
         return info.absolutePath();
     }
     else {
-        return info.absolutePath().remove(0, _rootPath.length());
+        QString result;
+
+        result = info.absolutePath().remove(0, _rootPath.length());
+        if (!result.startsWith("/")) {
+            result.insert(0, "/");
+        }
+
+        return result;
     }
 }
 
@@ -151,7 +160,11 @@ QString VolumeInformation::rootPath()
 
 QString VolumeInformation::fileName()
 {
-    return QFileInfo (_srcPath).fileName();
+    QFileInfo info;
+
+    info.setFile(QDir::fromNativeSeparators(_srcPath));
+
+    return info.fileName();
 }
 
 

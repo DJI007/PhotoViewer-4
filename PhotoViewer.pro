@@ -9,7 +9,6 @@ QT += positioning location
 QT += qml quick
 QT += phonon4qt5
 QT += sql
-QT += dbus
 
 # QT += multimedia multimediawidgets
 # QT += av
@@ -116,6 +115,8 @@ win32|win32-msvc* {
 }
 
 unix {
+    QT += dbus
+
     # enum
     QMAKE_CXXFLAGS += -std=c++11
 

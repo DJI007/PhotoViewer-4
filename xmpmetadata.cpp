@@ -3,6 +3,7 @@
 #include <exiv2/xmp.hpp>
 #include <QString>
 #include <QDateTime>
+#include <QFileInfo>
 
 #include "abstractmetadata.h"
 
@@ -11,6 +12,8 @@
 
 XMPMetadata::XMPMetadata(QString fileName)
 {
+    _fileName = fileName;
+
     _fileData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
     _fileData->readMetadata ();
 
@@ -143,9 +146,7 @@ QDateTime XMPMetadata::pictureDate()
         return start.addSecs(strDate.toUInt());
     }
     else {
-        QDateTime result;
-
-        return result;
+        return QFileInfo(_fileName).created();
     }
 }
 

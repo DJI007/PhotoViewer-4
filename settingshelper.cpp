@@ -49,6 +49,10 @@ void SettingsHelper::setVolume(int value)
 
 QString SettingsHelper::digikamDBFile()
 {
+#ifdef Q_OS_WIN
+    return "C:/Users/dmagro/Pictures/digikam4.db";
+#else
     // return _settings->value("digikam_db_file", "/home/david/Imágenes/digikam4.db").toString();
     return "/home/david/tmp/imagenes/digikam4.db";
+#endif
 }

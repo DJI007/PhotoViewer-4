@@ -28,6 +28,7 @@ public:
 
 private:
     Exiv2::Image::AutoPtr _fileData;
+    QString _fileName;
 
     QString getString (const char *keyName);
     long getLong (const char *keyName);

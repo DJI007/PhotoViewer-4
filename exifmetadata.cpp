@@ -1,11 +1,14 @@
 #include "exifmetadata.h"
 
 #include <QDebug>
+#include <QFileInfo>
 #include <exiv2/exiv2.hpp>
 
 ExifMetadata::ExifMetadata(QString fileName)
 {
     try {
+        _fileName = fileName;
+
         _imageData = Exiv2::ImageFactory::open(fileName.toUtf8().constData());
         _imageData->readMetadata ();
 
@@ -135,7 +138,7 @@ QDateTime ExifMetadata::pictureDate()
         return QDateTime::fromString(strDate, "yyyy:MM:dd hh:mm:ss");
     }
     else {
-        return QDateTime::fromTime_t(0);
+        return QFileInfo(_fileName).created();
     }
 }
 

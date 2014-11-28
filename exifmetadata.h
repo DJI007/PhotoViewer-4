@@ -27,6 +27,7 @@ public:
     void setOrientation (int value);
 
 private:
+    QString _fileName;
     Exiv2::Image::AutoPtr _imageData;
     bool _hasData;
 
