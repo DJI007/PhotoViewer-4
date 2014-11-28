@@ -60,9 +60,6 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     _videoItem->setPos(0, 0);
 
     createPanel();
-
-
-    qDebug () << VolumeInformation::volumeId(fileName);
 }
 
 VideoItemPhonon::~VideoItemPhonon()

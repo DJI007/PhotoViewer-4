@@ -20,7 +20,7 @@
                          inner join albumroots ar on a.albumRoot = ar.id \
                          left join imagepositions ip on i.id = ip.imageid \
                          left join imageinformation ii on i.id = ii.imageid \
-                    where i.name = ? and ar.specificPath = ?"
+                    where i.name = ? and ar.identifier = ? and ar.specificPath = ?"
 
 class DigikamMetadata : public AbstractMetadata
 {

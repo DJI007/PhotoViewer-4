@@ -11,25 +11,6 @@
 #include "settingshelper.h"
 #include "volumeinformation.h"
 
-/* Digikam select:
- *   select i.id,
- *          i.name,
- *          ii.creationDate,
- *          ii.rating,
- *          ii.orientation,
- *          substr(ip.latitude, -1) latitudeRef,
- *          ip.latitudeNumber,
- *          substr(ip.longitude, -1) longitudeRef,
- *          ip.longitudeNumber,
- *          ip.altitude
- *   from images i
- *        inner join albums a on i.album = a.id
- *        inner join albumroots ar on a.albumRoot = ar.id
- *        left join imagepositions ip on i.id = ip.imageid
- *        left join imageinformation ii on i.id = ii.imageid
- *   where i.name = ? and ar.specificPath = ?
- */
-
 DigikamMetadata::DigikamMetadata(QString fileName)
 {
     _fileName = fileName;
@@ -129,13 +110,16 @@ void DigikamMetadata::readFromDB()
 
     if (QSqlDatabase::database().open()) {
         QSqlQuery q;
-        QFileInfo info (_fileName);
+        VolumeInformation volInfo (_fileName);
 
-        qDebug () << SQL_SELECT << "-.-" << info.fileName() << "-.-" << info.absolutePath();
+        // qDebug () << SQL_SELECT << "-.-" << info.fileName() << "-.-" << info.absolutePath();
+
+        qDebug () << volInfo.volumeUri() << "-.-" << volInfo.filePath();
 
         q.prepare(SQL_SELECT);
-        q.addBindValue(info.fileName());
-        q.addBindValue(info.absolutePath());
+        q.addBindValue(volInfo.fileName());
+        q.addBindValue(volInfo.volumeUri());
+        q.addBindValue(volInfo.filePath());
         q.exec();
 
         if (q.next()) {
