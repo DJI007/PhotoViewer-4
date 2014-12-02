@@ -76,7 +76,7 @@
      <x>0</x>
      <y>0</y>
      <width>596</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -114,9 +114,18 @@
     </property>
     <addaction name="actionFull_screen"/>
    </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settings</string>
+    </property>
+    <addaction name="actionShow_toolbar"/>
+    <addaction name="separator"/>
+    <addaction name="actionConfig"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPresentation"/>
    <addaction name="menuWindow"/>
+   <addaction name="menuSettings"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="windowTitle">
@@ -358,6 +367,16 @@
    </property>
    <property name="shortcut">
     <string>Down</string>
+   </property>
+  </action>
+  <action name="actionShow_toolbar">
+   <property name="text">
+    <string>Show toolbar</string>
+   </property>
+  </action>
+  <action name="actionConfig">
+   <property name="text">
+    <string>Configure Photoviewer</string>
    </property>
   </action>
  </widget>

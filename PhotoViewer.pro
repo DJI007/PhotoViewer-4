@@ -49,7 +49,8 @@ SOURCES += main.cpp\
 #    videofilter.cpp \
     sqlitemetadata.cpp \
     digikammetadata.cpp \
-    volumeinformation.cpp
+    volumeinformation.cpp \
+    settingsdialog.cpp
 
 
 HEADERS  += photoviewer.h \
@@ -83,9 +84,11 @@ HEADERS  += photoviewer.h \
 #    videofilter.h \
     sqlitemetadata.h \
     digikammetadata.h \
-    volumeinformation.h
+    volumeinformation.h \
+    settingsdialog.h
 
-FORMS    += photoviewer.ui
+FORMS    += photoviewer.ui \
+    settings.ui
 
 TRANSLATIONS = photoviewer_es.ts
 
@@ -94,11 +97,11 @@ RESOURCES += \
 
 win32|win32-msvc* {
     #exiv2
-    INCLUDEPATH  += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/include)
-    LIBS         += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/exiv2lib/Win32/Debug/exiv2sd.lib)
-    LIBS         += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/expat/Win32/Debug/libexpat.lib)
-    LIBS         += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/zlib/Win32/Debug/zlib1d.lib)
-    LIBS         += $$quote(C:/Users/dmagro/git/exiv2-0.24/msvc2012/xmpsdk/Win32/Debug/xmpsdk.lib)
+    INCLUDEPATH  += $$quote(D:/Users/dmagro/git/exiv2-0.24/msvc2012/include)
+    LIBS         += $$quote(D:/Users/dmagro/git/exiv2-0.24/msvc2012/exiv2lib/Win32/Debug/exiv2sd.lib)
+    LIBS         += $$quote(D:/Users/dmagro/git/exiv2-0.24/msvc2012/expat/Win32/Debug/libexpat.lib)
+    LIBS         += $$quote(D:/Users/dmagro/git/exiv2-0.24/msvc2012/zlib/Win32/Debug/zlib1d.lib)
+    LIBS         += $$quote(D:/Users/dmagro/git/exiv2-0.24/msvc2012/xmpsdk/Win32/Debug/xmpsdk.lib)
 
     #marble
     #INCLUDEPATH += $$quote(d:/programas/marble/include)

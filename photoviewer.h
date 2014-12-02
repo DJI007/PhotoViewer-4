@@ -52,6 +52,8 @@ private slots:
 
     void on_actionRotate_Right_triggered();
 
+    void on_actionConfig_triggered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

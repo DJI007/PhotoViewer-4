@@ -15,6 +15,7 @@
 
 #include "settingshelper.h"
 #include "starsaction.h"
+#include "settingsdialog.h"
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -511,4 +512,13 @@ void PhotoViewer::on_actionRotate_Left_triggered()
 void PhotoViewer::on_actionRotate_Right_triggered()
 {
     ui->gvPicture->rotatePictureRight ();
+}
+
+void PhotoViewer::on_actionConfig_triggered()
+{
+    SettingsDialog *dlg;
+
+    dlg = new SettingsDialog(this);
+    dlg->setWindowModality(Qt::ApplicationModal);
+    dlg->show ();
 }
