@@ -16,7 +16,7 @@ VideoItem::VideoItem(QString fileName, QObject *parent)
     this->setParent(parent);
 
     _fileName = fileName;
-    _videoData = new XMPMetadata(fileName);
+    //_videoData = new XMPMetadata(fileName);
 
     _emitShowTimeEnded = false;
 
@@ -215,4 +215,22 @@ bool VideoItem::rotateRight()
 {
     // TODO: Rotate video
     return true;
+}
+
+void VideoItem::setItemRotation(qreal angle)
+{
+}
+
+qreal VideoItem::itemRotation()
+{
+    return 0;
+}
+
+void VideoItem::setItemScale(qreal scale)
+{
+}
+
+qreal VideoItem::itemScale()
+{
+    return 1;
 }

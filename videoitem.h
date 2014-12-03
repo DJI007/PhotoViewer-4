@@ -35,6 +35,13 @@ public:
     bool rotateLeft();
     bool rotateRight();
 
+    qreal itemRotation ();
+    qreal itemScale ();
+
+    void setItemRotation (qreal angle);
+    void setItemScale (qreal scale);
+
+
 signals:
     void itemLoaded ();
     void playMedia();

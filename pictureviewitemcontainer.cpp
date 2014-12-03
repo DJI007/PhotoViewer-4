@@ -41,7 +41,6 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     setPen(Qt::NoPen);
 
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
-        //  _item = new VideoItem(fileName, this);
         _item = new VideoItemPhonon(fileName, this);
     }
     else {

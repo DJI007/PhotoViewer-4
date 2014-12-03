@@ -23,6 +23,15 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
     setBrush(Qt::NoBrush);
     setPen(Qt::NoPen);
 
+    QFile digikamDB (SettingsHelper::instance().digikamDBFile());
+
+    if (digikamDB.exists()) {
+        _videoData = new DigikamMetadata (fileName);
+    }
+    else {
+        _videoData = new SQLiteMetadata (fileName);
+    }
+/*
     try {
         _videoData = new XMPMetadata(fileName);
     }
@@ -38,7 +47,7 @@ VideoItemPhonon::VideoItemPhonon(QString fileName, QObject *parent)
             _videoData = new SQLiteMetadata (fileName);
         }
     }
-
+*/
     _emitShowTimeEnded = false;
 
     _player = new Phonon::MediaObject(this);
