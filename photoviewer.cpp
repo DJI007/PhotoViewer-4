@@ -24,7 +24,7 @@
  * @param parent
  */
 PhotoViewer::PhotoViewer(QWidget *parent) :
-    QMainWindow(parent),
+    QMainWindow(parent) ,
     ui(new Ui::PhotoViewer)
 {
     ui->setupUi(this);
@@ -520,5 +520,7 @@ void PhotoViewer::on_actionConfig_triggered()
 
     dlg = new SettingsDialog(this);
     dlg->setWindowModality(Qt::ApplicationModal);
-    dlg->show ();
+    if (dlg->exec () == QDialog::Accepted) {
+        dlg->saveSettings ();
+    }
 }

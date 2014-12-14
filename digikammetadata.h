@@ -30,6 +30,8 @@ public:
     DigikamMetadata(QString fileName);
     ~DigikamMetadata();
 
+    static bool isValidDBFile(QString fileName);
+
     QDateTime pictureDate ();
     int rating ();
     int orientation ();

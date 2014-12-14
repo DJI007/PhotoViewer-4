@@ -31,7 +31,37 @@ public:
     int volume();
     void setVolume(int value);
 
+    // Settings dialog
+
+    bool showToolbar ();
+    void setShowToolbar (bool value);
+
+    bool showLocationInformation ();
+    void setShowLocationInformation (bool value);
+
+    bool showRating();
+    void setShowRating(bool value);
+
+    bool showFileInformation ();
+    void setShowFileInformation (bool value);
+
+    bool presentationShowLocationInformation ();
+    void setPresentationShowLocationInformation (bool value);
+
+    bool presentationShowRating();
+    void setPresentationShowRating(bool value);
+
+    bool presentationShowFileInformation ();
+    void setPresentationShowFileInformation (bool value);
+
+    int presentationInterval ();
+    void setPresentationInterval (int value);
+
+    bool integrateDigikam ();
+    void setIntegrateDigikam (bool value);
+
     QString digikamDBFile ();
+    void setDigikamDBFile (QString value);
 };
 
 #endif // SETTINGSHELPER_H

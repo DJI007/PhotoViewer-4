@@ -2,6 +2,7 @@
 
 #include <QCoreApplication>
 #include <QDebug>
+#include <QDir>
 
 SettingsHelper::SettingsHelper()
 {
@@ -47,12 +48,107 @@ void SettingsHelper::setVolume(int value)
     _settings->setValue("volume", value);
 }
 
-QString SettingsHelper::digikamDBFile()
+bool SettingsHelper::showToolbar ()
 {
-#ifdef Q_OS_WIN
-    return "C:/Users/dmagro/Pictures/digikam4.db";
-#else
-    // return _settings->value("digikam_db_file", "/home/david/Imágenes/digikam4.db").toString();
-    return "/home/david/tmp/imagenes/digikam4.db";
-#endif
+    return _settings->value("show_toolbar", true).toBool();
 }
+
+void SettingsHelper::setShowToolbar (bool value)
+{
+    _settings->setValue("show_toolbar", value);
+}
+
+bool SettingsHelper::showLocationInformation ()
+{
+    return _settings->value("show_location_information", true).toBool();
+}
+
+void SettingsHelper::setShowLocationInformation (bool value)
+{
+    _settings->setValue("show_location_information", value);
+}
+
+bool SettingsHelper::showRating()
+{
+    return _settings->value("show_rating", true).toBool();
+}
+
+void SettingsHelper::setShowRating(bool value)
+{
+    _settings->setValue("show_rating", value);
+}
+
+bool SettingsHelper::showFileInformation ()
+{
+    return _settings->value("show_file_information", true).toBool();
+}
+
+void SettingsHelper::setShowFileInformation (bool value)
+{
+    _settings->setValue("show_file_information", value);
+}
+
+bool SettingsHelper::presentationShowLocationInformation ()
+{
+    return _settings->value("presentation_show_location_information", false).toBool();
+}
+
+void SettingsHelper::setPresentationShowLocationInformation (bool value)
+{
+    _settings->setValue("presentation_show_location_information", value);
+}
+
+bool SettingsHelper::presentationShowRating()
+{
+    return _settings->value("presentation_show_rating", false).toBool();
+}
+
+void SettingsHelper::setPresentationShowRating(bool value)
+{
+    _settings->setValue("presentation_show_rating", value);
+}
+
+bool SettingsHelper::presentationShowFileInformation ()
+{
+    return _settings->value("presentation_show_file_information", false).toBool();
+}
+
+void SettingsHelper::setPresentationShowFileInformation (bool value)
+{
+    _settings->setValue("presentation_show_file_information", value);
+}
+
+int SettingsHelper::presentationInterval ()
+{
+    return _settings->value("presentation_interval", 5).toInt();
+}
+
+void SettingsHelper::setPresentationInterval (int value)
+{
+    _settings->setValue("presentation_interval", value);
+}
+
+bool SettingsHelper::integrateDigikam ()
+{
+    return _settings->value("integrate_digikam", false).toBool();
+}
+
+void SettingsHelper::setIntegrateDigikam (bool value)
+{
+    _settings->setValue("integrate_digikam", value);
+}
+
+QString SettingsHelper::digikamDBFile ()
+{
+    return _settings->value("digikam_database_file", QDir::homePath () + "/digikam4.db").toString();
+}
+
+void SettingsHelper::setDigikamDBFile (QString value)
+{
+    _settings->setValue("digikam_database_file", value);
+}
+
+
+
+
+

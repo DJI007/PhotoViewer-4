@@ -126,7 +126,7 @@ void DigikamMetadata::readFromDB()
         QSqlQuery q;
         VolumeInformation volInfo (_fileName);
 
-        qDebug () << volInfo.fileName() << "-.-" << volInfo.volumeUri() << "-.-" << volInfo.filePath();
+        // qDebug () << volInfo.fileName() << "-.-" << volInfo.volumeUri() << "-.-" << volInfo.filePath();
 
         q.prepare(SQL_SELECT);
         q.addBindValue(volInfo.fileName());
@@ -207,3 +207,27 @@ double DigikamMetadata::getDoubleValue(QVariant value, double defaultValue)
     }
 }
 
+bool DigikamMetadata::isValidDBFile(QString fileName)
+{
+    bool result;
+
+    result = false;
+
+    // Scope to free database objects and all removeDatabase safely
+    {
+        QSqlDatabase db;
+
+        db = QSqlDatabase::addDatabase("QSQLITE", "test_connection");
+        db.setDatabaseName(fileName);
+
+        if (db.open()) {
+            result = db.tables().contains(QLatin1String("Images"));
+        }
+
+        db.close();
+    }
+
+    QSqlDatabase::removeDatabase("test_connection");
+
+    return result;
+}
