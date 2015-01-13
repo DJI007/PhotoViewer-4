@@ -26,6 +26,7 @@
         <file>images/mono_rotate_right.png</file>
         <file>images/settings-general.png</file>
         <file>images/digikam-logo.png</file>
+        <file>images/photoviewer-icon.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>

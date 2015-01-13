@@ -32,6 +32,9 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     // dock map window
     //ui->dwMap->hide();
 
+    connect(ui->mainToolBar, SIGNAL(visibilityChanged(bool)),
+            this, SLOT(on_mainToolbarVisibilityChanged (bool)));
+
     connect(ui->gvPicture,
             SIGNAL(requestMapWindow(double,double,double)),
             this,
@@ -46,7 +49,6 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     // container = QWidget::createWindowContainer(_mapView, this);
     // ui->dwMap->setWidget(container);
     // _mapView->show();
-
 
     _lblStatusFileCount = new QLabel (this);
     _lblStatusFileCount->setObjectName("lblStatusFileCount");
@@ -105,7 +107,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     QString lastDirectory;
     QStringList filters;
 
-    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.avi" << "*.mts";
+    filters << "*.gif" << "*.jpg" << "*.jpeg" << "*.png" << "*.mp4" << "*.nef" << "*.avi" << "*.mts" << "*.cr2";
 
     lastDirectory = SettingsHelper::instance ().lastDirectory ();
 
@@ -126,6 +128,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
         ui->gvPicture->setInfoVisible(true);
     }
 
+    loadSettings ();
 }
 
 PhotoViewer::~PhotoViewer()
@@ -348,7 +351,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
 
     fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
     fd->setFileMode (QFileDialog::Directory);
-    fd->setOption (QFileDialog::ShowDirsOnly);
+    // fd->setOption (QFileDialog::ShowDirsOnly);
     fd->setViewMode (QFileDialog::Detail);
 
     int result = fd->exec();
@@ -523,4 +526,21 @@ void PhotoViewer::on_actionConfig_triggered()
     if (dlg->exec () == QDialog::Accepted) {
         dlg->saveSettings ();
     }
+}
+
+void PhotoViewer::loadSettings()
+{
+    ui->actionShow_toolbar->setChecked(SettingsHelper::instance().showToolbar());
+    ui->mainToolBar->setVisible(SettingsHelper::instance().showToolbar());
+}
+
+void PhotoViewer::on_actionShow_toolbar_toggled(bool arg1)
+{
+    ui->mainToolBar->setVisible(arg1);
+    SettingsHelper::instance().setShowToolbar(arg1);
+}
+
+void PhotoViewer::on_mainToolbarVisibilityChanged(bool visible)
+{
+    ui->actionShow_toolbar->setChecked(visible);
 }

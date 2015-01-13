@@ -23,10 +23,13 @@ public:
 
 private slots:
     void on_actionChange_folder_triggered();
+
+    void on_actionFirst_picture_triggered();
     void on_actionPrevious_picture_triggered();
     void on_actionPlay_triggered();
     void on_actionNext_picture_triggered();
-    //void on_starsAction_setRating_triggered(int rating);
+    void on_actionLast_picture_triggered();
+
     void on_actionSet_0_stars_triggered();
     void on_actionSet_1_star_triggered();
     void on_actionSet_2_stars_triggered();
@@ -43,16 +46,17 @@ private slots:
 
     void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
 
-    void on_actionFirst_picture_triggered();
-    void on_actionLast_picture_triggered();
     void on_actionFull_screen_triggered();
     void on_actionExit_full_screen_triggered();
 
     void on_actionRotate_Left_triggered();
-
     void on_actionRotate_Right_triggered();
 
     void on_actionConfig_triggered();
+
+    void on_actionShow_toolbar_toggled(bool arg1);
+
+    void on_mainToolbarVisibilityChanged(bool visible);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -89,6 +93,8 @@ private:
     void setRating (int value);
 
     void updateStatusBar ();
+
+    void loadSettings ();
 };
 
 #endif // PHOTOVIEWER_H
