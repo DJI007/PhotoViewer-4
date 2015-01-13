@@ -43,6 +43,11 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     connect(ui->gvPicture, SIGNAL(showTimeEnded()),
             this, SLOT(on_pictureShowTimeEnded()));
 
+    connect(ui->gvPicture, SIGNAL(beginItemAnimationIn()),
+            this, SLOT(on_beginItemAnimation()));
+    connect(ui->gvPicture, SIGNAL(endItemAnimationIn()),
+            this, SLOT(on_endItemAnimation()));
+
     // QWidget *container;
 
     _mapView = new MapView();
@@ -543,4 +548,20 @@ void PhotoViewer::on_actionShow_toolbar_toggled(bool arg1)
 void PhotoViewer::on_mainToolbarVisibilityChanged(bool visible)
 {
     ui->actionShow_toolbar->setChecked(visible);
+}
+
+void PhotoViewer::on_beginItemAnimation()
+{
+    ui->actionFirst_picture->setEnabled(false);
+    ui->actionPrevious_picture->setEnabled(false);
+    ui->actionNext_picture->setEnabled(false);
+    ui->actionLast_picture->setEnabled(false);
+}
+
+void PhotoViewer::on_endItemAnimation()
+{
+    ui->actionFirst_picture->setEnabled(true);
+    ui->actionPrevious_picture->setEnabled(true);
+    ui->actionNext_picture->setEnabled(true);
+    ui->actionLast_picture->setEnabled(true);
 }

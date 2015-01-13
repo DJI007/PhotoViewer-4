@@ -58,6 +58,9 @@ private slots:
 
     void on_mainToolbarVisibilityChanged(bool visible);
 
+    void on_beginItemAnimation ();
+    void on_endItemAnimation ();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
