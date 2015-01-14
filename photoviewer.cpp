@@ -530,6 +530,8 @@ void PhotoViewer::on_actionConfig_triggered()
     dlg->setWindowModality(Qt::ApplicationModal);
     if (dlg->exec () == QDialog::Accepted) {
         dlg->saveSettings ();
+
+        loadSettings ();
     }
 }
 

@@ -99,7 +99,8 @@ bool SettingsDialog::setDBFileName(QString fileName)
 void SettingsDialog::on_leDDatabaseFile_editingFinished()
 {
     if (!setDBFileName(ui->leDDatabaseFile->text())) {
-        ui->leDDatabaseFile->setFocus();
-        ui->leDDatabaseFile->setText(SettingsHelper::instance().digikamDBFile());
+        // ui->leDDatabaseFile->setFocus();
+        // ui->leDDatabaseFile->setText(SettingsHelper::instance().digikamDBFile());
     }
 }
+

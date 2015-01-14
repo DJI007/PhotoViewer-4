@@ -66,85 +66,20 @@
    <item row="0" column="1">
     <widget class="QStackedWidget" name="swPages">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="pGeneral">
       <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="gbMainView">
-         <property name="title">
-          <string>Main view</string>
-         </property>
-         <widget class="QWidget" name="">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>351</width>
-            <height>104</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="vlMainView">
-           <item>
-            <widget class="QCheckBox" name="cbMVShowToolbar">
-             <property name="text">
-              <string>Show toolbar</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbMVShowLocation">
-             <property name="minimumSize">
-              <size>
-               <width>99</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Show location information</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbMVShowRating">
-             <property name="text">
-              <string>Show rating</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="cbMVShowFileInfo">
-             <property name="text">
-              <string>Show file information</string>
-             </property>
-             <property name="checked">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QGroupBox" name="gbPresentation">
          <property name="title">
           <string>Presentation</string>
          </property>
-         <widget class="QWidget" name="">
+         <widget class="QWidget" name="layoutWidget">
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>26</y>
+            <y>20</y>
             <width>351</width>
             <height>130</height>
            </rect>
@@ -227,6 +162,71 @@
          </widget>
         </widget>
        </item>
+       <item row="0" column="0">
+        <widget class="QGroupBox" name="gbMainView">
+         <property name="title">
+          <string>Main view</string>
+         </property>
+         <widget class="QWidget" name="layoutWidget">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>351</width>
+            <height>104</height>
+           </rect>
+          </property>
+          <layout class="QVBoxLayout" name="vlMainView">
+           <item>
+            <widget class="QCheckBox" name="cbMVShowToolbar">
+             <property name="text">
+              <string>Show toolbar</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbMVShowLocation">
+             <property name="minimumSize">
+              <size>
+               <width>99</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Show location information</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbMVShowRating">
+             <property name="text">
+              <string>Show rating</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="cbMVShowFileInfo">
+             <property name="text">
+              <string>Show file information</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="pDigikam">
@@ -243,6 +243,9 @@
           <bool>false</bool>
          </property>
          <layout class="QFormLayout" name="formLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
           <item row="0" column="0" colspan="2">
            <layout class="QVBoxLayout" name="vlDigikam">
             <item>
@@ -296,6 +299,7 @@
            </layout>
           </item>
          </layout>
+         <zorder></zorder>
         </widget>
        </item>
       </layout>
