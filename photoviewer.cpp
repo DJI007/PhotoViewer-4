@@ -410,7 +410,7 @@ void PhotoViewer::on_actionPlay_triggered()
     }
     else {
         if (ui->actionPlay->isChecked()) {
-            ui->gvPicture->setShowTime(PLAYER_TIMER_MILLISECONDS);
+            ui->gvPicture->setShowTime(SettingsHelper::instance().presentationInterval() * 1000);
         }
         else {
             ui->gvPicture->setShowTime(0);
@@ -532,6 +532,8 @@ void PhotoViewer::on_actionConfig_triggered()
         dlg->saveSettings ();
 
         loadSettings ();
+
+        ui->gvPicture->updateShowInformation ();
     }
 }
 

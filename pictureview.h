@@ -44,6 +44,8 @@ public:
     void rotatePictureLeft ();
     void rotatePictureRight ();
 
+    void updateShowInformation ();
+
 signals:
     void mouseDoubleClick (QMouseEvent *event);
     void mouseMove (QMouseEvent *event);

@@ -52,6 +52,8 @@ public:
     void setItemRotation (qreal angle);
     void setItemScale (qreal scale);
 
+    void updateShowInformation ();
+
 signals:
     void itemLoaded ();
     void showTimeEnded ();
@@ -103,6 +105,8 @@ private:
     void setInfoRatingPosition();
 
     void doRotation (int angle);
+
+    void initGeoManager ();
 };
 
 #endif // PICTUREVIEWITEMCONTAINER_H

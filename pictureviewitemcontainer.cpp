@@ -22,6 +22,8 @@
 #include "animationrotatescale.h"
 #include "animationscale.h"
 
+#include "settingshelper.h"
+
 #include <QDebug>
 
 
@@ -49,26 +51,23 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
 
     dynamic_cast<QGraphicsItem *> (_item)->setParentItem(this);
 
-    connect (dynamic_cast<QObject *> (_item),
-             SIGNAL(itemLoaded()),
-             this,
-             SLOT(setItemLoaded()));
+    connect (dynamic_cast<QObject *> (_item), SIGNAL(itemLoaded()),
+             this, SLOT(setItemLoaded()));
 
-    _geoManager = NULL;
-    _geoProvider = new QGeoServiceProvider("osm");
-    if (_geoProvider) {
-        if (_geoProvider->error() == _geoProvider->NoError) {
-            _geoManager = _geoProvider->geocodingManager();
-        }
-        else {
-            qDebug () << _geoProvider->errorString();
-        }
+    if (SettingsHelper::instance().showLocationInformation()) {
+        initGeoManager ();
+    }
+    else {
+        _geoManager = NULL;
+        _geoProvider = NULL;
     }
 }
 
 PictureViewItemContainer::~PictureViewItemContainer()
 {
-    delete _geoProvider;
+    if (_geoProvider) {
+        delete _geoProvider;
+    }
 }
 
 PictureViewItem *PictureViewItemContainer::item()
@@ -106,19 +105,7 @@ void PictureViewItemContainer::setShowTimeEnded()
 
 void PictureViewItemContainer::setItemLoaded()
 {
-    _info = createInfo();
-    _geoInfo = createGeoInfo();
-    _rating = createRating();
-
-    _info->hide();
-    _geoInfo->hide();
-    _rating->hide();
-
-    _info->setParentItem (this);
-    _geoInfo->setParentItem(this);
-    _rating->setParentItem(this);
-
-    setInfoRatingPosition();
+    updateShowInformation();
 
     emit itemLoaded ();
 }
@@ -269,14 +256,22 @@ void PictureViewItemContainer::setInfoVisible(bool visible)
 
 void PictureViewItemContainer::showInfo(bool show)
 {
-    if (_info && show != _isInfoVisible) {
+    if (show != _isInfoVisible) {
         AbstractPictureAnimation *anim;
         QAnimationGroup *group;
 
         if (show) {
-            _info->show();
-            _geoInfo->show();
-            _rating->show();
+            if (_info) {
+                _info->show();
+            }
+
+            if (_geoInfo) {
+                _geoInfo->show();
+            }
+
+            if (_rating) {
+                _rating->show();
+            }
         }
 
         //setInfoRatingPosition();
@@ -284,31 +279,37 @@ void PictureViewItemContainer::showInfo(bool show)
         group = new QParallelAnimationGroup();
         anim = new AnimationScale();
 
-        for (int i = 0; i < _rating->childItems().count(); i++) {
-            ObjectPixmapItem *current;
+        if (_rating) {
+            for (int i = 0; i < _rating->childItems().count(); i++) {
+                ObjectPixmapItem *current;
 
-            current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
+                current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
 
+                if (show) {
+                    group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
+                }
+                else {
+                    group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
+                }
+            }
+        }
+
+        if (_info) {
             if (show) {
-                group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
+                group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
             }
             else {
-                group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
+                group->addAnimation(anim->getAnimationOut(_info, 500, _info->boundingRect().width()));
             }
         }
 
-        if (show) {
-            group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
-        }
-        else {
-            group->addAnimation(anim->getAnimationOut(_info, 500, _info->boundingRect().width()));
-        }
-
-        if (show) {
-            group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _info->boundingRect().width()));
-        }
-        else {
-            group->addAnimation(anim->getAnimationOut(_geoInfo, 500, _info->boundingRect().width()));
+        if (_geoInfo) {
+            if (show) {
+                group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _geoInfo->boundingRect().width()));
+            }
+            else {
+                group->addAnimation(anim->getAnimationOut(_geoInfo, 500, _geoInfo->boundingRect().width()));
+            }
         }
 
         group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -323,10 +324,14 @@ void PictureViewItemContainer::setRating(int value)
 {
     _item->metadata()->setRating(value);
 
-    delete _rating;
+    if (_rating) {
+        delete _rating;
+    }
 
-    _rating = createRating();
-    _rating->setParentItem(this);
+    if (SettingsHelper::instance().showRating()) {
+        _rating = createRating();
+        _rating->setParentItem(this);
+    }
 
     //setInfoVisible(true);
     setInfoRatingPosition ();
@@ -530,4 +535,53 @@ void PictureViewItemContainer::setItemRotation(qreal angle)
 void PictureViewItemContainer::setItemScale(qreal scale)
 {
     _item->setItemScale(scale);
+}
+
+void PictureViewItemContainer::initGeoManager()
+{
+    _geoManager = NULL;
+    _geoProvider = new QGeoServiceProvider("osm");
+    if (_geoProvider) {
+        if (_geoProvider->error() == _geoProvider->NoError) {
+            _geoManager = _geoProvider->geocodingManager();
+        }
+        else {
+            qDebug () << _geoProvider->errorString();
+        }
+    }
+}
+
+void PictureViewItemContainer::updateShowInformation()
+{
+    if (SettingsHelper::instance().showFileInformation()) {
+        _info = createInfo();
+        _info->hide();
+        _info->setParentItem (this);
+    }
+    else if (_info) {
+        _info->hide();
+        delete _info;
+    }
+
+    if (SettingsHelper::instance().showLocationInformation()) {
+        _geoInfo = createGeoInfo();
+        _geoInfo->hide();
+        _geoInfo->setParentItem(this);
+    }
+    else if (_info) {
+        _geoInfo->hide();
+        delete _geoInfo;
+    }
+
+    if (SettingsHelper::instance().showRating()) {
+        _rating = createRating();
+        _rating->hide();
+        _rating->setParentItem(this);
+    }
+    else if (_rating) {
+        _rating->hide();
+        delete _rating;
+    }
+
+    setInfoRatingPosition();
 }

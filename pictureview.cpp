@@ -309,3 +309,10 @@ void PictureView::rotatePictureRight()
         _currentItem->rotatePictureRight();
     }
 }
+
+void PictureView::updateShowInformation()
+{
+    if (_currentItem) {
+        _currentItem->updateShowInformation();
+    }
+}
