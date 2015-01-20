@@ -17,6 +17,12 @@
 #include "starsaction.h"
 #include "settingsdialog.h"
 
+#ifdef Q_OS_WIN
+
+#include <Windows.h>
+
+#endif
+
 /**
  * PhotoView application to view pictures in a simple mode
  *
@@ -141,6 +147,10 @@ PhotoViewer::~PhotoViewer()
     delete ui;
     delete _currentDir;
     delete _mapView;
+
+#ifdef Q_OS_WIN
+            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, TRUE , NULL, SPIF_SENDWININICHANGE);
+#endif
 }
 
 void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
@@ -411,9 +421,17 @@ void PhotoViewer::on_actionPlay_triggered()
     else {
         if (ui->actionPlay->isChecked()) {
             ui->gvPicture->setShowTime(SettingsHelper::instance().presentationInterval() * 1000);
+
+#ifdef Q_OS_WIN
+            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE , NULL, SPIF_SENDWININICHANGE);
+#endif
         }
         else {
             ui->gvPicture->setShowTime(0);
+
+#ifdef Q_OS_WIN
+            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, TRUE , NULL, SPIF_SENDWININICHANGE);
+#endif
         }
     }
 }
@@ -533,7 +551,7 @@ void PhotoViewer::on_actionConfig_triggered()
 
         loadSettings ();
 
-        ui->gvPicture->updateShowInformation ();
+        //ui->gvPicture->updateShowInformation ();
     }
 }
 
