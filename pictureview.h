@@ -37,14 +37,18 @@ public:
     double pictureLatitude ();
     double pictureLongitude ();
 
-    void setInfoVisible (bool visible);
+    void showFileInfo ();
+    void showGeoInfo ();
+    void showRating ();
+
+    void hideFileInfo ();
+    void hideGeoInfo ();
+    void hideRating ();
 
     void setShowTime (int time);
 
     void rotatePictureLeft ();
     void rotatePictureRight ();
-
-    void updateShowInformation ();
 
 signals:
     void mouseDoubleClick (QMouseEvent *event);

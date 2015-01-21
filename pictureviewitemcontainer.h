@@ -5,6 +5,7 @@
 
 #include <QGeoServiceProvider>
 #include <QGeoCodingManager>
+#include <QAnimationGroup>
 
 #include "pictureviewitem.h"
 #include "objectpixmapitem.h"
@@ -34,7 +35,13 @@ public:
     void load ();
     void resize ();
 
-    void setInfoVisible (bool visible);
+    void showGeoInfo ();
+    void showFileInfo ();
+    void showRating ();
+
+    void hideGeoInfo ();
+    void hideFileInfo ();
+    void hideRating ();
 
     void setRating (int value);
 
@@ -78,6 +85,10 @@ private slots:
     void on_reverseGeocode_finished();
     void on_geoInfo_leftMousePressed ();
 
+    void on_hideFileInfoAnimationEnd ();
+    void on_hideGeoInfoAnimationEnd ();
+    void on_hideRatingAnimationEnd ();
+
 private:
     QString _fileName;
     PictureViewItem *_item;
@@ -86,23 +97,28 @@ private:
     QGeoCodingManager  *_geoManager;
     QGeoCodeReply *_reverseGeocodeReply;
 
-    AnimatedTextItem *_info;
+    bool _rotating;
+
+    AnimatedTextItem *_fileInfo;
     ClickableTextItem *_geoInfo;
     QGraphicsItemGroup *_rating;
 
-    AnimatedTextItem *createInfo();
+    bool _fileInfoVisible;
+    bool _geoInfoVisible;
+    bool _ratingVisible;
+
+    AnimatedTextItem *createFileInfo();
     ClickableTextItem *createGeoInfo ();
     QGraphicsItemGroup *createRating ();
     ObjectPixmapItem *createStar (bool, int left, int top);
 
-    void showInfo (bool show);
+    void setGeoInfoPosition ();
+    void setFileInfoPosition ();
+    void setRatingPosition ();
 
-    bool _infoVisible;
-    bool _isInfoVisible;
+    QAbstractAnimation *getAnimation (AnimatedItem *item, bool in, int width);
 
-    bool _rotating;
-
-    void setInfoRatingPosition();
+    // void setInfoRatingPosition();
 
     void doRotation (int angle);
 

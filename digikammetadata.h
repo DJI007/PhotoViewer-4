@@ -46,6 +46,8 @@ public:
     void setRating (int value);
     void setOrientation (int value);
 
+    bool existInDigikam ();
+
 private:
     QString _fileName;
 

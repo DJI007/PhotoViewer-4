@@ -17,12 +17,6 @@
 #include "starsaction.h"
 #include "settingsdialog.h"
 
-#ifdef Q_OS_WIN
-
-#include <Windows.h>
-
-#endif
-
 /**
  * PhotoView application to view pictures in a simple mode
  *
@@ -73,7 +67,7 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->statusBar->addWidget(_lblStatusFileCount);
 
     _toolBarTimer = new QTimer (this);
-    _toolBarTimer->setInterval(3000);
+    _toolBarTimer->setInterval(5000);
     connect (_toolBarTimer,
              SIGNAL(timeout()),
              this,
@@ -135,8 +129,6 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 
     if (lastDirectory.compare("~") != 0) {
         showCurrentPicture();
-
-        ui->gvPicture->setInfoVisible(true);
     }
 
     loadSettings ();
@@ -147,10 +139,6 @@ PhotoViewer::~PhotoViewer()
     delete ui;
     delete _currentDir;
     delete _mapView;
-
-#ifdef Q_OS_WIN
-            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, TRUE , NULL, SPIF_SENDWININICHANGE);
-#endif
 }
 
 void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
@@ -173,13 +161,60 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 
         ui->gvPicture->loadPicture(fileName);
         ui->gvPicture->showPicture(anim);
+        // updateShowInfo();
 
         if (_mapView->isVisible()) {
             _mapView->setPosition(ui->gvPicture->pictureLatitude(), ui->gvPicture->pictureLongitude(), 0);
         }
+
+        // Disable screensaver
+        QCursor *cur = new QCursor;
+
+        cur->setPos(cur->pos().x() + 1, cur->pos().y());
+        cur->setPos(cur->pos().x() - 1, cur->pos().y());
     }
 
     updateStatusBar();
+}
+
+void PhotoViewer::updateShowInfo ()
+{
+    bool showFileInfo;
+    bool showGeoInfo;
+    bool showRating;
+
+    if (ui->actionPlay->isChecked()) {
+        // Playing
+        showFileInfo = SettingsHelper::instance().presentationShowFileInformation();
+        showGeoInfo = SettingsHelper::instance().presentationShowLocationInformation();
+        showRating = SettingsHelper::instance().presentationShowRating();
+    }
+    else {
+        showFileInfo = SettingsHelper::instance().showFileInformation();
+        showGeoInfo = SettingsHelper::instance().showLocationInformation();
+        showRating = SettingsHelper::instance().showRating();
+    }
+
+    if (showFileInfo) {
+        ui->gvPicture->showFileInfo();
+    }
+    else {
+        ui->gvPicture->hideFileInfo();
+    }
+
+    if (showGeoInfo) {
+        ui->gvPicture->showGeoInfo();
+    }
+    else {
+        ui->gvPicture->hideGeoInfo();
+    }
+
+    if (showRating) {
+        ui->gvPicture->showRating();
+    }
+    else {
+        ui->gvPicture->hideRating();
+    }
 }
 
 void PhotoViewer::on_pictureDoubleClick(QMouseEvent *event)
@@ -209,7 +244,7 @@ void PhotoViewer::toggleFullScreen()
         setToolBarsVisibility(true);
 
         ui->gvPicture->setNormalBackground();
-        ui->gvPicture->setInfoVisible(true);
+        updateShowInfo();
 
         QApplication::restoreOverrideCursor();
         if (_lastStatusMaximized) {
@@ -229,9 +264,9 @@ void PhotoViewer::toggleFullScreen()
         setToolBarsVisibility(false);
 
         ui->gvPicture->setFullScreenBackground();
-        ui->gvPicture->setInfoVisible(false);
 
-        QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+        hideToolBarFullScreen();
+
         showFullScreen();
     }
 }
@@ -290,6 +325,27 @@ void PhotoViewer::resizeEvent(QResizeEvent *event)
     }
 }
 
+void PhotoViewer::setRating(int value)
+{
+    ui->gvPicture->setPictureRating(value);
+    showToolBarFullScreen (false);
+}
+
+void PhotoViewer::updateStatusBar ()
+{
+    _lblStatusFileCount->setText(QString ("[%1/%2]").arg(_currentFile + 1).arg(_currentDir->count()));
+    _lblStatusPath->setText(_currentDir->absolutePath());
+}
+
+
+void PhotoViewer::loadSettings()
+{
+    ui->actionShow_toolbar->setChecked(SettingsHelper::instance().showToolbar());
+    ui->mainToolBar->setVisible(SettingsHelper::instance().showToolbar());
+
+    updateShowInfo();
+}
+
 void PhotoViewer::on_pictureShowTimeEnded()
 {
     if (_currentFile < _currentDir->count() - 1) {
@@ -339,7 +395,9 @@ void PhotoViewer::showToolBarFullScreen (bool showToolbar)
         ui->mainToolBar->show();
     }
 
-    ui->gvPicture->setInfoVisible(true);
+    ui->gvPicture->showFileInfo();
+    ui->gvPicture->showGeoInfo();
+    ui->gvPicture->showRating();
 
     _toolBarTimer->start();
 }
@@ -349,7 +407,10 @@ void PhotoViewer::hideToolBarFullScreen ()
     QApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
     ui->mainToolBar->hide();
 
-    ui->gvPicture->setInfoVisible(false);
+    ui->gvPicture->hideFileInfo();
+    ui->gvPicture->hideGeoInfo();
+    ui->gvPicture->hideRating();
+
     _toolBarTimer->stop();
 }
 
@@ -357,6 +418,13 @@ void PhotoViewer::endToolBarFullScreen ()
 {
     ui->mainToolBar->setWindowFlags(_toolBarWindowFlags);
     _toolBarTimer->stop();
+}
+
+void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
+{
+    // ui->dwMap->show();
+    _mapView->show();
+    _mapView->setPosition(latitude, longitude, altitude);
 }
 
 void PhotoViewer::on_actionChange_folder_triggered()
@@ -421,19 +489,13 @@ void PhotoViewer::on_actionPlay_triggered()
     else {
         if (ui->actionPlay->isChecked()) {
             ui->gvPicture->setShowTime(SettingsHelper::instance().presentationInterval() * 1000);
-
-#ifdef Q_OS_WIN
-            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, FALSE , NULL, SPIF_SENDWININICHANGE);
-#endif
         }
         else {
             ui->gvPicture->setShowTime(0);
-
-#ifdef Q_OS_WIN
-            SystemParametersInfo(SPI_SETSCREENSAVEACTIVE, TRUE , NULL, SPIF_SENDWININICHANGE);
-#endif
         }
     }
+
+    updateShowInfo();
 }
 
 void PhotoViewer::on_actionNext_picture_triggered()
@@ -474,12 +536,6 @@ void PhotoViewer::on_actionExit_full_screen_triggered()
     }
 }
 
-/*
-void PhotoViewer::on_starsAction_setRating_triggered(int rating)
-{
-    setRating (rating);
-}
-*/
 void PhotoViewer::on_actionSet_0_stars_triggered()
 {
     setRating (0);
@@ -510,26 +566,6 @@ void PhotoViewer::on_actionSet_5_stars_triggered()
     setRating (5);
 }
 
-void PhotoViewer::setRating(int value)
-{
-    ui->gvPicture->setPictureRating(value);
-    showToolBarFullScreen (false);
-}
-
-void PhotoViewer::updateStatusBar ()
-{
-    _lblStatusFileCount->setText(QString ("[%1/%2]").arg(_currentFile + 1).arg(_currentDir->count()));
-    _lblStatusPath->setText(_currentDir->absolutePath());
-}
-
-void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude, double altitude)
-{
-    // ui->dwMap->show();
-    _mapView->show();
-    _mapView->setPosition(latitude, longitude, altitude);
-}
-
-
 void PhotoViewer::on_actionRotate_Left_triggered()
 {
     ui->gvPicture->rotatePictureLeft ();
@@ -550,15 +586,7 @@ void PhotoViewer::on_actionConfig_triggered()
         dlg->saveSettings ();
 
         loadSettings ();
-
-        //ui->gvPicture->updateShowInformation ();
     }
-}
-
-void PhotoViewer::loadSettings()
-{
-    ui->actionShow_toolbar->setChecked(SettingsHelper::instance().showToolbar());
-    ui->mainToolBar->setVisible(SettingsHelper::instance().showToolbar());
 }
 
 void PhotoViewer::on_actionShow_toolbar_toggled(bool arg1)
@@ -578,6 +606,10 @@ void PhotoViewer::on_beginItemAnimation()
     ui->actionPrevious_picture->setEnabled(false);
     ui->actionNext_picture->setEnabled(false);
     ui->actionLast_picture->setEnabled(false);
+
+    ui->gvPicture->hideFileInfo();
+    ui->gvPicture->hideGeoInfo();
+    ui->gvPicture->hideRating();
 }
 
 void PhotoViewer::on_endItemAnimation()
@@ -586,4 +618,8 @@ void PhotoViewer::on_endItemAnimation()
     ui->actionPrevious_picture->setEnabled(true);
     ui->actionNext_picture->setEnabled(true);
     ui->actionLast_picture->setEnabled(true);
+
+    updateShowInfo();
 }
+
+

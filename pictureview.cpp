@@ -131,7 +131,7 @@ void PictureView::showPicture(PictureAnimationType animType)
                  _currentItem, SLOT(endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem);
-        _currentItem->setInfoVisible(_infoVisible);
+        // _currentItem->setInfoVisible(_infoVisible);
         _currentItem->load();
     }
 }
@@ -276,13 +276,34 @@ double PictureView::pictureLongitude()
     return _currentItem->longitude();
 }
 
-void PictureView::setInfoVisible(bool visible)
+void PictureView::showFileInfo()
 {
-    if ((!visible) || (visible && !_infoVisible)) {
-        _currentItem->setInfoVisible(visible);
-    }
+    _currentItem->showFileInfo();
+}
 
-    _infoVisible = visible;
+void PictureView::showGeoInfo()
+{
+    _currentItem->showGeoInfo();
+}
+
+void PictureView::showRating()
+{
+    _currentItem->showRating();
+}
+
+void PictureView::hideFileInfo()
+{
+    _currentItem->hideFileInfo();
+}
+
+void PictureView::hideGeoInfo()
+{
+    _currentItem->hideGeoInfo();
+}
+
+void PictureView::hideRating()
+{
+    _currentItem->hideRating();
 }
 
 void PictureView::setShowTime(int time)
@@ -310,9 +331,3 @@ void PictureView::rotatePictureRight()
     }
 }
 
-void PictureView::updateShowInformation()
-{
-    if (_currentItem) {
-        _currentItem->updateShowInformation();
-    }
-}

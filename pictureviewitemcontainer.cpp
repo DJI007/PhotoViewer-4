@@ -9,7 +9,6 @@
 #include "videoitemphonon.h"
 #include "objectpixmapitem.h"
 
-#include <QAnimationGroup>
 #include <QSequentialAnimationGroup>
 #include <QParallelAnimationGroup>
 
@@ -31,13 +30,15 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     QObject(parent)
 {
     _fileName = fileName;
-    _infoVisible = true;
-    _isInfoVisible = false;
     _rotating = false;
 
     _rating = NULL;
-    _info = NULL;
+    _fileInfo = NULL;
     _geoInfo = NULL;
+
+    _fileInfoVisible = false;
+    _geoInfoVisible = false;
+    _ratingVisible = false;
 
     setBrush(Qt::NoBrush);
     setPen(Qt::NoPen);
@@ -54,13 +55,7 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     connect (dynamic_cast<QObject *> (_item), SIGNAL(itemLoaded()),
              this, SLOT(setItemLoaded()));
 
-    if (SettingsHelper::instance().showLocationInformation()) {
-        initGeoManager ();
-    }
-    else {
-        _geoManager = NULL;
-        _geoProvider = NULL;
-    }
+    initGeoManager ();
 }
 
 PictureViewItemContainer::~PictureViewItemContainer()
@@ -105,12 +100,12 @@ void PictureViewItemContainer::setShowTimeEnded()
 
 void PictureViewItemContainer::setItemLoaded()
 {
-    updateShowInformation();
+    // updateShowInformation();
 
     emit itemLoaded ();
 }
 
-AnimatedTextItem *PictureViewItemContainer::createInfo()
+AnimatedTextItem *PictureViewItemContainer::createFileInfo()
 {
     AnimatedTextItem *item;
     QString msg;
@@ -126,6 +121,8 @@ AnimatedTextItem *PictureViewItemContainer::createInfo()
 
     item = new AnimatedTextItem();
     item->setHtml(msg);
+
+    item->setParentItem (this);
 
     return item;
 }
@@ -147,14 +144,10 @@ ClickableTextItem *PictureViewItemContainer::createGeoInfo()
         if (_geoManager) {
             _reverseGeocodeReply = _geoManager->reverseGeocode(coord);
 
-            connect (_reverseGeocodeReply,
-                     SIGNAL(error(QGeoCodeReply::Error,QString)),
-                     this,
-                     SLOT(on_reverseGeocode_error(QGeoCodeReply::Error,QString)));
-            connect (_reverseGeocodeReply,
-                     SIGNAL(finished()),
-                     this,
-                     SLOT(on_reverseGeocode_finished()));
+            connect (_reverseGeocodeReply, SIGNAL(error(QGeoCodeReply::Error,QString)),
+                     this, SLOT(on_reverseGeocode_error(QGeoCodeReply::Error,QString)));
+            connect (_reverseGeocodeReply, SIGNAL(finished()),
+                     this, SLOT(on_reverseGeocode_finished()));
         }
 
         msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
@@ -167,6 +160,8 @@ ClickableTextItem *PictureViewItemContainer::createGeoInfo()
 
         connect (item, SIGNAL(leftMousePressed()), this, SLOT(on_geoInfo_leftMousePressed()));
     }
+
+    item->setParentItem(this);
 
     return item;
 }
@@ -192,6 +187,8 @@ QGraphicsItemGroup *PictureViewItemContainer::createRating()
         left += 20;
     }
 
+    result->setParentItem(this);
+
     return result;
 }
 
@@ -215,19 +212,148 @@ ObjectPixmapItem *PictureViewItemContainer::createStar (bool isOn, int left, int
     return item;
 }
 
-void PictureViewItemContainer::setInfoRatingPosition ()
+void PictureViewItemContainer::resize()
+{
+    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
+    _item->resize();
+    // setInfoRatingPosition();
+
+    setFileInfoPosition();
+    setGeoInfoPosition();
+    setRatingPosition();
+}
+
+void PictureViewItemContainer::showGeoInfo()
+{
+    if (!_geoInfo) {
+        _geoInfo = createGeoInfo();
+
+        _geoInfo->hide();
+
+        setGeoInfoPosition();
+
+        QAbstractAnimation *anim;
+
+        anim = getAnimation(_geoInfo, true, _geoInfo->boundingRect().width());
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::showFileInfo()
+{
+    if (!_fileInfo) {
+        _fileInfo = createFileInfo();
+
+        _fileInfo->hide();
+
+        setFileInfoPosition();
+
+        QAbstractAnimation *anim;
+
+        anim = getAnimation(_fileInfo, true, _fileInfo->boundingRect().width());
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::showRating()
+{
+    if (!_rating) {
+        _rating = createRating();
+
+        setRatingPosition();
+        _rating->show();
+
+        QAnimationGroup *group;
+
+        group = new QParallelAnimationGroup();
+
+        for (int i = 0; i < _rating->childItems().count(); i++) {
+            ObjectPixmapItem *current;
+
+            current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
+
+            group->addAnimation(getAnimation(current, true, _rating->boundingRect().width()));
+        }
+
+        group->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::hideGeoInfo()
+{
+    if (_geoInfo) {
+        QAbstractAnimation *anim;
+
+        anim = getAnimation(_geoInfo, false, _geoInfo->boundingRect().width());
+        connect (anim, SIGNAL(finished()),
+                 this, SLOT(on_hideGeoInfoAnimationEnd()));
+
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::hideFileInfo()
+{
+    if (_fileInfo) {
+        QAbstractAnimation *anim;
+
+        anim = getAnimation(_fileInfo, false, _fileInfo->boundingRect().width());
+        connect (anim, SIGNAL(finished()),
+                 this, SLOT(on_hideFileInfoAnimationEnd()));
+
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::hideRating()
+{
+    if (_rating) {
+        QAnimationGroup *group;
+
+        group = new QParallelAnimationGroup();
+
+        for (int i = 0; i < _rating->childItems().count(); i++) {
+            ObjectPixmapItem *current;
+
+            current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
+
+            group->addAnimation(getAnimation(current, false, _rating->boundingRect().width()));
+
+        }
+
+        connect (group, SIGNAL(finished()),
+                 this, SLOT(on_hideRatingAnimationEnd()));
+        group->start(QAbstractAnimation::DeleteWhenStopped);
+    }
+}
+
+void PictureViewItemContainer::setGeoInfoPosition()
 {
     QRectF rect;
 
     rect = this->boundingRect();
 
-    if (_info) {
-        _info->setPos(rect.left(), rect.bottom() - 40);
-    }
-
     if (_geoInfo) {
         _geoInfo->setPos(rect.left(), rect.top() + 5);
     }
+}
+
+void PictureViewItemContainer::setFileInfoPosition()
+{
+    QRectF rect;
+
+    rect = this->boundingRect();
+
+    if (_fileInfo) {
+        _fileInfo->setPos(rect.left(), rect.bottom() - 40);
+    }
+}
+
+void PictureViewItemContainer::setRatingPosition()
+{
+    QRectF rect;
+
+    rect = this->boundingRect();
 
     if (_rating) {
         qreal left;
@@ -240,84 +366,27 @@ void PictureViewItemContainer::setInfoRatingPosition ()
     }
 }
 
-
-void PictureViewItemContainer::resize()
+QAbstractAnimation *PictureViewItemContainer::getAnimation (AnimatedItem *item, bool in, int width)
 {
-    this->setRect(0, 0, this->scene()->width(), this->scene()->height());
-    _item->resize();
-    setInfoRatingPosition();
-}
+    AbstractPictureAnimation *pictAnim;
+    QAbstractAnimation *anim;
 
-void PictureViewItemContainer::setInfoVisible(bool visible)
-{
-    _infoVisible = visible;
-    showInfo (visible);
-}
+    QGraphicsItem *gItem;
 
-void PictureViewItemContainer::showInfo(bool show)
-{
-    if (show != _isInfoVisible) {
-        AbstractPictureAnimation *anim;
-        QAnimationGroup *group;
+    gItem = dynamic_cast<QGraphicsItem *> (item);
 
-        if (show) {
-            if (_info) {
-                _info->show();
-            }
+    pictAnim = new AnimationScale();
 
-            if (_geoInfo) {
-                _geoInfo->show();
-            }
-
-            if (_rating) {
-                _rating->show();
-            }
-        }
-
-        //setInfoRatingPosition();
-
-        group = new QParallelAnimationGroup();
-        anim = new AnimationScale();
-
-        if (_rating) {
-            for (int i = 0; i < _rating->childItems().count(); i++) {
-                ObjectPixmapItem *current;
-
-                current = dynamic_cast<ObjectPixmapItem *> (_rating->childItems()[i]);
-
-                if (show) {
-                    group->addAnimation(anim->getAnimationIn(current, 500, _rating->boundingRect().width()));
-                }
-                else {
-                    group->addAnimation(anim->getAnimationOut(current, 500, _rating->boundingRect().width()));
-                }
-            }
-        }
-
-        if (_info) {
-            if (show) {
-                group->addAnimation(anim->getAnimationIn(_info, 500, _info->boundingRect().width()));
-            }
-            else {
-                group->addAnimation(anim->getAnimationOut(_info, 500, _info->boundingRect().width()));
-            }
-        }
-
-        if (_geoInfo) {
-            if (show) {
-                group->addAnimation(anim->getAnimationIn(_geoInfo, 500, _geoInfo->boundingRect().width()));
-            }
-            else {
-                group->addAnimation(anim->getAnimationOut(_geoInfo, 500, _geoInfo->boundingRect().width()));
-            }
-        }
-
-        group->start(QAbstractAnimation::DeleteWhenStopped);
-
-        delete anim;
-
-        _isInfoVisible = show;
+    if (in) {
+        gItem->setScale(0);
+        gItem->show();
+        anim = pictAnim->getAnimationIn(item, 500, width);
     }
+    else {
+        anim = pictAnim->getAnimationOut(item, 500, width);
+    }
+
+    return anim;
 }
 
 void PictureViewItemContainer::setRating(int value)
@@ -331,10 +400,9 @@ void PictureViewItemContainer::setRating(int value)
     if (SettingsHelper::instance().showRating()) {
         _rating = createRating();
         _rating->setParentItem(this);
-    }
 
-    //setInfoVisible(true);
-    setInfoRatingPosition ();
+        setRatingPosition();
+    }
 }
 
 double PictureViewItemContainer::latitude()
@@ -349,22 +417,16 @@ double PictureViewItemContainer::longitude()
 
 void PictureViewItemContainer::beginItemAnimationIn()
 {
-    showInfo(false);
     _item->beginItemAnimationIn();
 }
 
 void PictureViewItemContainer::endItemAnimationIn()
 {
-    if (_infoVisible) {
-        showInfo(true);
-    }
-
     _item->endItemAnimationIn();
 }
 
 void PictureViewItemContainer::beginItemAnimationOut()
 {
-    showInfo(false);
     _item->beginItemAnimationOut();
 }
 
@@ -389,13 +451,15 @@ void PictureViewItemContainer::on_reverseGeocode_finished()
 
         loc = _reverseGeocodeReply->locations()[0];
 
-        QString msg;
+        if (_geoInfo) {
+            QString msg;
 
-        msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
-        msg += loc.address().text().replace(",", "<br />");
-        msg += "</span>";
+            msg = "<span style=\"background-color: black; color: white; margin:5px 5px 5px 5px\">";
+            msg += loc.address().text().replace(",", "<br />");
+            msg += "</span>";
 
-        _geoInfo->setHtml(msg);
+            _geoInfo->setHtml(msg);
+        }
     }
 
     _reverseGeocodeReply->deleteLater();
@@ -411,10 +475,6 @@ void PictureViewItemContainer::on_geoInfo_leftMousePressed()
 void PictureViewItemContainer::rotatePictureLeft()
 {
     if (_item->rotateLeft ()) {
-        if (_infoVisible) {
-            showInfo(false);
-        }
-
         doRotation (-90);
     }
 }
@@ -422,10 +482,6 @@ void PictureViewItemContainer::rotatePictureLeft()
 void PictureViewItemContainer::rotatePictureRight()
 {
     if (_item->rotateRight ()) {
-        if (_infoVisible) {
-            showInfo(false);
-        }
-
         doRotation (90);
     }
 }
@@ -510,11 +566,7 @@ void PictureViewItemContainer::on_endRotateAnimation ()
 
     _item->refresh();
 
-    setInfoRatingPosition();
-
-    if (_infoVisible) {
-        showInfo(true);
-    }
+    // setInfoRatingPosition();
 }
 
 qreal PictureViewItemContainer::itemRotation()
@@ -551,37 +603,22 @@ void PictureViewItemContainer::initGeoManager()
     }
 }
 
-void PictureViewItemContainer::updateShowInformation()
+void PictureViewItemContainer::on_hideFileInfoAnimationEnd()
 {
-    if (SettingsHelper::instance().showFileInformation()) {
-        _info = createInfo();
-        _info->hide();
-        _info->setParentItem (this);
-    }
-    else if (_info) {
-        _info->hide();
-        delete _info;
-    }
-
-    if (SettingsHelper::instance().showLocationInformation()) {
-        _geoInfo = createGeoInfo();
-        _geoInfo->hide();
-        _geoInfo->setParentItem(this);
-    }
-    else if (_info) {
-        _geoInfo->hide();
-        delete _geoInfo;
-    }
-
-    if (SettingsHelper::instance().showRating()) {
-        _rating = createRating();
-        _rating->hide();
-        _rating->setParentItem(this);
-    }
-    else if (_rating) {
-        _rating->hide();
-        delete _rating;
-    }
-
-    setInfoRatingPosition();
+    _fileInfo->hide();
+    delete _fileInfo;
+    _fileInfo = NULL;
 }
+
+void PictureViewItemContainer::on_hideGeoInfoAnimationEnd()
+{
+    delete _geoInfo;
+    _geoInfo = NULL;
+}
+
+void PictureViewItemContainer::on_hideRatingAnimationEnd()
+{
+    delete _rating;
+    _rating = NULL;
+}
+

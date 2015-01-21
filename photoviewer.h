@@ -94,6 +94,7 @@ private:
     void setRating (int value);
 
     void updateStatusBar ();
+    void updateShowInfo ();
 
     void loadSettings ();
 };

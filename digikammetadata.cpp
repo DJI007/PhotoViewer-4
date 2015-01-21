@@ -231,3 +231,8 @@ bool DigikamMetadata::isValidDBFile(QString fileName)
 
     return result;
 }
+
+bool DigikamMetadata::existInDigikam()
+{
+    return _exist;
+}
