@@ -12,6 +12,7 @@
 #include <QStatusBar>
 #include <QMenuBar>
 #include <QPropertyAnimation>
+#include <QInputDialog>
 
 #include "settingshelper.h"
 #include "starsaction.h"
@@ -623,3 +624,35 @@ void PhotoViewer::on_endItemAnimation()
 }
 
 
+
+void PhotoViewer::on_actionGo_to_picture_triggered()
+{
+    bool ok;
+    int i;
+
+    i = QInputDialog::getInt(this,
+                             tr("Go to picture"),
+                             tr("Select the number of the picture:"),
+                             _currentFile + 1,
+                             1,
+                             _currentDir->count(),
+                             1,
+                             &ok);
+
+    uint newFile;
+
+    newFile = (uint) (i - 1);
+    if (ok && newFile != _currentFile) {
+        PictureView::PictureAnimationType anim;
+
+        if (newFile < _currentFile) {
+            anim = PictureView::PictureAnimationType::LeftToRight;
+        }
+        else {
+            anim = PictureView::PictureAnimationType::RightToLeft;
+        }
+
+        _currentFile = newFile;
+        showCurrentPicture(anim);
+    }
+}

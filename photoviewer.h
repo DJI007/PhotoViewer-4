@@ -61,6 +61,8 @@ private slots:
     void on_beginItemAnimation ();
     void on_endItemAnimation ();
 
+    void on_actionGo_to_picture_triggered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 

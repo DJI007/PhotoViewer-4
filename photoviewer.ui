@@ -148,6 +148,7 @@
    <addaction name="actionPlay"/>
    <addaction name="actionNext_picture"/>
    <addaction name="actionLast_picture"/>
+   <addaction name="actionGo_to_picture"/>
    <addaction name="separator"/>
    <addaction name="actionFull_screen"/>
    <addaction name="separator"/>
@@ -384,6 +385,18 @@
   <action name="actionConfig">
    <property name="text">
     <string>Configure Photoviewer</string>
+   </property>
+  </action>
+  <action name="actionGo_to_picture">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/media-goto.png</normaloff>:/images/images/media-goto.png</iconset>
+   </property>
+   <property name="text">
+    <string>Go to picture</string>
+   </property>
+   <property name="toolTip">
+    <string>Select picture to view</string>
    </property>
   </action>
  </widget>

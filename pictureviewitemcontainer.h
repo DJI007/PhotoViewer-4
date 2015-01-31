@@ -61,6 +61,8 @@ public:
 
     void updateShowInformation ();
 
+    bool isVideo ();
+
 signals:
     void itemLoaded ();
     void showTimeEnded ();
@@ -106,6 +108,8 @@ private:
     bool _fileInfoVisible;
     bool _geoInfoVisible;
     bool _ratingVisible;
+
+    bool _isVideo;
 
     AnimatedTextItem *createFileInfo();
     ClickableTextItem *createGeoInfo ();

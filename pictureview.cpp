@@ -31,14 +31,19 @@ PictureView::PictureView(QWidget *parent) :
     this->setScene(_pictureScene);
     this->setNormalBackground();
 
-    _animations.append(new AnimationFade());
-    _animations.append(new AnimationRotate());
-    _animations.append(new AnimationRotateMove());
-    _animations.append(new AnimationRotateFade());
-    _animations.append(new AnimationRotateScale());
-    _animations.append(new AnimationScale());
-    _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
-    _animations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
+    _pictureAnimations.append(new AnimationFade());
+    _pictureAnimations.append(new AnimationRotate());
+    _pictureAnimations.append(new AnimationRotateMove());
+    _pictureAnimations.append(new AnimationRotateFade());
+    _pictureAnimations.append(new AnimationRotateScale());
+    _pictureAnimations.append(new AnimationScale());
+    _pictureAnimations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
+    _pictureAnimations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
+
+    _videoAnimations.append(new AnimationFade());
+    _videoAnimations.append(new AnimationScale());
+    _videoAnimations.append(new AnimationSlide(AnimationSlide::SlideDirection::LeftToRight));
+    _videoAnimations.append(new AnimationSlide(AnimationSlide::SlideDirection::RightToLeft));
 
     _infoVisible = true;
     _showTime = 0;
@@ -48,8 +53,12 @@ PictureView::~PictureView ()
 {
     delete _pictureScene;
 
-    while (!_animations.isEmpty()) {
-        delete _animations.takeFirst();
+    while (!_pictureAnimations.isEmpty()) {
+        delete _pictureAnimations.takeFirst();
+    }
+
+    while (!_videoAnimations.isEmpty()) {
+        delete _videoAnimations.takeFirst();
     }
 }
 
@@ -149,27 +158,34 @@ void PictureView::on_itemLoaded()
         case PictureAnimationType::Random:
             int current;
 
-            current = qrand() % _animations.count();
-            // animIn = _animations.at(current)->getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            animIn = _animations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            if (_currentItem->isVideo()) {
+                current = qrand() % _videoAnimations.count();
+                animIn = _videoAnimations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            }
+            else {
+                current = qrand() % _pictureAnimations.count();
+                animIn = _pictureAnimations.at(current)->getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            }
 
-            current = qrand() % _animations.count();
-            // animOut = _animations.at(current)->getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            animOut = _animations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            if (_prevItem->isVideo()) {
+                current = qrand() % _videoAnimations.count();
+                animOut = _videoAnimations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            }
+            else {
+                current = qrand() % _pictureAnimations.count();
+                animOut = _pictureAnimations.at(current)->getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
+            }
+
             break;
 
         case PictureAnimationType::LeftToRight:
             slide.setDirection (AnimationSlide::SlideDirection::LeftToRight);
-            // animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            // animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
             animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
 
         case PictureAnimationType::RightToLeft:
             slide.setDirection (AnimationSlide::SlideDirection::RightToLeft);
-            // animIn = slide.getAnimationIn(_currentItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
-            // animOut = slide.getAnimationOut(_prevItem->item(), ANIMATION_DURATION_MILLISECONDS, this->width());
             animIn = slide.getAnimationIn(_currentItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             animOut = slide.getAnimationOut(_prevItem, ANIMATION_DURATION_MILLISECONDS, this->width());
             break;
@@ -181,19 +197,15 @@ void PictureView::on_itemLoaded()
         }
 
         if (animIn != NULL) {
-            connect(animIn,
-                    SIGNAL(finished()),
-                    this,
-                    SLOT(on_finishCurrentItemAnimation ()));
+            connect(animIn, SIGNAL(finished()),
+                    this, SLOT(on_finishCurrentItemAnimation ()));
 
             _currentAnimation->addAnimation(animIn);
         }
 
         if (animOut != NULL) {
-            connect(animOut,
-                    SIGNAL(finished()),
-                    this,
-                    SLOT(on_finishPrevItemAnimation()));
+            connect(animOut, SIGNAL(finished()),
+                    this, SLOT(on_finishPrevItemAnimation()));
 
             _currentAnimation->addAnimation(animOut);
         }

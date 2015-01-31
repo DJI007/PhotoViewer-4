@@ -45,9 +45,11 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
 
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
         _item = new VideoItemPhonon(fileName, this);
+        _isVideo = true;
     }
     else {
         _item = new ObjectPixmapItem(fileName, this);
+        _isVideo = false;
     }
 
     dynamic_cast<QGraphicsItem *> (_item)->setParentItem(this);
@@ -622,3 +624,7 @@ void PictureViewItemContainer::on_hideRatingAnimationEnd()
     _rating = NULL;
 }
 
+bool PictureViewItemContainer::isVideo()
+{
+    return _isVideo;
+}

@@ -27,6 +27,7 @@
         <file>images/settings-general.png</file>
         <file>images/digikam-logo.png</file>
         <file>images/photoviewer-icon.png</file>
+        <file>images/media-goto.png</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>

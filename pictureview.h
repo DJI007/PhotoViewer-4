@@ -88,7 +88,8 @@ private:
     bool _infoVisible;
     int _showTime;
 
-    QList<AbstractPictureAnimation *> _animations;
+    QList<AbstractPictureAnimation *> _pictureAnimations;
+    QList<AbstractPictureAnimation *> _videoAnimations;
 };
 
 #endif // PICTUREVIEW_H
