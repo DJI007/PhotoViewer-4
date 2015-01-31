@@ -632,7 +632,7 @@ void PhotoViewer::on_actionGo_to_picture_triggered()
 
     i = QInputDialog::getInt(this,
                              tr("Go to picture"),
-                             tr("Select the number of the picture:"),
+                             tr("Number of picture:"),
                              _currentFile + 1,
                              1,
                              _currentDir->count(),
