@@ -50,6 +50,9 @@ public:
     void rotatePictureLeft ();
     void rotatePictureRight ();
 
+    void zoomIn ();
+    void zoomOut ();
+
 signals:
     void mouseDoubleClick (QMouseEvent *event);
     void mouseMove (QMouseEvent *event);

@@ -50,7 +50,8 @@ SOURCES += main.cpp\
     sqlitemetadata.cpp \
     digikammetadata.cpp \
     volumeinformation.cpp \
-    settingsdialog.cpp
+    settingsdialog.cpp \
+    zoomaction.cpp
 
 
 HEADERS  += photoviewer.h \
@@ -85,10 +86,12 @@ HEADERS  += photoviewer.h \
     sqlitemetadata.h \
     digikammetadata.h \
     volumeinformation.h \
-    settingsdialog.h
+    settingsdialog.h \
+    zoomaction.h
 
 FORMS    += photoviewer.ui \
-    settings.ui
+    settings.ui \
+    Test.ui
 
 TRANSLATIONS = photoviewer_es.ts
 

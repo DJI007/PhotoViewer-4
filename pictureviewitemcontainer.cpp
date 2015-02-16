@@ -628,3 +628,13 @@ bool PictureViewItemContainer::isVideo()
 {
     return _isVideo;
 }
+
+void PictureViewItemContainer::zoomIn()
+{
+    _item->zoomIn();
+}
+
+void PictureViewItemContainer::zoomOut()
+{
+    _item->zoomOut();
+}

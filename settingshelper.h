@@ -62,6 +62,12 @@ public:
 
     QString digikamDBFile ();
     void setDigikamDBFile (QString value);
+
+    QByteArray mainWindowGeometry ();
+    void setMainWindowGeometry (QByteArray geometry);
+
+    QByteArray mainWindowState ();
+    void setMainWindowState (QByteArray state);
 };
 
 #endif // SETTINGSHELPER_H

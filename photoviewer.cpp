@@ -17,6 +17,7 @@
 #include "settingshelper.h"
 #include "starsaction.h"
 #include "settingsdialog.h"
+#include "zoomaction.h"
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -29,6 +30,9 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui(new Ui::PhotoViewer)
 {
     ui->setupUi(this);
+
+    restoreGeometry(SettingsHelper::instance().mainWindowGeometry());
+    restoreState(SettingsHelper::instance().mainWindowState());
 
     // dock map window
     //ui->dwMap->hide();
@@ -78,6 +82,30 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 
     action = new StarsAction (ui->mainToolBar);
     ui->mainToolBar->addAction(action);
+/*
+    QVBoxLayout *choiceBoxBLayout;
+    QLabel *sliderPosB;
+
+    choiceBoxBLayout = new QVBoxLayout;
+    sliderPosB = new QLabel("100%");
+
+    _sliderZoom = new QSlider (Qt::Horizontal, this);
+    _sliderZoom->setMaximum(200);
+    _sliderZoom->setMinimumWidth(50);
+    _sliderZoom->setMaximumWidth(50);
+    _sliderZoom->setTracking(true);
+
+    sliderPosB->setParent(_sliderZoom);
+    _sliderZoom->setLayout(choiceBoxBLayout);
+    sliderPosB->setLayout(choiceBoxBLayout);
+
+    ui->mainToolBar->insertWidget(ui->actionZoom_in, _sliderZoom);
+    // ui->mainToolBar->insertWidget(ui->actionZoom_in, _sliderZoom);
+*/
+    ZoomAction *zoom;
+
+    zoom = new ZoomAction(ui->mainToolBar);
+    ui->mainToolBar->insertAction(ui->actionFull_screen, zoom);
 
     connect(action,
             SIGNAL(setRating(int)),
@@ -133,6 +161,14 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     }
 
     loadSettings ();
+}
+
+void PhotoViewer::closeEvent(QCloseEvent *ev)
+{
+    SettingsHelper::instance().setMainWindowGeometry(saveGeometry());
+    SettingsHelper::instance().setMainWindowState(saveState());
+
+    QMainWindow::closeEvent(ev);
 }
 
 PhotoViewer::~PhotoViewer()
@@ -655,4 +691,14 @@ void PhotoViewer::on_actionGo_to_picture_triggered()
         _currentFile = newFile;
         showCurrentPicture(anim);
     }
+}
+
+void PhotoViewer::on_actionZoom_in_triggered()
+{
+    ui->gvPicture->zoomIn ();
+}
+
+void PhotoViewer::on_actionZoom_out_triggered()
+{
+    ui->gvPicture->zoomOut ();
 }

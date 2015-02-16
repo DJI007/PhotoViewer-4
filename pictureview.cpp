@@ -343,3 +343,13 @@ void PictureView::rotatePictureRight()
     }
 }
 
+void PictureView::zoomIn()
+{
+    _currentItem->zoomIn ();
+}
+
+void PictureView::zoomOut()
+{
+    _currentItem->zoomOut ();
+}
+

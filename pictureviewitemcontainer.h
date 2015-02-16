@@ -63,6 +63,9 @@ public:
 
     bool isVideo ();
 
+    void zoomIn ();
+    void zoomOut ();
+
 signals:
     void itemLoaded ();
     void showTimeEnded ();

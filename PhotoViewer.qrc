@@ -28,6 +28,8 @@
         <file>images/digikam-logo.png</file>
         <file>images/photoviewer-icon.png</file>
         <file>images/media-goto.png</file>
+        <file>images/zoom-in.svg</file>
+        <file>images/zoom-out.svg</file>
     </qresource>
     <qresource prefix="/qml">
         <file>MapViewer.qml</file>

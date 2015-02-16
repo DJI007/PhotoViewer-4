@@ -10,6 +10,9 @@
 #include <QGuiApplication>
 #include <QFileInfo>
 
+#include <QGraphicsWidget>
+#include <QGraphicsView>
+
 #include <QPropertyAnimation>
 
 ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
@@ -17,6 +20,8 @@ ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
 {
     _fileName = fileName;
     _showTimer = NULL;
+
+    _zoomLevel = 1;
 
     _pictureData = new ExifMetadata(fileName);
 }
@@ -27,6 +32,8 @@ ObjectPixmapItem::ObjectPixmapItem(const QPixmap& pixmap, QObject* parent) :
 {
     _pictureData = NULL;
     _showTimer = NULL;
+
+    _zoomLevel = 1;
 
     setCacheMode(DeviceCoordinateCache);
 }
@@ -39,44 +46,45 @@ ObjectPixmapItem::~ObjectPixmapItem()
 
 void ObjectPixmapItem::load()
 {
-    QPixmap img;
+    _realImage.load(_fileName);
 
-    img.load(_fileName);
-    if (!img.isNull()) {
-        QPixmap image;
-        QScreen *screen;
+    if (!_realImage.isNull()) {
+        _zoomLevel = (this->scene()->width() / _realImage.width());
+        if (_zoomLevel * _realImage.height() > this->scene()->height()) {
+            _zoomLevel = (this->scene()->height() / _realImage.height());
+        }
 
-        screen = QGuiApplication::primaryScreen();
-        _realImage = img.scaledToWidth(screen->geometry().width(),
-                                       Qt::SmoothTransformation);
+        _minimalZoom = _zoomLevel;
 
-        _correctedImage = correctOrientationPicture(_realImage);
-
-        image = scaledImage (_correctedImage);
-        this->setPixmap (image);
+        refresh ();
     }
-
-    centerOnScene ();
 
     emit itemLoaded();
 }
 
 void ObjectPixmapItem::refresh()
 {
-    QPixmap scaled;
-
     _correctedImage = correctOrientationPicture(_realImage);
 
-    scaled = scaledImage (_correctedImage);
-    this->setPixmap (scaled);
+    qDebug () << "ZoomLevel: " << _zoomLevel;
 
+    setPixmap (scaledImage (_correctedImage));
     centerOnScene ();
 }
 
 void ObjectPixmapItem::resize()
 {
-    this->setPixmap(scaledImage(_correctedImage));
-    this->centerOnScene ();
+    _zoomLevel = (this->scene()->width() / _realImage.width());
+    if (_zoomLevel * _realImage.height() > this->scene()->height()) {
+        _zoomLevel = (this->scene()->height() / _realImage.height());
+    }
+
+    _minimalZoom = _zoomLevel;
+
+    qDebug () << "ZoomLevel2: " << _zoomLevel;
+
+    setPixmap(scaledImage(_correctedImage));
+    centerOnScene ();
 }
 
 QDateTime ObjectPixmapItem::getDate()
@@ -182,13 +190,32 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
 {
     QPixmap image;
 
-    //image = src.scaledToWidth(this->scene()->width(), Qt::FastTransformation);
-    image = src.scaledToWidth(this->scene()->width(), Qt::SmoothTransformation);
-    if (image.height() > this->scene()->height()) {
-        // image = src.scaledToHeight(this->scene()->height(), Qt::FastTransformation);
-        image = src.scaledToHeight(this->scene()->height(), Qt::SmoothTransformation);
+    image = src.scaled(src.width() * _zoomLevel, src.height() * _zoomLevel, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (_zoomLevel == _minimalZoom) {
+        this->scene()->setSceneRect(this->scene()->views()[0]->rect());
+    }
+    else {
+        this->scene()->setSceneRect(image.rect());
     }
 
+/*
+    if (_zoomLevel == 1) {
+        this->scene()->setSceneRect(this->scene()->views()[0]->rect());
+    }
+
+    image = src.scaledToWidth((this->scene()->width() * _zoomLevel), Qt::SmoothTransformation);
+    if (_zoomLevel == 1 && image.height() > this->scene()->height()) {
+        image = src.scaledToHeight((this->scene()->height() * _zoomLevel), Qt::SmoothTransformation);
+    }
+
+    this->scene()->setSceneRect(image.rect());
+*/
+/*
+    image = src.scaledToWidth((this->scene()->width()), Qt::SmoothTransformation);
+    if (image.height() > this->scene()->height()) {
+        image = src.scaledToHeight((this->scene()->height()), Qt::SmoothTransformation);
+    }
+*/
     return image;
 }
 
@@ -259,6 +286,7 @@ void ObjectPixmapItem::on_showTimeEnded()
 
 bool ObjectPixmapItem::rotateLeft()
 {
+    _zoomLevel = 1;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -295,6 +323,7 @@ bool ObjectPixmapItem::rotateLeft()
 
 bool ObjectPixmapItem::rotateRight()
 {
+    _zoomLevel = 1;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -353,5 +382,21 @@ qreal ObjectPixmapItem::itemRotation()
 qreal ObjectPixmapItem::itemScale()
 {
     return QGraphicsItem::scale();
+}
+
+void ObjectPixmapItem::zoomIn()
+{
+    if (_zoomLevel <= 3) {
+        _zoomLevel += 0.3;
+        refresh ();
+    }
+}
+
+void ObjectPixmapItem::zoomOut()
+{
+    if (_zoomLevel > _minimalZoom) {
+        _zoomLevel -= 0.3;
+        refresh ();
+    }
 }
 

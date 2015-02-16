@@ -47,6 +47,12 @@
         <property name="frameShape">
          <enum>QFrame::NoFrame</enum>
         </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
         <property name="backgroundBrush">
          <brush brushstyle="Dense4Pattern">
           <color alpha="255">
@@ -150,10 +156,14 @@
    <addaction name="actionLast_picture"/>
    <addaction name="actionGo_to_picture"/>
    <addaction name="separator"/>
+   <addaction name="actionZoom_out"/>
+   <addaction name="actionZoom_in"/>
+   <addaction name="separator"/>
    <addaction name="actionFull_screen"/>
    <addaction name="separator"/>
    <addaction name="actionRotate_Left"/>
    <addaction name="actionRotate_Right"/>
+   <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionChange_folder">
@@ -397,6 +407,30 @@
    </property>
    <property name="toolTip">
     <string>Select picture to view</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/zoom-in.svg</normaloff>:/images/images/zoom-in.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom image in</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="icon">
+    <iconset resource="PhotoViewer.qrc">
+     <normaloff>:/images/images/zoom-out.svg</normaloff>:/images/images/zoom-out.svg</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom image out</string>
    </property>
   </action>
  </widget>

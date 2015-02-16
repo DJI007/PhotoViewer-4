@@ -148,6 +148,27 @@ void SettingsHelper::setDigikamDBFile (QString value)
     _settings->setValue("digikam_database_file", value);
 }
 
+QByteArray SettingsHelper::mainWindowGeometry()
+{
+    return _settings->value("main_window_geometry").toByteArray();
+}
+
+void SettingsHelper::setMainWindowGeometry(QByteArray geometry)
+{
+    _settings->setValue("main_window_geometry", geometry);
+}
+
+QByteArray SettingsHelper::mainWindowState()
+{
+    return _settings->value("main_window_state").toByteArray();
+}
+
+void SettingsHelper::setMainWindowState(QByteArray state)
+{
+    _settings->setValue("main_window_state", state);
+}
+
+
 
 
 

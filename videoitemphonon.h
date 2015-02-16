@@ -47,6 +47,9 @@ public:
     qreal itemRotation ();
     qreal itemScale ();
 
+    void zoomIn ();
+    void zoomOut ();
+
 signals:
     void itemLoaded ();
     void playMedia();

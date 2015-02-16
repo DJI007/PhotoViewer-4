@@ -5,6 +5,7 @@
 #include <QDir>
 #include <QTimer>
 #include <QLabel>
+#include <QSlider>
 
 #include "pictureview.h"
 #include "mapview.h"
@@ -20,6 +21,8 @@ class PhotoViewer : public QMainWindow
 public:
     explicit PhotoViewer(QWidget *parent = 0);
     ~PhotoViewer();
+
+    void closeEvent(QCloseEvent *ev);
 
 private slots:
     void on_actionChange_folder_triggered();
@@ -63,11 +66,17 @@ private slots:
 
     void on_actionGo_to_picture_triggered();
 
+    void on_actionZoom_in_triggered();
+
+    void on_actionZoom_out_triggered();
+
 protected:
     void resizeEvent(QResizeEvent *event);
 
 private:
     Ui::PhotoViewer *ui;
+
+    QSlider *_sliderZoom;
 
     QDir *_currentDir;
     uint _currentFile;

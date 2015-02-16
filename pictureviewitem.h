@@ -27,6 +27,9 @@ public:
     virtual bool rotateLeft () = 0;
     virtual bool rotateRight () = 0;
 
+    virtual void zoomIn () = 0;
+    virtual void zoomOut () = 0;
+
 signals:
     void itemLoaded ();
     void showTimeEnded ();
