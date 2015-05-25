@@ -357,13 +357,12 @@ qreal VideoItemPhonon::itemScale()
     return _videoItem->scale();
 }
 
-void VideoItemPhonon::zoomIn()
+void VideoItemPhonon::setZoom(qreal zoomPercent)
 {
 
 }
 
-void VideoItemPhonon::zoomOut()
+qreal VideoItemPhonon::zoom()
 {
-
+    return 100;
 }
-

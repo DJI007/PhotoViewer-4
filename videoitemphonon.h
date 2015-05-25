@@ -47,19 +47,22 @@ public:
     qreal itemRotation ();
     qreal itemScale ();
 
-    void zoomIn ();
-    void zoomOut ();
+    qreal zoom ();
+    void setZoom (qreal zoomPercent);
 
 signals:
-    void itemLoaded ();
     void playMedia();
     void pauseMedia();
     void stopMedia();
     void volumeChanged(int volume);
 
+    void rotateVideoLeft ();
+
+    void itemLoaded ();
     void showTimeEnded ();
 
-    void rotateVideoLeft ();
+    void zoomChanged (qreal newZoom);
+
 
 private slots:
     void on_durationChanged(qint64 value);

@@ -141,6 +141,9 @@
    <property name="windowTitle">
     <string>Main toolbar</string>
    </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonIconOnly</enum>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
@@ -155,9 +158,6 @@
    <addaction name="actionNext_picture"/>
    <addaction name="actionLast_picture"/>
    <addaction name="actionGo_to_picture"/>
-   <addaction name="separator"/>
-   <addaction name="actionZoom_out"/>
-   <addaction name="actionZoom_in"/>
    <addaction name="separator"/>
    <addaction name="actionFull_screen"/>
    <addaction name="separator"/>
@@ -407,30 +407,6 @@
    </property>
    <property name="toolTip">
     <string>Select picture to view</string>
-   </property>
-  </action>
-  <action name="actionZoom_in">
-   <property name="icon">
-    <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/zoom-in.svg</normaloff>:/images/images/zoom-in.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom in</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom image in</string>
-   </property>
-  </action>
-  <action name="actionZoom_out">
-   <property name="icon">
-    <iconset resource="PhotoViewer.qrc">
-     <normaloff>:/images/images/zoom-out.svg</normaloff>:/images/images/zoom-out.svg</iconset>
-   </property>
-   <property name="text">
-    <string>Zoom out</string>
-   </property>
-   <property name="toolTip">
-    <string>Zoom image out</string>
    </property>
   </action>
  </widget>

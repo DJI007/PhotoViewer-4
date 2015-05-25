@@ -27,12 +27,14 @@ public:
     virtual bool rotateLeft () = 0;
     virtual bool rotateRight () = 0;
 
-    virtual void zoomIn () = 0;
-    virtual void zoomOut () = 0;
+    virtual qreal zoom () = 0;
+    virtual void setZoom (qreal zoomPercent) = 0;
 
 signals:
     void itemLoaded ();
     void showTimeEnded ();
+
+    void zoomChanged (qreal newZoom);
 
 public slots:
     virtual void beginRotateAnimation () {}

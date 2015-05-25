@@ -134,13 +134,16 @@ void PictureView::showPicture(PictureAnimationType animType)
 
         connect (_currentItem, SIGNAL(itemLoaded()),
                  this, SLOT(on_itemLoaded ()));
+        connect (_currentItem, SIGNAL(zoomChanged (qreal)),
+                 this, SIGNAL(zoomChanged(qreal)));
+
         connect (this, SIGNAL(beginItemAnimationIn()),
                  _currentItem, SLOT(beginItemAnimationIn()));
         connect (this, SIGNAL(endItemAnimationIn()),
                  _currentItem, SLOT(endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem);
-        // _currentItem->setInfoVisible(_infoVisible);
+
         _currentItem->load();
     }
 }
@@ -343,13 +346,13 @@ void PictureView::rotatePictureRight()
     }
 }
 
-void PictureView::zoomIn()
+void PictureView::setZoom(qreal zoomPercent)
 {
-    _currentItem->zoomIn ();
+    _currentItem->setZoom(zoomPercent);
 }
 
-void PictureView::zoomOut()
+qreal PictureView::zoom()
 {
-    _currentItem->zoomOut ();
+    return _currentItem->zoom ();
 }
 

@@ -9,6 +9,7 @@
 
 #include "pictureview.h"
 #include "mapview.h"
+#include "zoomaction.h"
 
 namespace Ui {
 class PhotoViewer;
@@ -45,6 +46,8 @@ private slots:
 
     void on_pictureShowTimeEnded ();
 
+    void on_pictureZoomChanged (qreal zoom);
+
     void on_toolBarTimerTimeout();
 
     void on_pictureRequestMapWindow (double latitude, double longitude, double altitude);
@@ -66,9 +69,7 @@ private slots:
 
     void on_actionGo_to_picture_triggered();
 
-    void on_actionZoom_in_triggered();
-
-    void on_actionZoom_out_triggered();
+    void on_actionZoomChanged(qreal zoomPercent);
 
 protected:
     void resizeEvent(QResizeEvent *event);
@@ -89,6 +90,8 @@ private:
     QLabel *_lblStatusPath;
 
     MapView *_mapView;
+
+    ZoomAction *_actionZoom;
 
     void showCurrentPicture (PictureView::PictureAnimationType anim = PictureView::PictureAnimationType::None);
     void toggleFullScreen();

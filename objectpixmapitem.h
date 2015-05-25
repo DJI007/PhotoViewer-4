@@ -41,12 +41,14 @@ public:
     qreal itemRotation ();
     qreal itemScale ();
 
-    void zoomIn ();
-    void zoomOut ();
+    qreal zoom ();
+    void setZoom (qreal zoomPercent);
 
 signals:
     void itemLoaded ();
     void showTimeEnded ();
+
+    void zoomChanged (qreal zoom);
 
 public slots:
     void on_showTimeEnded ();
@@ -65,12 +67,14 @@ private:
 
     QTimer *_showTimer;
 
-    qreal _zoomLevel;
-    qreal _minimalZoom;
+    qreal _scale;
+    //qreal _minimalZoom;
 
     QPixmap correctOrientationPicture(QPixmap src);
     QPixmap scaledImage(QPixmap src);
     void centerOnScene ();
+
+    void calculateScale ();
 };
 
 #endif // OBJECTPIXMAPITEM_H

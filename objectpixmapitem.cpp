@@ -21,7 +21,7 @@ ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
     _fileName = fileName;
     _showTimer = NULL;
 
-    _zoomLevel = 1;
+    _scale = 100;
 
     _pictureData = new ExifMetadata(fileName);
 }
@@ -33,7 +33,7 @@ ObjectPixmapItem::ObjectPixmapItem(const QPixmap& pixmap, QObject* parent) :
     _pictureData = NULL;
     _showTimer = NULL;
 
-    _zoomLevel = 1;
+    _scale = 100;
 
     setCacheMode(DeviceCoordinateCache);
 }
@@ -49,12 +49,9 @@ void ObjectPixmapItem::load()
     _realImage.load(_fileName);
 
     if (!_realImage.isNull()) {
-        _zoomLevel = (this->scene()->width() / _realImage.width());
-        if (_zoomLevel * _realImage.height() > this->scene()->height()) {
-            _zoomLevel = (this->scene()->height() / _realImage.height());
-        }
+        calculateScale();
 
-        _minimalZoom = _zoomLevel;
+        //_minimalZoom = _zoomPercent;
 
         refresh ();
     }
@@ -66,7 +63,7 @@ void ObjectPixmapItem::refresh()
 {
     _correctedImage = correctOrientationPicture(_realImage);
 
-    qDebug () << "ZoomLevel: " << _zoomLevel;
+    qDebug () << "ZoomLevel: " << _scale;
 
     setPixmap (scaledImage (_correctedImage));
     centerOnScene ();
@@ -74,14 +71,10 @@ void ObjectPixmapItem::refresh()
 
 void ObjectPixmapItem::resize()
 {
-    _zoomLevel = (this->scene()->width() / _realImage.width());
-    if (_zoomLevel * _realImage.height() > this->scene()->height()) {
-        _zoomLevel = (this->scene()->height() / _realImage.height());
-    }
+    calculateScale();
+    //_minimalZoom = _zoomPercent;
 
-    _minimalZoom = _zoomLevel;
-
-    qDebug () << "ZoomLevel2: " << _zoomLevel;
+    qDebug () << "ZoomLevel2: " << _scale;
 
     setPixmap(scaledImage(_correctedImage));
     centerOnScene ();
@@ -190,32 +183,32 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
 {
     QPixmap image;
 
-    image = src.scaled(src.width() * _zoomLevel, src.height() * _zoomLevel, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    if (_zoomLevel == _minimalZoom) {
+/*
+    image = src.scaled(src.width() * _zoomPercent, src.height() * _zoomPercent, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    if (_zoomPercent == _minimalZoom) {
         this->scene()->setSceneRect(this->scene()->views()[0]->rect());
     }
     else {
         this->scene()->setSceneRect(image.rect());
     }
 
-/*
-    if (_zoomLevel == 1) {
+    if (_zoomPercent == 1) {
         this->scene()->setSceneRect(this->scene()->views()[0]->rect());
     }
 
-    image = src.scaledToWidth((this->scene()->width() * _zoomLevel), Qt::SmoothTransformation);
-    if (_zoomLevel == 1 && image.height() > this->scene()->height()) {
-        image = src.scaledToHeight((this->scene()->height() * _zoomLevel), Qt::SmoothTransformation);
+    image = src.scaledToWidth((this->scene()->width() * _zoomPercent), Qt::SmoothTransformation);
+    if (_zoomPercent == 1 && image.height() > this->scene()->height()) {
+        image = src.scaledToHeight((this->scene()->height() * _zoomPercent), Qt::SmoothTransformation);
     }
 
     this->scene()->setSceneRect(image.rect());
 */
-/*
+
     image = src.scaledToWidth((this->scene()->width()), Qt::SmoothTransformation);
     if (image.height() > this->scene()->height()) {
         image = src.scaledToHeight((this->scene()->height()), Qt::SmoothTransformation);
     }
-*/
+
     return image;
 }
 
@@ -286,7 +279,7 @@ void ObjectPixmapItem::on_showTimeEnded()
 
 bool ObjectPixmapItem::rotateLeft()
 {
-    _zoomLevel = 1;
+    _scale = 100;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -323,7 +316,7 @@ bool ObjectPixmapItem::rotateLeft()
 
 bool ObjectPixmapItem::rotateRight()
 {
-    _zoomLevel = 1;
+    _scale = 100;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -384,19 +377,22 @@ qreal ObjectPixmapItem::itemScale()
     return QGraphicsItem::scale();
 }
 
-void ObjectPixmapItem::zoomIn()
+void ObjectPixmapItem::setZoom(qreal zoomPercent)
 {
-    if (_zoomLevel <= 3) {
-        _zoomLevel += 0.3;
-        refresh ();
-    }
+    _scale = (zoomPercent / 100);
 }
 
-void ObjectPixmapItem::zoomOut()
+qreal ObjectPixmapItem::zoom()
 {
-    if (_zoomLevel > _minimalZoom) {
-        _zoomLevel -= 0.3;
-        refresh ();
-    }
+    return _scale * 100;
 }
 
+void ObjectPixmapItem::calculateScale ()
+{
+    _scale = (this->scene()->width() / _realImage.width());
+    if (_scale * _realImage.height() > this->scene()->height()) {
+        _scale = (this->scene()->height() / _realImage.height());
+    }
+
+    emit zoomChanged (zoom());
+}

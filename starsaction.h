@@ -10,14 +10,13 @@ class StarsAction : public QWidgetAction
 public:
     explicit StarsAction(QWidget *parent = 0);
 
-
-protected:
-    virtual QWidget *createStars (QWidget *parent);
+private:
+    virtual QWidget *createWidget (QWidget *parent);
 
 signals:
     void setRating (int rating);
 
-public slots:
+private slots:
    void on_star_mouseEnter (StarLabel *sender);
    void on_star_mouseLeave (StarLabel *sender);
    void on_star_mouseClick (StarLabel *sender);

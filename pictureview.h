@@ -50,8 +50,8 @@ public:
     void rotatePictureLeft ();
     void rotatePictureRight ();
 
-    void zoomIn ();
-    void zoomOut ();
+    qreal zoom ();
+    void setZoom(qreal zoomPercent);
 
 signals:
     void mouseDoubleClick (QMouseEvent *event);
@@ -64,15 +64,19 @@ signals:
     void endItemAnimationOut ();
     void showTimeEnded ();
 
+    void zoomChanged (qreal zoom);
+
 public slots:
     void loadPicture (QString fileName);
     void showPicture (PictureAnimationType animType /* = PictureAnimationType::None */);
     void setPictureRating (int rating);
+    void resize ();
+
+private slots:
     void on_finishPrevItemAnimation ();
     void on_finishCurrentItemAnimation ();
     void on_itemRequestMapWindow (double latitude, double longitude, double altitude);
     void on_itemLoaded ();
-    void resize ();
 
     void on_showTimeEnded ();
 

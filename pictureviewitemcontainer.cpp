@@ -57,6 +57,9 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     connect (dynamic_cast<QObject *> (_item), SIGNAL(itemLoaded()),
              this, SLOT(setItemLoaded()));
 
+    connect (dynamic_cast<QObject *> (_item), SIGNAL(zoomChanged(qreal)),
+             this, SIGNAL(zoomChanged(qreal)));
+
     initGeoManager ();
 }
 
@@ -243,7 +246,7 @@ void PictureViewItemContainer::showGeoInfo()
 
 void PictureViewItemContainer::showFileInfo()
 {
-    if (!_fileInfo) {
+    if (_fileInfo != NULL) {
         _fileInfo = createFileInfo();
 
         _fileInfo->hide();
@@ -629,12 +632,12 @@ bool PictureViewItemContainer::isVideo()
     return _isVideo;
 }
 
-void PictureViewItemContainer::zoomIn()
+qreal PictureViewItemContainer::zoom()
 {
-    _item->zoomIn();
+    return _item->zoom();
 }
 
-void PictureViewItemContainer::zoomOut()
+void PictureViewItemContainer::setZoom(qreal zoomPercent)
 {
-    _item->zoomOut();
+    _item->setZoom(zoomPercent);
 }

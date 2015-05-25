@@ -2,6 +2,7 @@
 #define DIGIKAMMETADATA_H
 
 #include <QString>
+#include <QVariant>
 
 #include "abstractmetadata.h"
 

@@ -152,3 +152,6 @@ OTHER_FILES += \
     MapViewer.qml \
     photoviewerUML.class.violet.html
 
+DISTFILES += \
+    README
+

@@ -63,8 +63,8 @@ public:
 
     bool isVideo ();
 
-    void zoomIn ();
-    void zoomOut ();
+    qreal zoom ();
+    void setZoom (qreal zoomPercent);
 
 signals:
     void itemLoaded ();
@@ -73,6 +73,8 @@ signals:
 
     void beginRotateAnimation ();
     void endRotateAnimation ();
+
+    void zoomChanged (qreal zoom);
 
 public slots:
     void setItemLoaded();
@@ -104,7 +106,7 @@ private:
 
     bool _rotating;
 
-    AnimatedTextItem *_fileInfo;
+    AnimatedTextItem *_fileInfo = NULL;
     ClickableTextItem *_geoInfo;
     QGraphicsItemGroup *_rating;
 

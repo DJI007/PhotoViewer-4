@@ -12,11 +12,10 @@
 StarsAction::StarsAction(QWidget *parent) :
     QWidgetAction(parent)
 {
-    this->setDefaultWidget(this->createStars(parent));
 }
 
 
-QWidget *StarsAction::createStars (QWidget *parent)
+QWidget *StarsAction::createWidget (QWidget *parent)
 {
     QWidget *tmp;
     QHBoxLayout *layout;

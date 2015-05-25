@@ -17,7 +17,6 @@
 #include "settingshelper.h"
 #include "starsaction.h"
 #include "settingsdialog.h"
-#include "zoomaction.h"
 
 /**
  * PhotoView application to view pictures in a simple mode
@@ -31,19 +30,18 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    restoreGeometry(SettingsHelper::instance().mainWindowGeometry());
-    restoreState(SettingsHelper::instance().mainWindowState());
-
     // dock map window
     //ui->dwMap->hide();
 
+    // Toolbar signals
+    ///////////////////////////////////////////////////////////////////
     connect(ui->mainToolBar, SIGNAL(visibilityChanged(bool)),
             this, SLOT(on_mainToolbarVisibilityChanged (bool)));
 
-    connect(ui->gvPicture,
-            SIGNAL(requestMapWindow(double,double,double)),
-            this,
-            SLOT(on_pictureRequestMapWindow(double,double,double)));
+    // Picture signals
+    ///////////////////////////////////////////////////////////////////
+    connect(ui->gvPicture, SIGNAL(requestMapWindow(double,double,double)),
+            this, SLOT(on_pictureRequestMapWindow(double,double,double)));
 
     connect(ui->gvPicture, SIGNAL(showTimeEnded()),
             this, SLOT(on_pictureShowTimeEnded()));
@@ -53,6 +51,17 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     connect(ui->gvPicture, SIGNAL(endItemAnimationIn()),
             this, SLOT(on_endItemAnimation()));
 
+    connect(ui->gvPicture, SIGNAL(mouseDoubleClick(QMouseEvent*)),
+            this, SLOT(on_pictureDoubleClick(QMouseEvent*)));
+    connect(ui->gvPicture, SIGNAL(mouseMove(QMouseEvent*)),
+            this, SLOT(on_pictureMouseMove(QMouseEvent*)));
+
+    connect(ui->gvPicture, SIGNAL(zoomChanged (qreal)),
+            this, SLOT(on_pictureZoomChanged(qreal)));
+
+
+    // Map window
+    ///////////////////////////////////////////////////////////////////
     // QWidget *container;
 
     _mapView = new MapView();
@@ -60,6 +69,8 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     // ui->dwMap->setWidget(container);
     // _mapView->show();
 
+    // Status bar
+    ///////////////////////////////////////////////////////////////////
     _lblStatusFileCount = new QLabel (this);
     _lblStatusFileCount->setObjectName("lblStatusFileCount");
     _lblStatusFileCount->show();
@@ -71,6 +82,8 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     ui->statusBar->addWidget(_lblStatusPath, 1);
     ui->statusBar->addWidget(_lblStatusFileCount);
 
+    // Toobar show/hide timer
+    ///////////////////////////////////////////////////////////////////
     _toolBarTimer = new QTimer (this);
     _toolBarTimer->setInterval(5000);
     connect (_toolBarTimer,
@@ -78,50 +91,28 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
              this,
              SLOT(on_toolBarTimerTimeout()));
 
+    // Stars custom action
+    ///////////////////////////////////////////////////////////////////
     StarsAction *action;
 
     action = new StarsAction (ui->mainToolBar);
     ui->mainToolBar->addAction(action);
-/*
-    QVBoxLayout *choiceBoxBLayout;
-    QLabel *sliderPosB;
 
-    choiceBoxBLayout = new QVBoxLayout;
-    sliderPosB = new QLabel("100%");
+    connect(action, SIGNAL(setRating(int)),
+            ui->gvPicture, SLOT(setPictureRating(int)));
 
-    _sliderZoom = new QSlider (Qt::Horizontal, this);
-    _sliderZoom->setMaximum(200);
-    _sliderZoom->setMinimumWidth(50);
-    _sliderZoom->setMaximumWidth(50);
-    _sliderZoom->setTracking(true);
+    // Zoom custom action
+    ///////////////////////////////////////////////////////////////////
+    _actionZoom = new ZoomAction(ui->mainToolBar);
+    ui->mainToolBar->insertAction(ui->actionFull_screen, _actionZoom);
 
-    sliderPosB->setParent(_sliderZoom);
-    _sliderZoom->setLayout(choiceBoxBLayout);
-    sliderPosB->setLayout(choiceBoxBLayout);
+    connect(_actionZoom, SIGNAL(zoomChanged(qreal)),
+            this, SLOT(on_actionZoomChanged(qreal)));
 
-    ui->mainToolBar->insertWidget(ui->actionZoom_in, _sliderZoom);
-    // ui->mainToolBar->insertWidget(ui->actionZoom_in, _sliderZoom);
-*/
-    ZoomAction *zoom;
-
-    zoom = new ZoomAction(ui->mainToolBar);
-    ui->mainToolBar->insertAction(ui->actionFull_screen, zoom);
-
-    connect(action,
-            SIGNAL(setRating(int)),
-            ui->gvPicture,
-            SLOT(setPictureRating(int)));
-
-    connect(ui->gvPicture,
-            SIGNAL(mouseDoubleClick(QMouseEvent*)),
-            this,
-            SLOT(on_pictureDoubleClick(QMouseEvent*)));
-    connect(ui->gvPicture,
-            SIGNAL(mouseMove(QMouseEvent*)),
-            this,
-            SLOT(on_pictureMouseMove(QMouseEvent*)));
+    ui->mainToolBar->insertSeparator(ui->actionFull_screen);
 
     // Add actions to main window to preserve the shortcuts in fullscreen mode
+    ///////////////////////////////////////////////////////////////////
     this->addAction(ui->actionFirst_picture);
     this->addAction(ui->actionPrevious_picture);
     this->addAction(ui->actionPlay);
@@ -138,6 +129,8 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
     this->addAction(ui->actionRotate_Left);
     this->addAction(ui->actionRotate_Right);
 
+    // Directory selection
+    ///////////////////////////////////////////////////////////////////
     QString lastDirectory;
     QStringList filters;
 
@@ -160,7 +153,11 @@ PhotoViewer::PhotoViewer(QWidget *parent) :
         showCurrentPicture();
     }
 
+    // Load saved settings
+    ///////////////////////////////////////////////////////////////////
     loadSettings ();
+    restoreGeometry(SettingsHelper::instance().mainWindowGeometry());
+    restoreState(SettingsHelper::instance().mainWindowState());
 }
 
 void PhotoViewer::closeEvent(QCloseEvent *ev)
@@ -198,6 +195,8 @@ void PhotoViewer::showCurrentPicture(PictureView::PictureAnimationType anim)
 
         ui->gvPicture->loadPicture(fileName);
         ui->gvPicture->showPicture(anim);
+
+        _actionZoom->setValue(ui->gvPicture->zoom());
         // updateShowInfo();
 
         if (_mapView->isVisible()) {
@@ -232,25 +231,27 @@ void PhotoViewer::updateShowInfo ()
         showRating = SettingsHelper::instance().showRating();
     }
 
-    if (showFileInfo) {
-        ui->gvPicture->showFileInfo();
-    }
-    else {
-        ui->gvPicture->hideFileInfo();
-    }
+    if (ui->gvPicture->hasPicture()) {
+        if (showFileInfo) {
+            ui->gvPicture->showFileInfo();
+        }
+        else {
+            ui->gvPicture->hideFileInfo();
+        }
 
-    if (showGeoInfo) {
-        ui->gvPicture->showGeoInfo();
-    }
-    else {
-        ui->gvPicture->hideGeoInfo();
-    }
+        if (showGeoInfo) {
+            ui->gvPicture->showGeoInfo();
+        }
+        else {
+            ui->gvPicture->hideGeoInfo();
+        }
 
-    if (showRating) {
-        ui->gvPicture->showRating();
-    }
-    else {
-        ui->gvPicture->hideRating();
+        if (showRating) {
+            ui->gvPicture->showRating();
+        }
+        else {
+            ui->gvPicture->hideRating();
+        }
     }
 }
 
@@ -693,12 +694,12 @@ void PhotoViewer::on_actionGo_to_picture_triggered()
     }
 }
 
-void PhotoViewer::on_actionZoom_in_triggered()
+void PhotoViewer::on_actionZoomChanged(qreal zoomPercent)
 {
-    ui->gvPicture->zoomIn ();
+    ui->gvPicture->setZoom(zoomPercent);
 }
 
-void PhotoViewer::on_actionZoom_out_triggered()
+void PhotoViewer::on_pictureZoomChanged(qreal zoom)
 {
-    ui->gvPicture->zoomOut ();
+    _actionZoom->setValue(zoom);
 }

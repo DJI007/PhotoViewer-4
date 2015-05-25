@@ -1,0 +1,22 @@
+
+Dependencias:
+    - Phonon4Qt5 (http://api.kde.org/kdesupport-api/apidox-kdesupport/apidox-kdesupport/phonon-apidocs/phonon/html/phonon4qt5.html)
+        * Descargar los fuentes de phonon (creo que desde aqui: https://techbase.kde.org/Development/Tutorials/Debugging/Phonon#Building_Phonon_from_source)
+        * ejecutar:
+            cmake ../phonon -DPHONON_BUILD_PHONON4QT5=ON -DCMAKE_PREFIX_PATH=/opt/Qt/5.4/gcc_64 -DPHONON_INSTALL_QT_EXTENSIONS_INTO_SYSTEM_QT=ON
+            make
+            sudo make install
+
+        * backends:
+            - gstreamer: necesita libgstreamer-plugins-good1.0-dev, libgstreamer-plugins-base1.0-dev, libgstreamer-plugins-base0.10-dev, libx11-xcb-dev
+            cmake ../phonon-gstreamer -DPHONON_BUILD_PHONON4QT5=ON -DCMAKE_PREFIX_PATH=/opt/Qt/5.4/gcc_64
+            make
+            sudo make install
+            - vlc: necesita: libvlc-dev, libvlccore-dev
+            cmake ../phonon-vlc -DPHONON_BUILD_PHONON4QT5=ON -DCMAKE_PREFIX_PATH=/opt/Qt/5.4/gcc_64
+            make
+            sudo make install
+    - libexiv2-dev
+    - mesa-common-dev
+    - libblkid-dev
+    - libgl1-mesa-dev
