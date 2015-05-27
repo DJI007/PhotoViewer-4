@@ -468,26 +468,18 @@ void PhotoViewer::on_pictureRequestMapWindow (double latitude, double longitude,
 void PhotoViewer::on_actionChange_folder_triggered()
 {
     QString directory;
-    QFileDialog *fd = new QFileDialog;
 
-    fd->setDirectory(SettingsHelper::instance ().lastDirectory ());
-    fd->setFileMode (QFileDialog::Directory);
-    // fd->setOption (QFileDialog::ShowDirsOnly);
-    fd->setViewMode (QFileDialog::Detail);
-
-    int result = fd->exec();
-    if (result)
-    {
-        directory = fd->selectedFiles ()[0];
+    directory = QFileDialog::getExistingDirectory(this,
+                                                  tr("Select photo folder"),
+                                                  SettingsHelper::instance ().lastDirectory ());
+    if (!directory.isEmpty()) {
         SettingsHelper::instance().setLastDirectory (directory);
 
-        _currentDir->setPath (fd->selectedFiles()[0]);
+        _currentDir->setPath (directory);
         _currentFile = 0;
         ui->gvPicture->resize();
         showCurrentPicture ();
     }
-
-    delete fd;
 }
 
 void PhotoViewer::on_actionFirst_picture_triggered()

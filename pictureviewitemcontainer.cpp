@@ -6,7 +6,10 @@
 #include <QPropertyAnimation>
 #include <QGraphicsScene>
 
+#ifdef Q_OS_LINUX
 #include "videoitemphonon.h"
+#endif
+
 #include "objectpixmapitem.h"
 
 #include <QSequentialAnimationGroup>
@@ -44,7 +47,9 @@ PictureViewItemContainer::PictureViewItemContainer(QString fileName, QObject *pa
     setPen(Qt::NoPen);
 
     if (fileName.endsWith("mp4") || fileName.toLower().endsWith("mts") || fileName.toLower().endsWith("avi")) {
+#ifdef Q_OS_LINUX
         _item = new VideoItemPhonon(fileName, this);
+#endif
         _isVideo = true;
     }
     else {
@@ -246,7 +251,7 @@ void PictureViewItemContainer::showGeoInfo()
 
 void PictureViewItemContainer::showFileInfo()
 {
-    if (_fileInfo != NULL) {
+    if (!_fileInfo) {
         _fileInfo = createFileInfo();
 
         _fileInfo->hide();

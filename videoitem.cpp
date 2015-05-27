@@ -234,3 +234,13 @@ qreal VideoItem::itemScale()
 {
     return 1;
 }
+
+void VideoItem::setZoom(qreal zoomPercent)
+{
+
+}
+
+qreal VideoItem::zoom()
+{
+    return 100;
+}

@@ -1,6 +1,5 @@
 #include "pictureview.h"
 
-#include <QMouseEvent>
 #include <QDebug>
 #include <QGraphicsPixmapItem>
 #include <QPropertyAnimation>

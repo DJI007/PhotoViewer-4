@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QAnimationGroup>
 #include <QGraphicsItem>
+#include <QMouseEvent>
 
 #include "exifmetadata.h"
 #include "clickabletextitem.h"

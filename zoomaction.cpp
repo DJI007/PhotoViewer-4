@@ -15,7 +15,7 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
 
     tmp = new QWidget (parent);
     tmp->setContentsMargins(0, 0, 0, 0);
-    tmp->setFixedWidth(130);
+    tmp->setFixedWidth(150);
 
     layout = new QHBoxLayout (tmp);
     layout->setSpacing(0);
@@ -31,9 +31,6 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     _slider->setPageStep(50);
     _slider->setMinimum(0);
     _slider->setMaximum(200);
-    _slider->setMinimumWidth(50);
-    _slider->setMaximumWidth(50);
-    _slider->setFixedWidth(50);
 
     _zoomIn = new QToolButton (tmp);
     _zoomIn->setAutoRaise(true);
@@ -42,6 +39,8 @@ QWidget *ZoomAction::createWidget(QWidget *parent)
     _percent = new QLabel (tmp);
     _percent->setText("0%");
     _percent->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    _percent->setMinimumWidth(35);
+    _percent->setMaximumWidth(35);
 
     connect (_zoomIn, SIGNAL(clicked()),
              this, SLOT(onZoomInClicked()));

@@ -7,8 +7,11 @@
 QT += core gui
 QT += positioning location
 QT += qml quick
-QT += phonon4qt5
 QT += sql
+
+unix {
+QT += phonon4qt5
+}
 
 # QT += multimedia multimediawidgets
 # QT += av
@@ -45,7 +48,6 @@ SOURCES += main.cpp\
     animationrotatescale.cpp \
     videocontrolpanel.cpp \
     xmpmetadata.cpp \
-    videoitemphonon.cpp \
 #    videofilter.cpp \
     sqlitemetadata.cpp \
     digikammetadata.cpp \
@@ -81,13 +83,17 @@ HEADERS  += photoviewer.h \
     animationrotatescale.h \
     videocontrolpanel.h \
     xmpmetadata.h \
-    videoitemphonon.h \
 #    videofilter.h \
     sqlitemetadata.h \
     digikammetadata.h \
     volumeinformation.h \
     settingsdialog.h \
     zoomaction.h
+
+unix {
+SOURCES += videoitemphonon.cpp
+HEADERS  += videoitemphonon.h
+}
 
 FORMS    += photoviewer.ui \
     settings.ui \

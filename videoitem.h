@@ -41,6 +41,8 @@ public:
     void setItemRotation (qreal angle);
     void setItemScale (qreal scale);
 
+    qreal zoom ();
+    void setZoom (qreal zoomPercent);
 
 signals:
     void itemLoaded ();
