@@ -71,7 +71,6 @@ public slots:
     void loadPicture (QString fileName);
     void showPicture (PictureAnimationType animType /* = PictureAnimationType::None */);
     void setPictureRating (int rating);
-    void resize ();
 
 private slots:
     void on_finishPrevItemAnimation ();
@@ -84,6 +83,7 @@ private slots:
 protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *);
     virtual void mouseMoveEvent(QMouseEvent *event);
+    void resizeEvent(QResizeEvent *event);
 
 private:
     const int ANIMATION_DURATION_MILLISECONDS = 3000;

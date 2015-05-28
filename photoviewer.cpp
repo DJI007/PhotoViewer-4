@@ -354,15 +354,6 @@ void PhotoViewer::setToolBarsVisibility(bool visible)
     }
 }
 
-void PhotoViewer::resizeEvent(QResizeEvent *event)
-{
-    QWidget::resizeEvent(event);
-
-    if (this->ui->gvPicture->hasPicture()) {
-        this->ui->gvPicture->resize ();
-    }
-}
-
 void PhotoViewer::setRating(int value)
 {
     ui->gvPicture->setPictureRating(value);
@@ -477,7 +468,7 @@ void PhotoViewer::on_actionChange_folder_triggered()
 
         _currentDir->setPath (directory);
         _currentFile = 0;
-        ui->gvPicture->resize();
+
         showCurrentPicture ();
     }
 }

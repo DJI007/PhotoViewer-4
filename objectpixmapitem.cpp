@@ -21,7 +21,7 @@ ObjectPixmapItem::ObjectPixmapItem(QString fileName, QObject *parent) :
     _fileName = fileName;
     _showTimer = NULL;
 
-    _scale = 100;
+    _scale = 150;
 
     _pictureData = new ExifMetadata(fileName);
 }
@@ -33,7 +33,7 @@ ObjectPixmapItem::ObjectPixmapItem(const QPixmap& pixmap, QObject* parent) :
     _pictureData = NULL;
     _showTimer = NULL;
 
-    _scale = 100;
+    _scale = 150;
 
     setCacheMode(DeviceCoordinateCache);
 }
@@ -51,6 +51,8 @@ void ObjectPixmapItem::load()
     if (!_realImage.isNull()) {
         calculateScale();
 
+        correctOrientationPicture();
+
         //_minimalZoom = _zoomPercent;
 
         refresh ();
@@ -61,23 +63,22 @@ void ObjectPixmapItem::load()
 
 void ObjectPixmapItem::refresh()
 {
-    _correctedImage = correctOrientationPicture(_realImage);
-
     qDebug () << "ZoomLevel: " << _scale;
 
-    setPixmap (scaledImage (_correctedImage));
+    //setPixmap (scaledImage (_correctedImage));
+    setPixmap (_correctedImage);
+
+    // this->scene()->setSceneRect(_correctedImage.rect());
+
     centerOnScene ();
 }
 
 void ObjectPixmapItem::resize()
 {
     calculateScale();
-    //_minimalZoom = _zoomPercent;
+    correctOrientationPicture();
 
-    qDebug () << "ZoomLevel2: " << _scale;
-
-    setPixmap(scaledImage(_correctedImage));
-    centerOnScene ();
+    refresh();
 }
 
 QDateTime ObjectPixmapItem::getDate()
@@ -127,7 +128,7 @@ AbstractMetadata *ObjectPixmapItem::metadata ()
  *
  * http://sylvana.net/jpegcrop/exif_orientation.html
  */
-QPixmap ObjectPixmapItem::correctOrientationPicture(QPixmap image)
+void ObjectPixmapItem::correctOrientationPicture()
 {
     QTransform trans;
 
@@ -176,7 +177,7 @@ QPixmap ObjectPixmapItem::correctOrientationPicture(QPixmap image)
         break;
     }
 
-    return image.transformed(trans);
+    _correctedImage = scaledImage(_realImage.transformed(trans));
 }
 
 QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
@@ -203,6 +204,8 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
 
     this->scene()->setSceneRect(image.rect());
 */
+
+    this->scene()->setSceneRect(0, 0, _realImage.width() * _scale, _realImage.height() * _scale);
 
     image = src.scaledToWidth((this->scene()->width()), Qt::SmoothTransformation);
     if (image.height() > this->scene()->height()) {
@@ -279,7 +282,6 @@ void ObjectPixmapItem::on_showTimeEnded()
 
 bool ObjectPixmapItem::rotateLeft()
 {
-    _scale = 100;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -316,7 +318,6 @@ bool ObjectPixmapItem::rotateLeft()
 
 bool ObjectPixmapItem::rotateRight()
 {
-    _scale = 100;
     switch (_pictureData->orientation())
     {
     case 1:
@@ -353,6 +354,7 @@ bool ObjectPixmapItem::rotateRight()
 
 void ObjectPixmapItem::endRotateAnimation()
 {
+    correctOrientationPicture();
     this->setRotation(0);
     this->setScale(1);
 }
@@ -380,6 +382,7 @@ qreal ObjectPixmapItem::itemScale()
 void ObjectPixmapItem::setZoom(qreal zoomPercent)
 {
     _scale = (zoomPercent / 100);
+    resize();
 }
 
 qreal ObjectPixmapItem::zoom()

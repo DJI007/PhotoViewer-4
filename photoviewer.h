@@ -72,7 +72,6 @@ private slots:
     void on_actionZoomChanged(qreal zoomPercent);
 
 protected:
-    void resizeEvent(QResizeEvent *event);
 
 private:
     Ui::PhotoViewer *ui;

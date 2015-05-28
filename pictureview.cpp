@@ -80,21 +80,6 @@ bool PictureView::hasPicture()
     return _pictureScene->items().count() > 0;
 }
 
-void PictureView::resize()
-{
-    qreal x;
-    qreal y;
-
-    x = 0;
-    y = 0;
-
-    _pictureScene->setSceneRect (x, y, this->width() - 2, this->height() - 2);
-
-    if (_currentItem != NULL) {
-        _currentItem->resize();
-    }
-}
-
 void PictureView::loadPicture(QString fileName)
 {
     if (_currentAnimation) {
@@ -142,7 +127,6 @@ void PictureView::showPicture(PictureAnimationType animType)
                  _currentItem, SLOT(endItemAnimationIn()));
 
         _pictureScene->addItem(_currentItem);
-
         _currentItem->load();
     }
 }
@@ -355,3 +339,19 @@ qreal PictureView::zoom()
     return _currentItem->zoom ();
 }
 
+void PictureView::resizeEvent(QResizeEvent *event)
+{
+    QWidget::resizeEvent(event);
+
+    qreal x;
+    qreal y;
+
+    x = 0;
+    y = 0;
+
+    _pictureScene->setSceneRect (x, y, this->width() - 2, this->height() - 2);
+
+    if (_currentItem != NULL) {
+        _currentItem->resize();
+    }
+}

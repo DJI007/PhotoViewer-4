@@ -70,7 +70,7 @@ private:
     qreal _scale;
     //qreal _minimalZoom;
 
-    QPixmap correctOrientationPicture(QPixmap src);
+    void correctOrientationPicture();
     QPixmap scaledImage(QPixmap src);
     void centerOnScene ();
 
