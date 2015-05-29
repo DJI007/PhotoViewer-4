@@ -63,7 +63,7 @@ void ObjectPixmapItem::load()
 
 void ObjectPixmapItem::refresh()
 {
-    qDebug () << "ZoomLevel: " << _scale;
+    qDebug () << "ZoomLevel (refresh): " << _scale;
 
     //setPixmap (scaledImage (_correctedImage));
     setPixmap (_correctedImage);
@@ -75,6 +75,8 @@ void ObjectPixmapItem::refresh()
 
 void ObjectPixmapItem::resize()
 {
+    qDebug () << "ZoomLevel (resize): " << _scale;
+
     calculateScale();
     correctOrientationPicture();
 
@@ -205,10 +207,14 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
     this->scene()->setSceneRect(image.rect());
 */
 
-    this->scene()->setSceneRect(0, 0, _realImage.width() * _scale, _realImage.height() * _scale);
+    this->scene()->setSceneRect(0, 0, round(_realImage.width() * _scale), round(_realImage.height() * _scale));
+
+    qDebug () << "Scene: " << this->scene()->width() << "x" << this->scene()->height();
 
     image = src.scaledToWidth((this->scene()->width()), Qt::SmoothTransformation);
+    qDebug () << "Image: " << image.width() << "x" << image.height();
     if (image.height() > this->scene()->height()) {
+        qDebug () << "ScaledToHeight width: " << image.width() << "x" << image.height();
         image = src.scaledToHeight((this->scene()->height()), Qt::SmoothTransformation);
     }
 
@@ -382,7 +388,9 @@ qreal ObjectPixmapItem::itemScale()
 void ObjectPixmapItem::setZoom(qreal zoomPercent)
 {
     _scale = (zoomPercent / 100);
-    resize();
+
+    correctOrientationPicture();
+    refresh();
 }
 
 qreal ObjectPixmapItem::zoom()
