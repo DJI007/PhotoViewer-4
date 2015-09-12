@@ -15,7 +15,7 @@ public:
 
     QDateTime pictureDate ();
     int rating ();
-    int orientation ();
+    quint16 orientation();
 
     bool hasGpsInfo ();
     double gpsLatitude ();
@@ -25,7 +25,7 @@ public:
     double gpsAltitude ();
 
     void setRating (int value);
-    void setOrientation (int value);
+    void setOrientation (quint16 value);
 
 signals:
 
@@ -41,6 +41,7 @@ private:
 
     QVariant getValue (QString column);
     int getInt (QString column);
+    quint16 getUInt16 (QString column);
     QString getString (QString column);
 };
 

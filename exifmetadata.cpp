@@ -71,6 +71,23 @@ long ExifMetadata::getLong(const char *keyName)
     }
 }
 
+quint16 ExifMetadata::getUint16(const char *keyName)
+{
+    try {
+        if (hasKey(keyName)) {
+            return (quint16) _imageData->exifData() [keyName].toLong();
+        }
+        else {
+            return 0;
+        }
+    }
+    catch (Exiv2::AnyError& e) {
+        qDebug () << "Error reading long data: " << QString::fromUtf8(e.what());
+
+        return 1000;
+    }
+}
+
 double ExifMetadata::getDoubleFromDegrees(const char *keyName)
 {
     try {
@@ -168,12 +185,12 @@ void ExifMetadata::setRating(int value)
     _imageData->writeMetadata();
 }
 
-int ExifMetadata::orientation()
+quint16 ExifMetadata::orientation()
 {
-    int result;
+    quint16 result;
 
-    result = (int) getLong ("Exif.Image.Orientation");
-    if (result == -1) {
+    result = (int) getUint16 ("Exif.Image.Orientation");
+    if (result == 1000) {
         return 1;
     }
     else {
@@ -181,7 +198,7 @@ int ExifMetadata::orientation()
     }
 }
 
-void ExifMetadata::setOrientation (int value)
+void ExifMetadata::setOrientation (quint16 value)
 {
     _imageData->exifData() ["Exif.Image.Orientation"] = value;
     _imageData->writeMetadata();

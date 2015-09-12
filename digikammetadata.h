@@ -35,7 +35,7 @@ public:
 
     QDateTime pictureDate ();
     int rating ();
-    int orientation ();
+    quint16 orientation ();
 
     bool hasGpsInfo ();
     double gpsLatitude ();
@@ -45,7 +45,7 @@ public:
     double gpsAltitude ();
 
     void setRating (int value);
-    void setOrientation (int value);
+    void setOrientation (quint16 value);
 
     bool existInDigikam ();
 
@@ -55,7 +55,7 @@ private:
     int _id;
     QDateTime _creationDate;
     int _rating;
-    int _orientation;
+    quint16 _orientation;
     QString _latitudeRef;
     double _latitude;
     QString _longitudeRef;
@@ -69,6 +69,7 @@ private:
     void setImageInformationValue (QString column, QVariant value);
 
     int getIntValue (QVariant value, int defaultValue = 0);
+    quint16 getUInt16Value (QVariant value, quint16 defaultValue = 0);
     QString getStringValue (QVariant value, QString defaultValue = "");
     double getDoubleValue (QVariant value, double defaultValue = 0);
 };

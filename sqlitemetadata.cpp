@@ -78,6 +78,19 @@ int SQLiteMetadata::getInt(QString column)
     }
 }
 
+quint16 SQLiteMetadata::getUInt16(QString column)
+{
+    QVariant result;
+
+    result = getValue (column);
+    if (result.isValid()) {
+        return result.toUInt();
+    }
+    else {
+        return 0;
+    }
+}
+
 QString SQLiteMetadata::getString(QString column)
 {
     QVariant result;
@@ -108,14 +121,13 @@ void SQLiteMetadata::setRating(int value)
     setValue("rating", value);
 }
 
-int SQLiteMetadata::orientation()
+quint16 SQLiteMetadata::orientation()
 {
-    return getInt("orientation");
+    return getUInt16("orientation");
 }
 
-void SQLiteMetadata::setOrientation (int value)
+void SQLiteMetadata::setOrientation (quint16 value)
 {
-    qDebug () << "Setting orientation: " << value;
     setValue ("orientation", value);
 }
 

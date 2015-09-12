@@ -9,6 +9,7 @@ Dependencias:
 
         * backends:
             - gstreamer: necesita libgstreamer-plugins-good1.0-dev, libgstreamer-plugins-base1.0-dev, libgstreamer-plugins-base0.10-dev, libx11-xcb-dev
+            sudo apt-get install libgstreamer-plugins-good1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-base0.10-dev libx11-xcb-dev
             cmake ../phonon-gstreamer -DPHONON_BUILD_PHONON4QT5=ON -DCMAKE_PREFIX_PATH=/opt/Qt/5.4/gcc_64
             make
             sudo make install

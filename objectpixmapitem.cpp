@@ -9,6 +9,7 @@
 #include <QScreen>
 #include <QGuiApplication>
 #include <QFileInfo>
+#include <QPixmap>
 
 #include <QGraphicsWidget>
 #include <QGraphicsView>
@@ -46,7 +47,9 @@ ObjectPixmapItem::~ObjectPixmapItem()
 
 void ObjectPixmapItem::load()
 {
-    _realImage.load(_fileName);
+    if (!_realImage.load(_fileName)) {
+        qDebug () << "Cannot read the file " << _fileName;
+    }
 
     if (!_realImage.isNull()) {
         calculateScale();
@@ -184,9 +187,9 @@ void ObjectPixmapItem::correctOrientationPicture()
 
 QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
 {
+/*
     QPixmap image;
 
-/*
     image = src.scaled(src.width() * _zoomPercent, src.height() * _zoomPercent, Qt::KeepAspectRatio, Qt::SmoothTransformation);
     if (_zoomPercent == _minimalZoom) {
         this->scene()->setSceneRect(this->scene()->views()[0]->rect());
@@ -206,7 +209,7 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
 
     this->scene()->setSceneRect(image.rect());
 */
-
+/*
     this->scene()->setSceneRect(0, 0, round(_realImage.width() * _scale), round(_realImage.height() * _scale));
 
     qDebug () << "Scene: " << this->scene()->width() << "x" << this->scene()->height();
@@ -217,6 +220,18 @@ QPixmap ObjectPixmapItem::scaledImage (QPixmap src)
         qDebug () << "ScaledToHeight width: " << image.width() << "x" << image.height();
         image = src.scaledToHeight((this->scene()->height()), Qt::SmoothTransformation);
     }
+*/
+
+    QPixmap image;
+
+    //image = src.scaledToWidth(this->scene()->width(), Qt::FastTransformation);
+    image = src.scaledToWidth(this->scene()->width(), Qt::SmoothTransformation);
+    if (image.height() > this->scene()->height()) {
+        // image = src.scaledToHeight(this->scene()->height(), Qt::FastTransformation);
+        image = src.scaledToHeight(this->scene()->height(), Qt::SmoothTransformation);
+    }
+
+    return image;
 
     return image;
 }
@@ -389,8 +404,8 @@ void ObjectPixmapItem::setZoom(qreal zoomPercent)
 {
     _scale = (zoomPercent / 100);
 
-    correctOrientationPicture();
-    refresh();
+    // correctOrientationPicture();
+    // refresh();
 }
 
 qreal ObjectPixmapItem::zoom()

@@ -14,7 +14,7 @@ public:
 
     QDateTime pictureDate ();
     int rating ();
-    int orientation ();
+    quint16 orientation ();
 
     bool hasGpsInfo();
     double gpsLatitude ();
@@ -24,7 +24,7 @@ public:
     double gpsAltitude ();
 
     void setRating (int value);
-    void setOrientation (int value);
+    void setOrientation (quint16 value);
 
 private:
     QString _fileName;
@@ -33,6 +33,7 @@ private:
 
     QString getString (const char *keyName);
     long getLong (const char *keyName);
+    quint16 getUint16 (const char *keyName);
     double getDoubleFromDegrees(const char *keyName);
     double getDoubleFromRational(const char *keyName);
 

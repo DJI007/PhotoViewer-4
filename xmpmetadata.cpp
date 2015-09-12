@@ -169,12 +169,12 @@ void XMPMetadata::setRating(int value)
     _fileData->writeMetadata();
 }
 
-int XMPMetadata::orientation()
+quint16 XMPMetadata::orientation()
 {
     return 0;
 }
 
-void XMPMetadata::setOrientation (int value)
+void XMPMetadata::setOrientation (quint16 value)
 {
     Q_UNUSED (value);
 }

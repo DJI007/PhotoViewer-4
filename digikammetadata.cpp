@@ -68,12 +68,12 @@ void DigikamMetadata::setRating(int value)
     setImageInformationValue("rating", value);
 }
 
-int DigikamMetadata::orientation()
+quint16 DigikamMetadata::orientation()
 {
     return _orientation;
 }
 
-void DigikamMetadata::setOrientation (int value)
+void DigikamMetadata::setOrientation (quint16 value)
 {
     _orientation = value;
     setImageInformationValue("orientation", value);
@@ -139,7 +139,7 @@ void DigikamMetadata::readFromDB()
             _creationDate = q.value("creationDate").toDateTime();
 
             _rating = getIntValue(q.value("rating"));
-            _orientation = getIntValue(q.value("orientation"), 1);
+            _orientation = getUInt16Value(q.value("orientation"), 1);
 
             if (q.value("latitudeNumber").isNull()) {
                 _hasGpsInfo = false;
@@ -153,18 +153,18 @@ void DigikamMetadata::readFromDB()
                 _altitude = getDoubleValue(q.value("altitude"));
             }
 
-            qDebug () << "Reading digikam info: " << _rating << ", " << _orientation;
+            // qDebug () << "Reading digikam info: " << _rating << ", " << _orientation;
 
             _exist = true;
         }
         else {
-            qDebug () << "Doesn't exist in digikam";
+            // qDebug () << "Doesn't exist in digikam";
 
             _exist = false;
         }
     }
     else {
-        qDebug () << "Can't open database";
+        // qDebug () << "Can't open database";
         _exist = false;
     }
 }
@@ -184,6 +184,20 @@ int DigikamMetadata::getIntValue(QVariant value, int defaultValue)
         else {
             return result;
         }
+    }
+}
+
+quint16 DigikamMetadata::getUInt16Value(QVariant value, quint16 defaultValue)
+{
+    if (value.isNull()) {
+        return defaultValue;
+    }
+    else {
+        quint16 result;
+
+        result = value.toUInt();
+
+        return result;
     }
 }
 
